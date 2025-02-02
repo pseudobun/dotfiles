@@ -7,9 +7,8 @@ SPACE_ICONS=("1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "11" "12")
 
 sid=0
 spaces=()
-for i in "${!SPACE_ICONS[@]}"
-do
-  sid=$(($i+1))
+for i in "${!SPACE_ICONS[@]}"; do
+  sid=$(($i + 1))
 
   space=(
     space=$sid
@@ -30,11 +29,11 @@ do
     script="$PLUGIN_DIR/space.sh"
   )
 
-  sketchybar --add event windows_on_spaces  \
-             --add space space.$sid left    \
-             --set space.$sid "${space[@]}" \
-             --subscribe space.$sid mouse.clicked \
-                                    windows_on_spaces
+  sketchybar --add event windows_on_spaces \
+    --add space space.$sid left \
+    --set space.$sid "${space[@]}" \
+    --subscribe space.$sid mouse.clicked \
+    windows_on_spaces
 done
 
 space_creator=(
@@ -47,6 +46,6 @@ space_creator=(
   icon.color=$WHITE
 )
 
-sketchybar --add item space_creator left               \
-           --set space_creator "${space_creator[@]}"   \
-           --subscribe space_creator space_windows_change 
+sketchybar --add item space_creator left \
+  --set space_creator "${space_creator[@]}" \
+  --subscribe space_creator space_windows_change

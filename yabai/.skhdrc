@@ -2,9 +2,9 @@
 hyper - 0x18 : open -a "Alacritty"
 
 # LAYOUTS
-hyper - w : yabai -m space --layout bsp; sketchybar --trigger window_focus
-hyper - s : yabai -m space --layout stack; sketchybar --trigger window_focus
-hyper - f : yabai -m space --layout float; sketchybar --trigger window_focus
+hyper - w : yabai -m space --layout bsp;
+hyper - s : yabai -m space --layout stack;
+hyper - f : yabai -m space --layout float;
 
 # MOVING FOCUS
 ctrl - up : yabai -m window --focus north || yabai -m display --focus north;
@@ -69,17 +69,15 @@ ralt - 0 : yabai -m space --focus 10;
 
 # Next space
 ralt - d : yabai -m space --focus next; 
-# sketchybar --trigger windows_on_spaces
 
 # Previous space
 ralt - a : yabai -m space --focus prev; 
-# sketchybar --trigger windows_on_spaces
 
 # Move space left
-ralt + shift - a : yabai -m space --move prev; sketchybar --trigger windows_on_spaces
+ralt + shift - a : yabai -m space --move prev;
 
 # Move space right
-ralt + shift - d : yabai -m space --move next; sketchybar --trigger windows_on_spaces
+ralt + shift - d : yabai -m space --move next;
 
 # Send space to display 2 (by display arrangement index)
 # yabai -m space --display 2
@@ -123,7 +121,7 @@ cmd + ralt - 0 : yabai -m window --space 10; yabai -m space --focus 10;
 cmd + alt - r : yabai -m window --scratchpad recover
 
 # Toggle fullscreen current focused window
-ctrl + alt - return :  yabai -m window --toggle zoom-fullscreen; sketchybar --trigger window_focus
+ctrl + alt - return :  yabai -m window --toggle zoom-fullscreen;
 
 
 # TOGGLE BETWEEN HORIZONTAL/VERTICAL SPLIT
@@ -134,14 +132,14 @@ ctrl + alt - s : yabai -m window --toggle split;
 # make floating window fill screen
 ctrl + shift - return : yabai -m window --grid 1:1:0:0:1:1;
 # float/unfloat
-ctrl + alt - space : yabai -m window --toggle float; sketchybar --trigger window_focus
+ctrl + alt - space : yabai -m window --toggle float;
 
 # float left/right half
 ctrl + alt - left   : yabai -m window --grid  1:2:0:0:1:1;
 ctrl + alt - right   : yabai -m window --grid 1:1:0:0:2:1;
 
 # float / unfloat window and center on screen
-ctrl + alt - c : yabai -m window --toggle float --grid 4:4:1:1:2:2; sketchybar --trigger window_focus
+ctrl + alt - c : yabai -m window --toggle float --grid 4:4:1:1:2:2;
 
 # SIZES
 # Equalize size of windows
