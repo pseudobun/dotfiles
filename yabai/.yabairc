@@ -18,11 +18,11 @@ yabai -m rule --add app="^Brave Browser$" title="Brave" manage=on
 yabai -m rule --add app="^Digital Colou?r Meter$" sticky=on
 
 # Signals
-yabai -m signal --add event=window_focused action="sketchybar --trigger window_focus"
-yabai -m signal --add event=window_created action="sketchybar --trigger windows_on_spaces"
-yabai -m signal --add event=window_destroyed action="sketchybar --trigger windows_on_spaces"
-yabai -m signal --add event=space_created action="sketchybar --trigger windows_on_spaces"
-yabai -m signal --add event=space_destroyed action="sketchybar --trigger windows_on_spaces"
+# yabai -m signal --add event=window_focused action="sketchybar --trigger window_focus"
+# yabai -m signal --add event=window_created action="sketchybar --trigger windows_on_spaces"
+# yabai -m signal --add event=window_destroyed action="sketchybar --trigger windows_on_spaces"
+# yabai -m signal --add event=space_created action="sketchybar --trigger windows_on_spaces"
+# yabai -m signal --add event=space_destroyed action="sketchybar --trigger windows_on_spaces"
 
 # global settings
 yabai -m config \
