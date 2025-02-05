@@ -19,6 +19,7 @@ for i in "${!SPACE_ICONS[@]}"; do
     padding_right=2
     label.padding_right=20
     icon.highlight_color=$WHITE
+    icon.color=$LIGHT_GREY
     label.color=$LIGHT_GREY
     label.highlight_color=$WHITE
     label.font="sketchybar-app-font:Regular:12.0"
