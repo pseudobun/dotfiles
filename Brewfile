@@ -220,6 +220,7 @@ cask "vlc"
 cask "wireshark"
 cask "yubico-authenticator"
 cask "zed"
+cask "zen-browser"
 mas "DaisyDisk", id: 411643860
 mas "Dropover", id: 1355679052
 mas "Infuse", id: 1136220934
