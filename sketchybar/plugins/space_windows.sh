@@ -9,7 +9,7 @@ if [ "$SENDER" = "space_windows_change" ]; then
   icon_strip=" "
   if [ "${apps}" != "" ]; then
     while read -r app; do
-      if [ "$app" == "iTerm2" ] || [ "$app" == "Screen Studio" ] || [ "$app" == "Raycast" ]; then
+      if [ "$app" == "iTerm2" ] || [ "$app" == "Screen Studio" ] || [ "$app" == "Raycast" ] || [ "$app" == "Dropover" ]; then
         continue
       fi
       icon_strip+=" $($CONFIG_DIR/plugins/icon_map.sh "$app")"
