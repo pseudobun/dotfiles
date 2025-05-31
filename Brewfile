@@ -31,7 +31,7 @@ brew "neon"
 brew "cadaver"
 brew "glib"
 brew "cmake"
-brew "php", link: false
+brew "php"
 brew "composer"
 brew "ctop"
 brew "dnsmasq"
@@ -107,7 +107,7 @@ brew "ntfy"
 brew "openjdk"
 brew "openssl@1.1"
 brew "openvpn"
-brew "php@8.1", link: true
+brew "php@8.1"
 brew "pinentry-mac"
 brew "pipx"
 brew "poppler"
@@ -175,6 +175,7 @@ cask "font-hack-nerd-font"
 cask "font-jetbrains-mono-nerd-font"
 cask "font-sf-mono-nerd-font-ligaturized"
 cask "ghostty"
+cask "gimp"
 cask "gitbutler"
 cask "gitkraken"
 cask "google-chrome"
@@ -198,11 +199,13 @@ cask "macfuse"
 cask "mamp"
 cask "microsoft-auto-update"
 cask "microsoft-powerpoint"
+cask "microsoft-teams"
 cask "microsoft-word"
 cask "mounty"
 cask "notion"
 cask "obs"
 cask "obsidian"
+cask "opensc"
 cask "orion"
 cask "pgadmin4"
 cask "plex"
@@ -212,6 +215,7 @@ cask "raycast"
 cask "rotki"
 cask "rustdesk"
 cask "screen-studio"
+cask "session"
 cask "sf-symbols"
 cask "signal"
 cask "sloth"
@@ -231,13 +235,18 @@ cask "vlc"
 cask "wireshark"
 cask "yubico-authenticator"
 cask "zed"
-cask "zen-browser"
+cask "zen"
 mas "DaisyDisk", id: 411643860
+mas "DaVinci Resolve", id: 571213070
+mas "Docko", id: 6743445976
 mas "Dropover", id: 1355679052
 mas "FileZilla Pro", id: 1298486723
+mas "iMovie", id: 408981434
 mas "Infuse", id: 1136220934
 mas "Magnet", id: 441258766
+mas "mymind", id: 1532801185
 mas "Numbers", id: 409203825
+mas "Perplexity", id: 6714467650
 mas "Raivo OTP", id: 1498497896
 mas "Reeder", id: 1529448980
 mas "Telegram", id: 747648890
