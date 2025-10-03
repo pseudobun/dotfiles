@@ -5,7 +5,7 @@ update() {
     source "$CONFIG_DIR/colors.sh"
     source "$CONFIG_DIR/icons.sh"
     PRICE=$(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd" | jq -r .ethereum.usd)
-    GAS=$(curl -s "https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=${ETH_API_KEY}" | jq -r '.result.suggestBaseFee' | xargs printf "%.0f\n")
+    GAS=$(curl -s "https://api.etherscan.io/v2/api?chainid=1&module=gastracker&action=gasoracle&apikey=${ETH_API_KEY}" | jq -r '.result.suggestBaseFee' | xargs printf "%.2f\n")
     COLOR=$GREEN
     ICON="$"
     PADDING=0
