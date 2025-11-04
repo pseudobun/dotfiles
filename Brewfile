@@ -83,10 +83,12 @@ brew "helm"
 brew "htop"
 brew "httpie"
 brew "ifstat"
+brew "libomp"
 brew "libraw"
 brew "imagemagick"
 brew "iperf3"
 brew "jq"
+brew "just"
 brew "k6"
 brew "kubernetes-cli"
 brew "langgraph-cli"
@@ -191,6 +193,7 @@ cask "inkscape"
 cask "ipfs-desktop"
 cask "iterm2"
 cask "jetbrains-toolbox"
+cask "jordanbaird-ice@beta"
 cask "karabiner-elements"
 cask "keepassxc"
 cask "keybase"
@@ -223,6 +226,7 @@ cask "session"
 cask "sf-symbols"
 cask "signal"
 cask "sloth"
+cask "sparrow"
 cask "spotify"
 cask "stats"
 cask "steam"
@@ -256,7 +260,9 @@ mas "Raivo OTP", id: 1498497896
 mas "Reeder", id: 1529448980
 mas "Tailscale", id: 1475387142
 mas "Telegram", id: 747648890
+mas "TestFlight", id: 899247664
 mas "The Unarchiver", id: 425424353
+mas "Tossinger", id: 0
 mas "WireGuard", id: 1451685025
 mas "Xcode", id: 497799835
 vscode "74th.monokai-charcoal-high-contrast"
@@ -334,3 +340,6 @@ vscode "vscode-icons-team.vscode-icons"
 vscode "wix.vscode-import-cost"
 vscode "zignd.html-css-class-completion"
 vscode "znck.grammarly"
+go "github.com/OJ/gobuster/v3"
+go "golang.org/x/tools/gopls"
+go "honnef.co/go/tools/cmd/staticcheck"
