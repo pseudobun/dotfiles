@@ -1,3 +1,5 @@
+backup.sh
+
 *.lock.json
 *.out
 env.local.sh
