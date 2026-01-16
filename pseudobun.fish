@@ -47,6 +47,7 @@ abbr -a gbd 'git branch -d'
 
 abbr -a zeus 'ssh root@zeus'
 abbr -a minsky 'ssh root@minsky'
+abbr -a pikvm 'ssh root@pikvm'
 
 abbr -a grp 'git remote prune origin'
 abbr -a grb "git branch -vv | grep ': gone]' | awk '{print \$1}' | xargs git branch -D"
