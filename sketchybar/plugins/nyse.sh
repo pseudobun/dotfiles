@@ -18,16 +18,16 @@ update() {
   # Strip any leading zeros for arithmetic safety
   total_min=$((10#$hour * 60 + 10#$min))
 
-  local mins_left action days_ahead
+  local mins_left is_open days_ahead
 
   # Market open on weekdays between OPEN_MIN and CLOSE_MIN
   if [ "$dow" -ge 1 ] && [ "$dow" -le 5 ] && \
      [ "$total_min" -ge "$OPEN_MIN" ] && [ "$total_min" -lt "$CLOSE_MIN" ]; then
-    action="Closes in"  # countdown to close
+    is_open=1           # countdown to close
     mins_left=$((CLOSE_MIN - total_min))
   else
     # Countdown to next open
-    action="Opens in"
+    is_open=0
     if [ "$dow" -ge 1 ] && [ "$dow" -le 4 ] && [ "$total_min" -ge "$CLOSE_MIN" ]; then
       # After close Mon–Thu -> next day
       days_ahead=1
@@ -61,16 +61,21 @@ update() {
   mins_only=$((mins_left % 60))
 
   local label color
-  if [ "$hours_left" -gt 0 ]; then
-    label=$(printf "%s %dh%02dm" "$action" "$hours_left" "$mins_only")
-  else
-    label=$(printf "%s %dm" "$action" "$mins_only")
-  fi
-
-  # Green when market is open (counting to close), red when closed (counting to open)
-  if [ "$action" = "C" ]; then
+  if [ "$is_open" -eq 1 ]; then
+    # Market is open – counting down until close (green)
+    if [ "$hours_left" -gt 0 ]; then
+      label=$(printf "Closes in %dh%02dm" "$hours_left" "$mins_only")
+    else
+      label=$(printf "Closes in %dm" "$mins_only")
+    fi
     color=$GREEN
   else
+    # Market is closed – counting down until next open (red)
+    if [ "$hours_left" -gt 0 ]; then
+      label=$(printf "Opens in %dh%02dm" "$hours_left" "$mins_only")
+    else
+      label=$(printf "Opens in %dm" "$mins_only")
+    fi
     color=$RED
   fi
 
