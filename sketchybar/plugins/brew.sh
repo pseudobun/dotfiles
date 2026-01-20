@@ -2,7 +2,10 @@
 
 source "$CONFIG_DIR/colors.sh"
 
-COUNT="$(brew outdated | wc -l | tr -d ' ')"
+# Homebrew can occasionally error with a Ruby stacktrace; suppress stderr so it
+# doesn't spam sketchybar logs, and fall back to 0 when output is empty.
+COUNT="$(brew outdated 2>/dev/null | wc -l | tr -d ' ')"
+[ -z "$COUNT" ] && COUNT=0
 
 COLOR=$RED
 

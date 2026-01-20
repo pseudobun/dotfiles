@@ -78,7 +78,7 @@ source "$ITEM_DIR/calendar.sh"
 # for eth.sh to work, you need to have ETH_API_KEY set in your env.local.sh,
 # see env.local.sh.example
 source "$ITEM_DIR/brew.sh"
-# source "$ITEM_DIR/github.sh"
+source "$ITEM_DIR/nyse.sh"
 source "$ITEM_DIR/eth.sh"
 source "$ITEM_DIR/wifi.sh"
 source "$ITEM_DIR/battery.sh"
