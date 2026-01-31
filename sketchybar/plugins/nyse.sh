@@ -56,26 +56,26 @@ update() {
     mins_left=0
   fi
 
-  local hours_left mins_only
-  hours_left=$((mins_left / 60))
+  # Format time as 1d6h30m, 6h30m, or 45m
+  local days_left hours_left mins_only time_part
+  days_left=$((mins_left / 1440))
+  hours_left=$(((mins_left % 1440) / 60))
   mins_only=$((mins_left % 60))
+
+  if [ "$days_left" -gt 0 ]; then
+    time_part=$(printf "%dd%dh%02dm" "$days_left" "$hours_left" "$mins_only")
+  elif [ "$hours_left" -gt 0 ]; then
+    time_part=$(printf "%dh%02dm" "$hours_left" "$mins_only")
+  else
+    time_part=$(printf "%dm" "$mins_only")
+  fi
 
   local label color
   if [ "$is_open" -eq 1 ]; then
-    # Market is open – counting down until close (green)
-    if [ "$hours_left" -gt 0 ]; then
-      label=$(printf "Closes in %dh%02dm" "$hours_left" "$mins_only")
-    else
-      label=$(printf "Closes in %dm" "$mins_only")
-    fi
+    label="Closes in $time_part"
     color=$GREEN
   else
-    # Market is closed – counting down until next open (red)
-    if [ "$hours_left" -gt 0 ]; then
-      label=$(printf "Opens in %dh%02dm" "$hours_left" "$mins_only")
-    else
-      label=$(printf "Opens in %dm" "$mins_only")
-    fi
+    label="Opens in $time_part"
     color=$RED
   fi
 
