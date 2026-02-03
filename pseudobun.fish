@@ -32,7 +32,7 @@ abbr -a gaa 'git add --all'
 abbr -a gs 'git status'
 
 abbr -a gp 'git push'
-abbr -a gc 'git checkout'
+abbr -a gc 'git switch'
 abbr -a gcm 'git commit -S -m'
 abbr -a gcma 'git commit -aS -m'
 abbr -a gm 'git merge'
