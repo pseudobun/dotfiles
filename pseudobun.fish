@@ -52,6 +52,9 @@ abbr -a pikvm 'ssh root@pikvm'
 abbr -a grp 'git remote prune origin'
 abbr -a grb "git branch -vv | grep ': gone]' | awk '{print \$1}' | xargs git branch -D"
 
+# openclaw
+abbr -a oc "openclaw"
+
 function cs
     z $argv
     eza --icons -ahliH
