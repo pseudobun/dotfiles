@@ -44,7 +44,7 @@ fatal() {
 print_header() {
     echo ""
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║${NC}  ${BOLD}pseudobun's dotfiles - Install Wizard${NC}                  ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC}  ${BOLD}pseudobun's dotfiles - Install Wizard${NC}                   ${CYAN}║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════╝${NC}"
     echo ""
 }
