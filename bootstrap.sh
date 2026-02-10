@@ -43,9 +43,13 @@ fatal() {
 
 print_header() {
     echo ""
-    echo -e "${CYAN}╔══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║${NC}  ${BOLD}pseudobun's dotfiles - Install Wizard${NC}                   ${CYAN}║${NC}"
-    echo -e "${CYAN}╚══════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${CYAN}${BOLD}     _       _    __ _ _"
+    echo -e "${CYAN}${BOLD}  __| | ___ | |_ / _(_) | ___  ___"
+    echo -e "${CYAN}${BOLD} / _\` |/ _ \\| __| |_| | |/ _ \\/ __|"
+    echo -e "${CYAN}${BOLD}| (_| | (_) | |_|  _| | |  __/\\__ \\"
+    echo -e "${CYAN}${BOLD} \\__,_|\\___/ \\__|_| |_|_|\\___||___/"
+    echo ""
+    echo -e "  ${BOLD}pseudobun's dotfiles - Install Wizard${NC}"
     echo ""
 }
 
