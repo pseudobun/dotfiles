@@ -55,6 +55,20 @@ abbr -a grb "git branch -vv | grep ': gone]' | awk '{print \$1}' | xargs git bra
 # openclaw
 abbr -a oc "openclaw"
 
+# docker
+abbr -a dp 'docker ps'
+abbr -a dpa 'docker ps -a'
+abbr -a di 'docker image'
+abbr -a dv 'docker volume'
+
+# docker compose
+abbr -a dcu 'docker compose up'
+abbr -a dcd 'docker compose down'
+abbr -a dcb 'docker compose build'
+abbr -a dcr 'docker compose restart'
+abbr -a dcs 'docker compose start'
+abbr -a dcp 'docker compose pause'
+
 function cs
     z $argv
     eza --icons -ahliH
