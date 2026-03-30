@@ -16,6 +16,11 @@ alias watchtsm="watch --interval 1 'transmission-remote -l'"
 zoxide init fish | source
 starship init fish | source
 fzf --fish | source
+# Undo fzf 0.68+'s Shift+Tab -> fzf-completion; restore fish default (complete-and-search)
+# Erases the shift-tab keybinding for both default and insert modes,
+# so fish's native complete-and-search handles it instead of fzf-completion.
+bind -e shift-tab
+bind -e -M insert shift-tab
 
 # base abbrs
 abbr -a htop btm
