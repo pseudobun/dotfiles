@@ -552,6 +552,8 @@ step_symlink_dotfiles() {
     echo "    - Yabai & skhd config  -> ~/  "
     echo "    - Hammerspoon config   -> ~/.hammerspoon/"
     echo "    - pseudobun.fish       -> ~/.config/fish/"
+    echo "    - fish/config.fish     -> ~/.config/fish/config.fish"
+    echo "    - fish/conf.d/*        -> ~/.config/fish/conf.d/"
     echo "    + Download Sketchybar app font"
     echo ""
 
@@ -608,10 +610,16 @@ step_symlink_dotfiles() {
         || warn "Hammerspoon symlink failed"
 
     # Fish config
-    mkdir -p ~/.config/fish
+    mkdir -p ~/.config/fish/conf.d
     ln -fs "$dotfiles_path/pseudobun.fish" ~/.config/fish/ \
         && success "pseudobun.fish linked" \
         || warn "pseudobun.fish symlink failed"
+    ln -fs "$dotfiles_path/fish/config.fish" ~/.config/fish/config.fish \
+        && success "config.fish linked" \
+        || warn "config.fish symlink failed"
+    ln -fs "$dotfiles_path"/fish/conf.d/* ~/.config/fish/conf.d/ \
+        && success "fish conf.d linked" \
+        || warn "fish conf.d symlink failed"
 
     # Yabai & skhd
     ln -fs "$dotfiles_path/yabai/.yabairc" ~/.yabairc \
