@@ -14,6 +14,9 @@ alias tsm='transmission-remote'
 alias watchtsm="watch --interval 1 'transmission-remote -l'"
 # pyenv init - | source
 zoxide init fish | source
+if set -q SSH_CONNECTION
+    set -gx STARSHIP_CONFIG ~/.dotfiles/starship-ssh.toml
+end
 starship init fish | source
 fzf --fish | source
 # Undo fzf 0.68+'s Shift+Tab -> fzf-completion; restore fish default (complete-and-search)
@@ -87,9 +90,8 @@ end
 function brew
     command brew $argv
     if contains upgrade $argv; or contains update $argv; or contains outdated $argv
-        sketchybar --trigger brew_update
+        command -q sketchybar; and sketchybar --trigger brew_update
     end
 end
 
-source ~/.asdf/asdf.fish
-fnm env --use-on-cd --version-file-strategy=recursive | source
+fnm env --use-on-cd --version-file-strategy=recursive --log-level=quiet | source
