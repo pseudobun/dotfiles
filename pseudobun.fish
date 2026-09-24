@@ -32,6 +32,7 @@ abbr -a cd z
 abbr -a l 'eza --icons -ahliH'
 abbr -a k kubectl
 abbr -a code cursor
+abbr -a rsync 'rsync -avh --progress'
 
 # git abbrs
 abbr -a ga 'git add'
@@ -90,7 +91,11 @@ end
 function brew
     command brew $argv
     if contains upgrade $argv; or contains update $argv; or contains outdated $argv
-        command -q sketchybar; and sketchybar --trigger brew_update
+        # Recompute the cached count in this full-shell env (sketchybar's own
+        # plugin process can't run `brew outdated` — hits its fd cap). Detached
+        # so the prompt returns immediately.
+        command -q sketchybar; and fish -c "bash ~/.config/sketchybar/plugins/brew_refresh.sh" &
+        disown
     end
 end
 
