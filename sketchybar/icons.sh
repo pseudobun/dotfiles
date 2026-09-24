@@ -59,3 +59,4 @@ MODE_PENDING=􀈏
 
 # misc
 ETH=󰡪
+BTC=󰠓
