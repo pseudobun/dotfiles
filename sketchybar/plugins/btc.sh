@@ -4,9 +4,13 @@ update() {
     source "$CONFIG_DIR/env.local.sh"
     source "$CONFIG_DIR/colors.sh"
     source "$CONFIG_DIR/icons.sh"
-    DATA=$(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true")
-    PRICE=$(echo "$DATA" | jq -r .bitcoin.usd | xargs env LC_ALL=en_US.UTF-8 printf "\$%'.0f\n")
-    CHANGE=$(echo "$DATA" | jq -r .bitcoin.usd_24h_change | xargs printf "%.2f\n")
+    DATA=$(curl -sf --max-time 10 "https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT")
+    RAW_PRICE=$(echo "$DATA" | jq -r '.lastPrice // empty' 2>/dev/null)
+    RAW_CHANGE=$(echo "$DATA" | jq -r '.priceChangePercent // empty' 2>/dev/null)
+    # Keep the last shown value if the API is unreachable
+    [ -z "$RAW_PRICE" ] || [ -z "$RAW_CHANGE" ] && return
+    PRICE=$(env LC_ALL=en_US.UTF-8 printf "\$%'.0f\n" "$RAW_PRICE")
+    CHANGE=$(printf "%.2f\n" "$RAW_CHANGE")
     if (($(echo "$CHANGE >= 0" | bc -l))); then
         COLOR=$GREEN
         ICON="▲"
