@@ -166,7 +166,7 @@
   },
 
   border: {
-    enabled: true,
+    enabled: false,
     color: "0xccead186",
     width: 2,
     radius: 12,
