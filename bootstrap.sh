@@ -591,8 +591,6 @@ step_links() {
     link "$d/.gitconfig"               "$HOME/.gitconfig"                       ".gitconfig"
     link "$d/starship.toml"            "$HOME/.config/starship.toml"            "starship"
     link "$d/ghostty/config"           "$HOME/.config/ghostty/config"           "ghostty"
-    link "$d/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml" "alacritty"
-    link "$d/borders/bordersrc"        "$HOME/.config/borders/bordersrc"        "borders"
     link "$d/pseudobun.fish"           "$HOME/.config/fish/pseudobun.fish"      "pseudobun.fish"
     link "$d/fish/config.fish"         "$HOME/.config/fish/config.fish"         "config.fish"
     link_each "$d/fish/conf.d"         "$HOME/.config/fish/conf.d"              "fish conf.d"

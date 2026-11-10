@@ -8,7 +8,6 @@ fish_add_path ~/.cargo/bin/
 
 kubectl completion fish | source
 alias please='sudo'
-alias launchtsm='osascript $HOME/.dotfiles/transmission_lift.osascript'
 alias sweep='fd --hidden --no-ignore "^.DS_Store\$" --exclude "*node_modules*" --exec rm'
 alias tsm='transmission-remote'
 alias watchtsm="watch --interval 1 'transmission-remote -l'"
