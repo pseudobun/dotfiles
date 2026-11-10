@@ -172,6 +172,8 @@ npm "agent-browser"
 npm "corepack"
 npm "eas-cli"
 npm "pnpm"
+# REA: reverse engineering MCP server + CLI (skill reverse-engineer-anything comes with claude-config)
+npm "rea-agents"
 npm "vercel"
 
 # --- not installed through brew before, needed by bootstrap, sketchybar and the desktop ---
