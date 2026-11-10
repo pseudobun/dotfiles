@@ -837,17 +837,32 @@ step_agents() {
     fi
     if [[ -f "$HOME/.claude/CLAUDE.md" ]]; then link_agent_instructions; else warn "~/.claude/CLAUDE.md is missing after the checkout"; fi
     # The REA skill comes with claude-config; its MCP server lives in ~/.claude.json, which is not synced.
-    if command -v rea &>/dev/null && command -v claude &>/dev/null; then
+    if command -v npx &>/dev/null && command -v claude &>/dev/null; then
         install_ghidra
-        claude mcp remove --scope user rea &>/dev/null || true
-        if run "register REA MCP server" claude mcp add --scope user rea \
-            -e GHIDRA_INSTALL_DIR="$HOME/opt/ghidra" -e JAVA_HOME="$GHIDRA_JAVA_HOME" -- "$(command -v rea)" mcp; then
-            success "REA MCP server registered for Claude Code ${C_GREY}(Ghidra $GHIDRA_VERSION)${C_RESET}"
-        else
-            warn "REA MCP server did not register"
-        fi
+        rea_setup
     fi
     return 0
+}
+
+# REA's own setup (https://github.com/morluto/rea): MCP for Claude Code and Codex, plus its skill.
+# Its skill dirs must be real folders, not links. Setup keeps server env overrides, so the Ghidra
+# paths are added afterwards (Claude: re-add with -e; Codex: an [mcp_servers.rea.env] table).
+rea_setup() {
+    local skill="$HOME/.claude/skills/reverse-engineer-anything" codex="$HOME/.codex/config.toml" args
+    [[ -L "$skill" ]] && rm -f "$skill"
+    if ! run "REA setup (Claude Code, Codex, skill)" npx -y rea-agents@latest setup --client claude_code --client codex --yes; then
+        warn "REA setup failed (see the log)"; return 1
+    fi
+    args=$(claude mcp get rea 2>/dev/null | sed -n 's/^  Args: //p')
+    claude mcp remove --scope user rea &>/dev/null || true
+    # shellcheck disable=SC2086
+    run "REA MCP env for Claude Code" claude mcp add --scope user rea \
+        -e GHIDRA_INSTALL_DIR="$HOME/opt/ghidra" -e JAVA_HOME="$GHIDRA_JAVA_HOME" -- npx ${args:--y rea-agents@latest mcp} \
+        || warn "REA MCP env for Claude Code not set"
+    if [[ -f "$codex" ]] && grep -q '^\[mcp_servers.rea\]' "$codex" && ! grep -q '^\[mcp_servers.rea.env\]' "$codex"; then
+        printf '\n[mcp_servers.rea.env]\nGHIDRA_INSTALL_DIR = "%s"\nJAVA_HOME = "%s"\n' "$HOME/opt/ghidra" "$GHIDRA_JAVA_HOME" >>"$codex"
+    fi
+    success "REA ${C_GREY}→ Claude Code + Codex, Ghidra $GHIDRA_VERSION${C_RESET}"
 }
 
 # Ghidra for REA, which accepts only the 12.1 line (verified 12.1.4) on Java 21. Homebrew ships 12.2,
