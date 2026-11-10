@@ -97,7 +97,7 @@
   // app: name or /regex/; title / unlessTitle: substring or /regex/
   // manage: false leaves windows alone, float: true floats them, workspace: where they open
   rules: [
-    { app: "/^(iTerm2|He3|System Settings|Parallels Desktop|CleanShot X|Raycast|Perplexity)$/", float: true },
+    { app: "/^(He3|System Settings|Parallels Desktop|CleanShot X|Raycast|Perplexity)$/", float: true },
     { app: "Brave Browser", unlessTitle: "Brave", float: true },
     { app: "/^Digital Colou?r Meter$/", float: true },
   ],

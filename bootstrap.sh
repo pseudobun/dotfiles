@@ -47,7 +47,7 @@ LOG="$HOME/Library/Logs/dotfiles-bootstrap.log"
 START_TS=$(date +%s)
 STEP_STARTED=$START_TS
 
-STEP_IDS=(xcode clone homebrew secrets shell gpg ssh links fish devtools spicetify macos terminal fonts iterm github apps services)
+STEP_IDS=(xcode clone homebrew secrets shell gpg ssh links fish devtools spicetify macos terminal fonts github apps services)
 STEP_TITLES=(
     "Xcode Command Line Tools"
     "Dotfiles repository"
@@ -63,7 +63,6 @@ STEP_TITLES=(
     "macOS defaults"
     "Extra terminals"
     "Bundled fonts"
-    "iTerm2 profile"
     "GitHub CLI login"
     "hop & paw"
     "Services"
@@ -723,25 +722,6 @@ step_fonts() {
     while IFS= read -r -d '' f; do cp "$f" "$HOME/Library/Fonts/" && n=$((n + 1)); done \
         < <(find "$dotfiles_path/fonts" -type f \( -name '*.ttf' -o -name '*.otf' \) -print0)
     if (( n > 0 )); then success "$n font files installed"; else warn "no fonts found in fonts/"; fi
-    return 0
-}
-
-step_iterm() {
-    if [[ ! -d /Applications/iTerm.app ]]; then
-        note "iTerm2 is not installed"
-        return 2
-    fi
-    local d="$dotfiles_path"
-    local todo="iTerm2: import itermcolors/DraculaPlus.itermcolors, profiles/pseudobun.json and profiles/pseudobun.itermkeymap"
-    if ! ask_yes_no "Import the iTerm2 colours, profile and key map now?" "n"; then
-        followup "$todo"
-        return 2
-    fi
-    open -a iTerm "$d/itermcolors/DraculaPlus.itermcolors" 2>/dev/null || true
-    info "colours opened in iTerm2; then import:"
-    note "    Profiles › Other actions › Import JSON profiles › $d/profiles/pseudobun.json"
-    note "    Keys › Key Bindings › Presets › Import › $d/profiles/pseudobun.itermkeymap"
-    wait_for_manual_step || followup "$todo"
     return 0
 }
 

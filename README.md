@@ -1,6 +1,6 @@
 # pseudobun's dotfiles
 
-This repository contains dotfiles and images for my workspace (iTerm config and desktop wallpapers). Wallpaper assets used have been downloaded from [Ethereum's official Assets site](https://ethereum.org/en/assets/).
+This repository contains dotfiles and images for my workspace (fish, Ghostty, sketchybar, paw and hop configs, desktop wallpapers). Wallpaper assets used have been downloaded from [Ethereum's official Assets site](https://ethereum.org/en/assets/).
 
 ## Bootstrapping:
 
@@ -22,14 +22,9 @@ Currently, [Go](https://go.dev/) needs to be installed [manually](https://go.dev
 * [ ] Add option to generate new SSH key pair/import it from file and add it to SSH agent.
 * [ ] Installing Go
 
-## Configuration in action:
-
-![iTerm2 Appearance](showcase.png)
-
-
 ## Some of the tools I use:
 
-* [iTerm2](https://iterm2.com/)
+* [Ghostty](https://ghostty.org/)
 * [fish](https://github.com/fish-shell/fish-shell)
 * [oh-my-fish](https://github.com/oh-my-fish/oh-my-fish)
 * hop — my native launcher (private repo `pseudobun/hop`)
@@ -66,22 +61,6 @@ Their configs are linked from here: `paw/` → `~/.config/paw`, `hop/` → `~/.c
 
 2. Install the fonts included ([JetBrains Mono](/fonts/JetBrainsMono/) or [Roboto Mono](/fonts/RobotoMono/)).
    1. Click on desired `.tiff` files and click install.
-
-## Set iTerm colors, whichever you prefer
-
-I currently use DraculaPlus
-
-1. Open iTerm2.
-2. Go to `iTerm > Preferences > Profiles > Colors > Color Presets ...`.
-3. Pick `Theme.itermcolors`.
-
-## Import key bindings and profile
-
-1. Open iTerm2.
-2. Go to `iTerm > Preferences > Profiles > Other actions ... > Import JSON profiles ...`.
-3. Pick `/profiles/pseudobun.json` from this repo.
-4. Go to `iTerm > Preferences > Keys > Key Bindings > Presets ... > Import ...`.
-5. Pick `profiles/pseudobun.itermkeymap` from this repo.
 
 ## Exporting public and private GPG keys with `gpg`
 

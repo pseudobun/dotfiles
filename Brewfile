@@ -410,8 +410,6 @@ cask "handbrake-app"
 # Keyboard shortcuts for every button on your screen
 # Free and open-source media player
 cask "iina"
-# Terminal emulator as alternative to Apple's Terminal app
-cask "iterm2"
 # JetBrains tools manager
 cask "jetbrains-toolbox"
 # Password manager app

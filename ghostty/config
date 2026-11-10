@@ -1,4 +1,4 @@
-# Colors mirror iTerm profile "pseudobun" (DraculaPlus-based)
+# Colors: DraculaPlus-based "pseudobun" palette
 background = #0b0d0f
 foreground = #f8f8f2
 cursor-color = #708ca9
@@ -26,8 +26,12 @@ palette = 15=#ffffff
 
 font-family = JetBrainsMono Nerd Font Mono
 font-size = 12
+# No ligatures (=> != stay as typed)
+font-feature = -calt
+font-feature = -liga
+font-feature = -dlig
 
-# Quake terminal: bottom, same hotkey as iTerm "overlay" profile (cmd+shift+ key code 24)
+# Quake terminal at the bottom (cmd+shift+=)
 quick-terminal-position = bottom
 quick-terminal-screen = mouse
 keybind = global:cmd+shift+equal=toggle_quick_terminal
