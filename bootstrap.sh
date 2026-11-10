@@ -17,6 +17,10 @@
 #    --only a,b         run only these steps (ids from --list)
 #    --skip a,b         skip these steps
 #    --no-mas           skip Mac App Store apps (no App Store login, e.g. in a VM)
+#    --role laptop|server
+#                       laptop: paw, sketchybar, hidden menu bar
+#                       server: headless box: hop only, never sleeps
+#                       default: the last choice, else laptop when there is a battery
 #    --list             list steps and exit
 #    -h, --help         this help
 #
@@ -37,15 +41,18 @@ ASSUME_YES=0
 NO_MAS=0
 ONLY=""
 SKIP=""
+ROLE=""
+ROLE_FILE="$HOME/.config/dotfiles/role"
 LOG="$HOME/Library/Logs/dotfiles-bootstrap.log"
 START_TS=$(date +%s)
 STEP_STARTED=$START_TS
 
-STEP_IDS=(xcode clone homebrew shell gpg ssh links fish devtools spicetify macos terminal fonts iterm github apps services)
+STEP_IDS=(xcode clone homebrew secrets shell gpg ssh links fish devtools spicetify macos terminal fonts iterm github apps services)
 STEP_TITLES=(
     "Xcode Command Line Tools"
     "Dotfiles repository"
     "Homebrew & Brewfile"
+    "Secrets from the old Mac"
     "Fish shell"
     "GPG"
     "SSH key"
@@ -116,7 +123,8 @@ banner() {
         "$C_GREY" "$C_RESET" "$(scutil --get LocalHostName 2>/dev/null || hostname -s)" \
         "$C_GREY" "$C_RESET" "$(sw_vers -productVersion 2>/dev/null || uname -r)" \
         "$C_GREY" "$C_RESET" "$USER"
-    printf '  %smode%s %s   %slog%s %s\n' \
+    printf '  %srole%s %s   %smode%s %s   %slog%s %s\n' \
+        "$C_GREY" "$C_RESET" "$ROLE" \
         "$C_GREY" "$C_RESET" "$([[ $ASSUME_YES -eq 1 ]] && echo unattended || echo interactive)" \
         "$C_GREY" "$C_RESET" "${LOG/#$HOME/~}"
 }
@@ -349,6 +357,42 @@ step_homebrew() {
         followup "Retry failed Brewfile entries: brew bundle --file $dotfiles_path/Brewfile"
     fi
     return 0
+}
+
+# The bundle from `just secrets-export` on the old Mac: GPG, ~/.ssh and the age key. Importing it
+# this early lets the GPG, SSH and GitHub steps (and the private hop/paw clones) use the real keys.
+newest_bundle() {
+    ls -t "$HOME"/Downloads/secrets-*.tar.gz.age "$HOME"/Desktop/secrets-*.tar.gz.age 2>/dev/null | head -n 1
+}
+
+step_secrets() {
+    local key="$HOME/Library/Application Support/sops/age/keys.txt" f
+    if [[ -f "$key" && -f "$HOME/.ssh/config" ]]; then
+        success "age key and ~/.ssh already in place"
+        return 0
+    fi
+    command -v age &>/dev/null || { warn "age is not installed (Brewfile step skipped?)"; return 2; }
+    note "on the old Mac: cd ~/.dotfiles && just secrets-export — then AirDrop/USB the .age file here"
+    if [[ $ASSUME_YES -eq 1 ]]; then
+        note "needs the bundle passphrase — left for later"
+        return 2
+    fi
+    if ! ask_yes_no "Import a secrets bundle now (GPG, SSH, age key)?"; then return 2; fi
+    while true; do
+        f=$(ask_input "Path to secrets-….tar.gz.age (empty to skip)" "$(newest_bundle)")
+        f="${f/#\~/$HOME}"
+        [[ -z "$f" ]] && return 2
+        [[ -f "$f" ]] || { err "$f not found"; continue; }
+        log_raw "  \$ secrets.sh import $f"
+        # age asks for the passphrase on the terminal itself
+        if DOTFILES="$dotfiles_path" bash "$dotfiles_path/scripts/secrets.sh" import "$f" </dev/tty; then
+            success "secrets imported"
+            if ask_yes_no "Delete $(basename "$f") now that it is imported?"; then rm -f "$f" && success "deleted"; fi
+            return 0
+        fi
+        err "import failed"
+        ask_yes_no "Try again?" || return 1
+    done
 }
 
 step_shell() {
@@ -624,11 +668,26 @@ step_spicetify() {
 }
 
 step_macos() {
-    note "menu bar hidden (sketchybar) · dock · finder · input · dark mode — same as sanctum"
+    if [[ $ROLE == server ]]; then
+        note "dock · finder · input · dark mode (menu bar stays: no sketchybar on a server)"
+    else
+        note "menu bar hidden (sketchybar) · dock · finder · input · dark mode — same as sanctum"
+    fi
     if ! ask_yes_no "Apply macOS defaults?"; then return 2; fi
     local w="defaults write"
-    # menu bar: hidden, sketchybar replaces it
-    $w NSGlobalDomain _HIHideMenuBar -bool true
+    if [[ $ROLE == server ]]; then
+        $w NSGlobalDomain _HIHideMenuBar -bool false
+        if ask_yes_no "Never sleep, restart after a power cut, wake on LAN (pmset)?"; then
+            if sudo pmset -a sleep 0 disksleep 0 autorestart 1 womp 1 >>"$LOG" 2>&1; then
+                success "pmset: sleep 0, disksleep 0, autorestart 1, womp 1"
+            else
+                warn "pmset failed"
+            fi
+        fi
+    else
+        # menu bar: hidden, sketchybar replaces it
+        $w NSGlobalDomain _HIHideMenuBar -bool true
+    fi
     # dock
     $w com.apple.dock autohide -bool true
     $w com.apple.dock autohide-time-modifier -float 0.05
@@ -646,7 +705,7 @@ step_macos() {
     $w NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
     # appearance
     $w NSGlobalDomain AppleInterfaceStyle -string Dark
-    success "menu bar hidden, dock auto-hide 50 ms / size 56, fixed spaces, list view, no natural scroll, no autocorrect, dark"
+    success "$([[ $ROLE == server ]] && echo "menu bar visible" || echo "menu bar hidden"), dock auto-hide 50 ms / size 56, fixed spaces, list view, no natural scroll, no autocorrect, dark"
     killall Dock Finder SystemUIServer 2>/dev/null || true
     note "some settings need a logout"
     return 0
@@ -694,12 +753,17 @@ step_github() {
         success "already logged in as $(gh api user --jq .login 2>/dev/null)"
         return 0
     fi
+    local default=y
+    if github_ready; then
+        success "the imported SSH key reaches GitHub (git clone works)"
+        default=n
+    fi
     if [[ $ASSUME_YES -eq 1 ]]; then
         note "interactive login — left for later"
         followup "Log in to GitHub: gh auth login"
         return 2
     fi
-    if ask_yes_no "Log in to GitHub now?"; then
+    if ask_yes_no "Log in to the GitHub CLI (gh) now?" "$default"; then
         if gh auth login </dev/tty; then success "logged in"; else warn "login cancelled"; fi
         return 0
     fi
@@ -785,10 +849,38 @@ remove_legacy_wm() {
     fi
 }
 
+# open_privacy_pane Accessibility — the exact System Settings pane (macOS 13+ URL, then the older one)
+open_privacy_pane() {
+    open "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_$1" 2>/dev/null \
+        || open "x-apple.systempreferences:com.apple.preference.security?Privacy_$1" 2>/dev/null
+}
+
+# grant_accessibility app… — start the apps so they show up in the list, open the pane, wait
+grant_accessibility() {
+    local todo="Grant Accessibility to $* (System Settings › Privacy & Security › Accessibility)" app
+    if [[ $ASSUME_YES -eq 1 ]]; then followup "$todo"; return; fi
+    for app in "$@"; do
+        [[ -d "/Applications/$app.app" ]] && open -a "/Applications/$app.app" 2>/dev/null
+    done
+    open_privacy_pane Accessibility
+    info "System Settings › Privacy & Security › Accessibility is open:"
+    note "    turn on: $* (use + › /Applications if one is missing from the list)"
+    if wait_for_manual_step; then
+        for app in "$@"; do
+            pgrep -xq "$app" || open -a "/Applications/$app.app" 2>/dev/null
+        done
+        success "Accessibility granted to $*"
+    else
+        followup "$todo"
+    fi
+}
+
 step_apps() {
-    if ! ask_yes_no "Build and install hop (launcher) and paw (window manager) from source?"; then return 2; fi
+    local want_paw=y
+    [[ $ROLE == server ]] && want_paw=n
+    if ! ask_yes_no "Build and install hop (launcher)$([[ $want_paw == y ]] && echo " and paw (window manager)") from source?"; then return 2; fi
     command -v just &>/dev/null || { warn "just is not installed (Brewfile step skipped?)"; return 2; }
-    local rc installed=0 later=0
+    local rc later=0 built=()
 
     remove_legacy_wm
 
@@ -799,8 +891,12 @@ step_apps() {
     fi
 
     # paw: SwiftPM — the Command Line Tools are enough. `just launchd` installs and starts it at login.
-    install_from_source paw launchd; rc=$?
-    case $rc in 0) installed=1 ;; 2) later=1 ;; *) warn "paw failed" ;; esac
+    if [[ $want_paw == y ]] || [[ -d "$HOME/repos/personal/paw/.git" ]]; then
+        install_from_source paw launchd; rc=$?
+        case $rc in 0) built+=(paw) ;; 2) later=1 ;; *) warn "paw failed" ;; esac
+    else
+        note "paw skipped (server role)"
+    fi
 
     # hop: an Xcode project — needs the full Xcode (Mac App Store), not just the Command Line Tools
     if ! xcodebuild -version &>/dev/null && [[ ! -d /Applications/Xcode.app ]] && [[ $ASSUME_YES -eq 0 ]] \
@@ -818,21 +914,19 @@ step_apps() {
         later=1
     else
         install_from_source hop install; rc=$?
-        case $rc in 0) installed=1 ;; 2) later=1 ;; *) warn "hop failed" ;; esac
+        case $rc in 0) built+=(hop) ;; 2) later=1 ;; *) warn "hop failed" ;; esac
     fi
 
     if ! github_ready; then
         followup "Log in to GitHub (gh auth login, or import the SSH key), then build hop and paw: ~/.dotfiles/bootstrap.sh --only apps"
     fi
-    if (( installed )); then
-        followup "Grant Accessibility to paw and hop (System Settings › Privacy & Security › Accessibility)"
-    fi
-    (( installed == 0 && later == 1 )) && return 2
+    (( ${#built[@]} )) && grant_accessibility "${built[@]}"
+    (( ${#built[@]} == 0 && later == 1 )) && return 2
     return 0
 }
 
 step_services() {
-    if ! ask_yes_no "Start sketchybar?"; then return 2; fi
+    if ! ask_yes_no "Start sketchybar?" "$([[ $ROLE == server ]] && echo n || echo y)"; then return 2; fi
 
     if command -v sketchybar &>/dev/null; then
         run "sketchybar" brew services restart sketchybar || warn "sketchybar did not start"
@@ -888,11 +982,25 @@ summary() {
     printf '  %s╰─%s log: %s\n\n' "$C_GREY" "$C_RESET" "${LOG/#$HOME/~}"
 }
 
+# laptop (sanctum) or server (olympus): --role, else the saved choice, else asked with a guess
+resolve_role() {
+    local guess=server
+    pmset -g batt 2>/dev/null | grep -q InternalBattery && guess=laptop
+    if [[ -z "$ROLE" && -f "$ROLE_FILE" ]]; then ROLE=$(<"$ROLE_FILE"); guess=$ROLE; ROLE=""; fi
+    while [[ -z "$ROLE" ]]; do
+        ROLE=$(ask_input "Role of this Mac — laptop (paw, sketchybar) or server (headless, hop only)?" "$guess")
+        case "$ROLE" in laptop|server) ;; *) note "laptop or server"; ROLE="" ;; esac
+    done
+    mkdir -p "$(dirname "$ROLE_FILE")" && printf '%s\n' "$ROLE" >"$ROLE_FILE"
+    log_raw "role: $ROLE"
+}
+
 main() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -y|--yes)  ASSUME_YES=1 ;;
             --no-mas)  NO_MAS=1 ;;
+            --role)    ROLE="${2:-}"; shift ;;
             --only)    ONLY="${2:-}"; shift ;;
             --skip)    SKIP="${2:-}"; shift ;;
             --list)    list_steps; exit 0 ;;
@@ -904,10 +1012,12 @@ main() {
     done
 
     [[ "$(uname)" == "Darwin" ]] || fatal "macOS only."
+    case "$ROLE" in laptop|server|"") ;; *) fatal "--role must be laptop or server" ;; esac
     mkdir -p "$(dirname "$LOG")"
     log_raw ""
     log_raw "################ bootstrap $(date '+%F %T') ################"
 
+    resolve_role
     banner
     if [[ $ASSUME_YES -eq 0 ]]; then
         printf '\n'
