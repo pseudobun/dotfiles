@@ -12,18 +12,22 @@ decrypt:
 edit-env path:
     SOPS_AGE_KEY_FILE="$HOME/Library/Application Support/sops/age/keys.txt" sops edit --input-type dotenv --output-type dotenv {{path}}.enc
     bash scripts/env.sh decrypt
+
+# This Mac's Brewfile: hosts/<host>/Brewfile (host = bootstrap's choice, else the hostname).
+brewfile := "hosts/" + `cat ~/.config/dotfiles/host 2>/dev/null || scutil --get LocalHostName | tr '[:upper:]' '[:lower:]'` + "/Brewfile"
+
 # Formulae from untrusted taps are skipped by the dump — check `just brew-untrusted` first.
-# Snapshot everything installed (formulae, casks, taps, mas, go, vscode) into Brewfile.
+# Snapshot everything installed (formulae, casks, taps, mas, go, vscode) into this Mac's Brewfile.
 brew-dump:
-    brew bundle dump --file Brewfile --force
+    brew bundle dump --file {{brewfile}} --force
 
-# What Brewfile lists but is not installed on this machine.
+# What this Mac's Brewfile lists but is not installed on this machine.
 brew-check:
-    brew bundle check --file Brewfile --verbose
+    brew bundle check --file {{brewfile}} --verbose
 
-# What is installed but missing from Brewfile (dry run; add --force to uninstall it).
+# What is installed but missing from this Mac's Brewfile (dry run; add --force to uninstall it).
 brew-extra:
-    brew bundle cleanup --file Brewfile
+    brew bundle cleanup --file {{brewfile}}
 
 # Taps Homebrew currently ignores because they are not trusted.
 brew-untrusted:

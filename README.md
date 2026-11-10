@@ -13,6 +13,26 @@ Run this command to bootstrap your machine:
 > Note: 
 > Some of the commands in the script require `sudo` access. You will be prompted for your password. 
 
+### Hosts
+
+Two Macs share everything except what sits in `hosts/<host>/`:
+
+| | sanctum (laptop) | olympus (Mac mini, runs the agents) |
+|---|---|---|
+| Brewfile | `hosts/sanctum/Brewfile` | `hosts/olympus/Brewfile` |
+| repos | `~/repos/personal`, `~/repos/lutra` | flat `~/repos` |
+| overrides | — | `hop/config.json5` (KeePass off) |
+| extra | — | step `server`: pmset, `repos.txt`, LaunchAgents, cron, Docker; step `vault`: vault kept downloaded, its git dir `~/git/bunny-os.git`, qmd |
+
+The bootstrap asks which Mac it is (or `--host sanctum|olympus`) and remembers it in
+`~/.config/dotfiles/host`; `just brew-dump|brew-check|brew-extra` use that host's Brewfile.
+A file in `hosts/<host>/<dir>/` replaces the shared one in `~/.config/<dir>/`.
+
+Step `agents` checks out the synced agent config (`pseudobun/claude-config`) and links
+`~/.codex/AGENTS.md` and `~/.config/opencode/AGENTS.md` to `~/.claude/CLAUDE.md`.
+Step `debloat` takes News, Books, Chess, Photo Booth, Podcasts, Tips and Games off the Dock;
+they are on the sealed system volume, so macOS does not let them be deleted.
+
 Currently, [Go](https://go.dev/) needs to be installed [manually](https://go.dev/doc/install).
 
 ## TODOs

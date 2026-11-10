@@ -17,10 +17,9 @@
 #    --only a,b         run only these steps (ids from --list)
 #    --skip a,b         skip these steps
 #    --no-mas           skip Mac App Store apps (no App Store login, e.g. in a VM)
-#    --role laptop|server
-#                       laptop: paw, sketchybar, hidden menu bar
-#                       server: headless box: hop only, never sleeps
-#                       default: the last choice, else laptop when there is a battery
+#    --host sanctum|olympus
+#                       which machine this is: hosts/<host>/ holds its Brewfile and the
+#                       config files that differ (default: the last choice, else the hostname)
 #    --list             list steps and exit
 #    -h, --help         this help
 #
@@ -41,13 +40,17 @@ ASSUME_YES=0
 NO_MAS=0
 ONLY=""
 SKIP=""
-ROLE=""
-ROLE_FILE="$HOME/.config/dotfiles/role"
+HOST=""
+HOST_FILE="$HOME/.config/dotfiles/host"
+HOSTS=(sanctum olympus)
+REPOS_DIR="$HOME/repos/personal"   # olympus: flat ~/repos (set in resolve_host)
+VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian"
+VAULT_GIT_DIR="$HOME/git/bunny-os.git"
 LOG="$HOME/Library/Logs/dotfiles-bootstrap.log"
 START_TS=$(date +%s)
 STEP_STARTED=$START_TS
 
-STEP_IDS=(xcode clone homebrew secrets shell gpg ssh links fish devtools spicetify macos terminal github apps services)
+STEP_IDS=(xcode clone homebrew secrets shell gpg ssh links fish devtools spicetify macos debloat terminal github agents vault apps server services)
 STEP_TITLES=(
     "Xcode Command Line Tools"
     "Dotfiles repository"
@@ -61,9 +64,13 @@ STEP_TITLES=(
     "Development tools"
     "Spicetify"
     "macOS defaults"
+    "Debloat"
     "Extra terminals"
     "GitHub CLI login"
+    "Agent config (Claude, Codex, opencode)"
+    "Obsidian vault"
     "hop & paw"
+    "olympus services"
     "Services"
 )
 STEP_STATUS=()   # done | skipped | warn | failed
@@ -121,8 +128,8 @@ banner() {
         "$C_GREY" "$C_RESET" "$(scutil --get LocalHostName 2>/dev/null || hostname -s)" \
         "$C_GREY" "$C_RESET" "$(sw_vers -productVersion 2>/dev/null || uname -r)" \
         "$C_GREY" "$C_RESET" "$USER"
-    printf '  %srole%s %s   %smode%s %s   %slog%s %s\n' \
-        "$C_GREY" "$C_RESET" "$ROLE" \
+    printf '  %sprofile%s %s   %smode%s %s   %slog%s %s\n' \
+        "$C_GREY" "$C_RESET" "$HOST" \
         "$C_GREY" "$C_RESET" "$([[ $ASSUME_YES -eq 1 ]] && echo unattended || echo interactive)" \
         "$C_GREY" "$C_RESET" "${LOG/#$HOME/~}"
 }
@@ -296,7 +303,7 @@ step_clone() {
     local here="" src="${BASH_SOURCE[0]:-}"
     # Under `bash -c "$(curl …)"` there is no script file — only a checkout run sets BASH_SOURCE.
     [[ -n "$src" && -f "$src" ]] && here="$(cd "$(dirname -- "$src")" 2>/dev/null && pwd)"
-    if [[ -n "$here" && -f "$here/Brewfile" && -e "$here/.git" ]]; then
+    if [[ -n "$here" && -f "$here/bootstrap.sh" && -e "$here/.git" ]]; then
         dotfiles_path="$here"
         success "using this checkout: ${dotfiles_path/#$HOME/~}"
         return 0
@@ -315,7 +322,8 @@ step_clone() {
     return 0
 }
 
-mas_ids() { grep -E '^mas ' "$dotfiles_path/Brewfile" | sed -E 's/.*id: *([0-9]+).*/\1/' | tr '\n' ' '; }
+brewfile() { printf '%s\n' "$dotfiles_path/hosts/$HOST/Brewfile"; }
+mas_ids() { grep -E '^mas ' "$(brewfile)" | sed -E 's/.*id: *([0-9]+).*/\1/' | tr '\n' ' '; }
 
 step_homebrew() {
     if ! ask_yes_no "Install Homebrew and everything in the Brewfile?"; then
@@ -336,23 +344,23 @@ step_homebrew() {
     command -v brew &>/dev/null || fatal "brew is not on PATH after installing"
 
     local total
-    total=$(grep -cE '^(brew|cask|mas|tap|go|vscode) ' "$dotfiles_path/Brewfile")
-    info "Brewfile: $total entries — this is the long part"
+    total=$(grep -cE '^(brew|cask|mas|tap|go|vscode|npm|cargo|uv) ' "$(brewfile)")
+    info "hosts/$HOST/Brewfile: $total entries — this is the long part"
 
     if [[ $NO_MAS -eq 1 ]]; then
         export HOMEBREW_BUNDLE_MAS_SKIP
         HOMEBREW_BUNDLE_MAS_SKIP="$(mas_ids)"
         note "Mac App Store apps skipped (--no-mas)"
-    elif grep -qE '^mas ' "$dotfiles_path/Brewfile"; then
+    elif grep -qE '^mas ' "$(brewfile)"; then
         note "Mac App Store apps need an App Store login; failures can be retried with --only homebrew"
     fi
 
-    if run "brew bundle" brew bundle --file "$dotfiles_path/Brewfile"; then
+    if run "brew bundle" brew bundle --file "$(brewfile)"; then
         success "every Brewfile entry is installed"
     else
         warn "some Brewfile entries failed:"
         grep -E "has failed!|^Error: " "$LOG" | tail -n 20 | strip_ansi | while IFS= read -r l; do note "    $l"; done
-        followup "Retry failed Brewfile entries: brew bundle --file $dotfiles_path/Brewfile"
+        followup "Retry failed Brewfile entries: brew bundle --file $(brewfile)"
     fi
     return 0
 }
@@ -537,6 +545,27 @@ link_each() {
     success "$name ${C_GREY}→ ${dst_dir/#$HOME/~}/${C_RESET}"
 }
 
+# link_config <dir> <dest> <name> — ~/.config/<x> → the repo's <dir>. When hosts/$HOST/<dir> exists,
+# <dest> becomes a real folder: each shared file is linked, then the host's own files replace theirs.
+link_config() {
+    local dir="$1" dst="$2" name="$3" src="$dotfiles_path/$1" over="$dotfiles_path/hosts/$HOST/$1" f b
+    if [[ ! -d "$over" ]]; then link "$src" "$dst" "$name"; return; fi
+    [[ -L "$dst" ]] && rm -f "$dst"
+    mkdir -p "$dst"
+    for f in "$src"/* "$src"/.[!.]* "$over"/* "$over"/.[!.]*; do
+        [[ -e "$f" ]] || continue
+        b=$(basename "$f")
+        # a host file wins over the shared one
+        [[ "$f" == "$src/"* && -e "$over/$b" ]] && continue
+        if [[ -e "$dst/$b" && ! -L "$dst/$b" ]]; then
+            mv "$dst/$b" "$dst/$b.backup-$(date +%Y%m%d-%H%M%S)"
+            note "existing $name/$b moved to ${dst/#$HOME/~}/$b.backup-*"
+        fi
+        ln -sfn "$f" "$dst/$b"
+    done
+    success "$name ${C_GREY}→ ${dst/#$HOME/~} (shared + hosts/$HOST/$dir)${C_RESET}"
+}
+
 setup_sketchybar() {
     link "$dotfiles_path/sketchybar" "$HOME/.config/sketchybar" "sketchybar config"
 
@@ -591,12 +620,17 @@ step_links() {
     link "$d/fish/fish_plugins"        "$HOME/.config/fish/fish_plugins"        "fisher plugin list"
     [[ -d "$d/macchina" ]] && link "$d/macchina" "$HOME/.config/macchina" "macchina"
 
-    mkdir -p "$HOME/repos/personal" "$HOME/repos/lutra"
-    success "workspace folders ${C_GREY}→ ~/repos/personal, ~/repos/lutra${C_RESET}"
+    if [[ $HOST == olympus ]]; then
+        mkdir -p "$HOME/repos"
+        success "workspace folder ${C_GREY}→ ~/repos (flat)${C_RESET}"
+    else
+        mkdir -p "$HOME/repos/personal" "$HOME/repos/lutra"
+        success "workspace folders ${C_GREY}→ ~/repos/personal, ~/repos/lutra${C_RESET}"
+    fi
 
     setup_sketchybar
-    link "$d/paw" "$HOME/.config/paw" "paw config"
-    link "$d/hop" "$HOME/.config/hop" "hop config"
+    link_config paw "$HOME/.config/paw" "paw config"
+    link_config hop "$HOME/.config/hop" "hop config"
     decrypt_env
 
     # Hourly `brew outdated` refresh for the sketchybar brew item
@@ -659,26 +693,11 @@ step_spicetify() {
 }
 
 step_macos() {
-    if [[ $ROLE == server ]]; then
-        note "dock · finder · input · dark mode (menu bar stays: no sketchybar on a server)"
-    else
-        note "menu bar hidden (sketchybar) · dock · finder · input · dark mode — same as sanctum"
-    fi
+    note "menu bar hidden (sketchybar) · dock · finder · input · dark mode"
     if ! ask_yes_no "Apply macOS defaults?"; then return 2; fi
     local w="defaults write"
-    if [[ $ROLE == server ]]; then
-        $w NSGlobalDomain _HIHideMenuBar -bool false
-        if ask_yes_no "Never sleep, restart after a power cut, wake on LAN (pmset)?"; then
-            if sudo pmset -a sleep 0 disksleep 0 autorestart 1 womp 1 >>"$LOG" 2>&1; then
-                success "pmset: sleep 0, disksleep 0, autorestart 1, womp 1"
-            else
-                warn "pmset failed"
-            fi
-        fi
-    else
-        # menu bar: hidden, sketchybar replaces it
-        $w NSGlobalDomain _HIHideMenuBar -bool true
-    fi
+    # menu bar: hidden, sketchybar replaces it
+    $w NSGlobalDomain _HIHideMenuBar -bool true
     # dock
     $w com.apple.dock autohide -bool true
     $w com.apple.dock autohide-time-modifier -float 0.05
@@ -696,9 +715,32 @@ step_macos() {
     $w NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
     # appearance
     $w NSGlobalDomain AppleInterfaceStyle -string Dark
-    success "$([[ $ROLE == server ]] && echo "menu bar visible" || echo "menu bar hidden"), dock auto-hide 50 ms / size 56, fixed spaces, list view, no natural scroll, no autocorrect, dark"
+    success "menu bar hidden, dock auto-hide 50 ms / size 56, fixed spaces, list view, no natural scroll, no autocorrect, dark"
     killall Dock Finder SystemUIServer 2>/dev/null || true
     note "some settings need a logout"
+    return 0
+}
+
+# Apple's extra apps live on the sealed system volume (/System/Applications): macOS refuses to
+# delete them while SIP is on and puts them back with every update — so they leave the Dock.
+DEBLOAT_APPS=(News Books Chess "Photo Booth" Podcasts Tips Games)
+
+step_debloat() {
+    note "${DEBLOAT_APPS[*]}: sealed system apps — macOS does not allow deleting them, they leave the Dock"
+    if ! ask_yes_no "Debloat: take them off the Dock and auto-hide the Dock?"; then return 2; fi
+    defaults write com.apple.dock autohide -bool true
+    if command -v dockutil &>/dev/null; then
+        local app removed=()
+        for app in "${DEBLOAT_APPS[@]}"; do
+            dockutil --find "$app" &>/dev/null || continue
+            dockutil --remove "$app" --no-restart >>"$LOG" 2>&1 && removed+=("$app")
+        done
+        if (( ${#removed[@]} )); then success "off the Dock: ${removed[*]}"; else success "none of them is in the Dock"; fi
+    else
+        warn "dockutil is missing (Brewfile) — the Dock was not cleaned"
+    fi
+    killall Dock 2>/dev/null || true
+    success "Dock auto-hides"
     return 0
 }
 
@@ -732,6 +774,105 @@ step_github() {
     return 2
 }
 
+# Every coding agent reads the same global instructions: ~/.claude/CLAUDE.md, synced between the
+# Macs by pseudobun/claude-config (bare repo ~/.claude-config.git, launchd every 10 min).
+AGENT_INSTRUCTION_LINKS=(".codex/AGENTS.md" ".config/opencode/AGENTS.md")
+
+link_agent_instructions() {
+    local f
+    for f in "${AGENT_INSTRUCTION_LINKS[@]}"; do
+        mkdir -p "$HOME/$(dirname "$f")"
+        [[ "$(readlink "$HOME/$f")" == "$HOME/.claude/CLAUDE.md" ]] && continue
+        [[ -e "$HOME/$f" && ! -L "$HOME/$f" ]] && mv "$HOME/$f" "$HOME/$f.backup-$(date +%Y%m%d-%H%M%S)"
+        ln -sfn "$HOME/.claude/CLAUDE.md" "$HOME/$f"
+    done
+    success "~/.codex/AGENTS.md and ~/.config/opencode/AGENTS.md → ~/.claude/CLAUDE.md"
+}
+
+step_agents() {
+    if ! ask_yes_no "Set up the synced agent config (~/.claude + AGENTS.md for Codex and opencode)?"; then return 2; fi
+    if [[ -d "$HOME/.claude-config.git" ]]; then
+        success "claude-config already checked out"
+    elif github_ready; then
+        if gh auth status &>/dev/null; then
+            run "clone pseudobun/claude-config" gh repo clone pseudobun/claude-config "$HOME/.claude-config.git" -- --bare || return 1
+        else
+            run "clone pseudobun/claude-config" git clone --bare git@github.com:pseudobun/claude-config.git "$HOME/.claude-config.git" || return 1
+        fi
+        # its own bootstrap checks the config out into ~ (backing up what it replaces) and starts the sync agent
+        run "claude-config checkout + sync agent" bash -c 'cd ~ && git --git-dir="$HOME/.claude-config.git" show main:.claude-config/bootstrap.sh | bash' || return 1
+    else
+        note "pseudobun/claude-config is private and GitHub is not logged in yet"
+        followup "Log in to GitHub, then: ~/.dotfiles/bootstrap.sh --only agents"
+        return 2
+    fi
+    if [[ -f "$HOME/.claude/CLAUDE.md" ]]; then link_agent_instructions; else warn "~/.claude/CLAUDE.md is missing after the checkout"; fi
+    return 0
+}
+
+# The Obsidian vault lives in iCloud Drive. olympus keeps it downloaded (agents read it, qmd indexes it)
+# and is the only Mac with its git repo: a separate git dir at ~/git/bunny-os.git, never in iCloud.
+vault_download() {
+    find "$VAULT" -type f -not -path '*/.obsidian/*' -print0 2>/dev/null | xargs -0 -n 20 brctl download 2>>"$LOG"
+}
+
+step_vault() {
+    if [[ ! -d "$VAULT" ]]; then
+        note "no Obsidian vault yet — it comes with iCloud Drive (Apple Account › iCloud › iCloud Drive)"
+        if [[ $ASSUME_YES -eq 0 ]] && ask_yes_no "Sign in to iCloud now?"; then
+            open "x-apple.systempreferences:com.apple.systempreferences.AppleIDSettings" 2>/dev/null || open -b com.apple.systempreferences
+            info "sign in, turn on iCloud Drive, then wait until Finder › iCloud Drive › Obsidian shows up"
+            wait_for_manual_step
+        fi
+        if [[ ! -d "$VAULT" ]]; then
+            followup "Sign in to iCloud (iCloud Drive on), let the vault sync, then: ~/.dotfiles/bootstrap.sh --only vault"
+            return 2
+        fi
+    fi
+    if [[ $HOST != olympus ]]; then
+        success "vault is in iCloud (its git repo and qmd live on olympus only)"
+        return 0
+    fi
+    if ! ask_yes_no "Keep the vault downloaded, set up its git repo and the qmd index?"; then return 2; fi
+    # Optimize Mac Storage evicts files to placeholders that agents cannot read
+    defaults write com.apple.bird optimize-storage -bool false
+    vault_download
+    success "iCloud Drive keeps files on disk; vault download requested"
+
+    if [[ -d "$VAULT_GIT_DIR" ]]; then
+        success "vault git dir already at ${VAULT_GIT_DIR/#$HOME/~}"
+    elif github_ready; then
+        local url=https://github.com/pseudobun/bunny-os.git
+        gh auth status &>/dev/null || url=git@github.com:pseudobun/bunny-os.git
+        mkdir -p "$(dirname "$VAULT_GIT_DIR")"
+        run "clone pseudobun/bunny-os" git clone --bare "$url" "$VAULT_GIT_DIR" || return 1
+        vgit() { git --git-dir="$VAULT_GIT_DIR" --work-tree="$VAULT" "$@"; }
+        vgit config core.bare false
+        vgit config remote.origin.url https://github.com/pseudobun/bunny-os.git
+        vgit config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+        run "fetch bunny-os" vgit fetch -q origin || true
+        vgit branch -q --set-upstream-to=origin/main main 2>>"$LOG" || true
+        # build the index from HEAD without touching the files iCloud brought
+        vgit reset -q 2>>"$LOG"
+        success "vault git dir → ${VAULT_GIT_DIR/#$HOME/~}"
+    else
+        note "pseudobun/bunny-os is private and GitHub is not logged in yet"
+        followup "Log in to GitHub, then: ~/.dotfiles/bootstrap.sh --only vault"
+    fi
+    # the pointer file syncs through iCloud; write it if it has not arrived
+    [[ -f "$VAULT/.git" ]] || printf 'gitdir: %s\n' "$VAULT_GIT_DIR" >"$VAULT/.git"
+
+    if command -v qmd &>/dev/null; then
+        qmd collection show bunny-os &>/dev/null \
+            || run "qmd collection bunny-os" qmd collection add "$VAULT" --name bunny-os --mask '**/*.md' || true
+        run "qmd update" qmd update || warn "qmd update failed"
+        run "qmd embed" qmd embed || warn "qmd embed failed"
+    else
+        warn "qmd is not installed (npm @tobilu/qmd in the Brewfile)"
+    fi
+    return 0
+}
+
 # hop (launcher) and paw (window manager) are private repos built from source
 # into ~/repos/personal: they need a GitHub login (gh or an SSH key) first.
 github_ready() {
@@ -741,7 +882,7 @@ github_ready() {
 
 # install_from_source <name> <just recipe> — 0 installed/up to date, 1 failed, 2 not possible yet
 install_from_source() {
-    local name="$1" recipe="$2" dir="$HOME/repos/personal/$1" before="" after
+    local name="$1" recipe="$2" dir="$REPOS_DIR/$1" before="" after
     if [[ -d "$dir/.git" ]]; then
         before=$(git -C "$dir" rev-parse HEAD 2>/dev/null)
         run "git pull $name" git -C "$dir" pull --ff-only || warn "$name: could not fast-forward; building the checkout as is"
@@ -837,9 +978,7 @@ grant_accessibility() {
 }
 
 step_apps() {
-    local want_paw=y
-    [[ $ROLE == server ]] && want_paw=n
-    if ! ask_yes_no "Build and install hop (launcher)$([[ $want_paw == y ]] && echo " and paw (window manager)") from source?"; then return 2; fi
+    if ! ask_yes_no "Build and install hop (launcher) and paw (window manager) from source?"; then return 2; fi
     command -v just &>/dev/null || { warn "just is not installed (Brewfile step skipped?)"; return 2; }
     local rc later=0 built=()
 
@@ -852,12 +991,8 @@ step_apps() {
     fi
 
     # paw: SwiftPM — the Command Line Tools are enough. `just launchd` installs and starts it at login.
-    if [[ $want_paw == y ]] || [[ -d "$HOME/repos/personal/paw/.git" ]]; then
-        install_from_source paw launchd; rc=$?
-        case $rc in 0) built+=(paw) ;; 2) later=1 ;; *) warn "paw failed" ;; esac
-    else
-        note "paw skipped (server role)"
-    fi
+    install_from_source paw launchd; rc=$?
+    case $rc in 0) built+=(paw) ;; 2) later=1 ;; *) warn "paw failed" ;; esac
 
     # hop: an Xcode project — needs the full Xcode (Mac App Store), not just the Command Line Tools
     if ! xcodebuild -version &>/dev/null && [[ ! -d /Applications/Xcode.app ]] && [[ $ASSUME_YES -eq 0 ]] \
@@ -886,8 +1021,71 @@ step_apps() {
     return 0
 }
 
+# olympus: the always-on box — power settings, its service repos, LaunchAgents, cron jobs, Docker.
+step_server() {
+    if [[ $HOST != olympus ]]; then note "olympus only"; return 2; fi
+    if ! ask_yes_no "Set up the olympus services (power, repos, LaunchAgents, cron, Docker)?"; then return 2; fi
+    local repo name plist label f
+
+    if ask_yes_no "Never sleep, restart after a power cut, wake on LAN (pmset)?"; then
+        if sudo pmset -a sleep 0 disksleep 0 autorestart 1 womp 1 >>"$LOG" 2>&1; then
+            success "pmset: sleep 0, disksleep 0, autorestart 1, womp 1"
+        else
+            warn "pmset failed"
+        fi
+    fi
+
+    while IFS= read -r repo; do
+        [[ -z "$repo" || "$repo" == \#* ]] && continue
+        name="${repo##*/}"
+        if [[ -d "$HOME/repos/$name/.git" ]]; then
+            success "$repo already in ~/repos/$name"
+        elif github_ready; then
+            if gh auth status &>/dev/null; then
+                run "clone $repo" gh repo clone "$repo" "$HOME/repos/$name" || warn "$repo did not clone"
+            else
+                run "clone $repo" git clone "git@github.com:$repo.git" "$HOME/repos/$name" || warn "$repo did not clone"
+            fi
+        else
+            followup "Log in to GitHub, then: ~/.dotfiles/bootstrap.sh --only server (clones $repo)"
+        fi
+    done <"$dotfiles_path/hosts/olympus/repos.txt"
+
+    mkdir -p "$HOME/Library/LaunchAgents"
+    for plist in "$HOME"/repos/olympus-dashboard/scripts/launchd/*.plist "$dotfiles_path"/hosts/olympus/launchd/*.plist; do
+        [[ -f "$plist" ]] || continue
+        label=$(basename "$plist" .plist)
+        if [[ $label == cloud.bunnys.adguardhome && ! -x "$HOME/opt/adguardhome/AdGuardHome" ]]; then
+            followup "Restore ~/opt/adguardhome (binary + data/AdGuardHome.yaml) from the backup, then: ~/.dotfiles/bootstrap.sh --only server"
+            continue
+        fi
+        cp "$plist" "$HOME/Library/LaunchAgents/$label.plist"
+        launchctl bootout "gui/$(id -u)/$label" 2>/dev/null || true
+        if launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/$label.plist" 2>>"$LOG"; then
+            success "LaunchAgent $label"
+        else
+            warn "LaunchAgent $label did not load"
+        fi
+    done
+    followup "Full Disk Access for /opt/homebrew/bin/just (vault-mirror reads iCloud Drive at night)"
+
+    # cron: the security monitors install their own crontab lines (other lines stay)
+    for f in "$HOME"/repos/olympus-dashboard/scripts/security/install-cron.py "$HOME"/repos/chronos/scripts/security-monitor/install-cron.py; do
+        [[ -f "$f" ]] || continue
+        run "cron: ${f#"$HOME"/repos/}" /usr/bin/python3 "$f" || warn "$f failed"
+    done
+
+    if [[ -d /Applications/Docker.app ]]; then
+        open -a Docker 2>/dev/null || true
+        followup "Restore ~/repos/olympus-dashboard/data from the backup, then: cd ~/repos/olympus-dashboard && docker compose up -d"
+    else
+        warn "Docker Desktop is not installed (cask docker-desktop)"
+    fi
+    return 0
+}
+
 step_services() {
-    if ! ask_yes_no "Start sketchybar?" "$([[ $ROLE == server ]] && echo n || echo y)"; then return 2; fi
+    if ! ask_yes_no "Start sketchybar?"; then return 2; fi
 
     if command -v sketchybar &>/dev/null; then
         run "sketchybar" brew services restart sketchybar || warn "sketchybar did not start"
@@ -943,17 +1141,19 @@ summary() {
     printf '  %s╰─%s log: %s\n\n' "$C_GREY" "$C_RESET" "${LOG/#$HOME/~}"
 }
 
-# laptop (sanctum) or server (olympus): --role, else the saved choice, else asked with a guess
-resolve_role() {
-    local guess=server
-    pmset -g batt 2>/dev/null | grep -q InternalBattery && guess=laptop
-    if [[ -z "$ROLE" && -f "$ROLE_FILE" ]]; then ROLE=$(<"$ROLE_FILE"); guess=$ROLE; ROLE=""; fi
-    while [[ -z "$ROLE" ]]; do
-        ROLE=$(ask_input "Role of this Mac — laptop (paw, sketchybar) or server (headless, hop only)?" "$guess")
-        case "$ROLE" in laptop|server) ;; *) note "laptop or server"; ROLE="" ;; esac
+# Which Mac this is: --host, else the saved choice, else asked (guess: the hostname).
+resolve_host() {
+    local guess=sanctum name h
+    name=$(scutil --get LocalHostName 2>/dev/null | tr '[:upper:]' '[:lower:]')
+    for h in "${HOSTS[@]}"; do [[ "$name" == *"$h"* ]] && guess=$h; done
+    if [[ -z "$HOST" && -f "$HOST_FILE" ]]; then guess=$(<"$HOST_FILE"); fi
+    while [[ -z "$HOST" ]]; do
+        HOST=$(ask_input "Which Mac is this — ${HOSTS[*]}?" "$guess")
+        contains "$(IFS=,; echo "${HOSTS[*]}")" "$HOST" || { note "one of: ${HOSTS[*]}"; HOST=""; }
     done
-    mkdir -p "$(dirname "$ROLE_FILE")" && printf '%s\n' "$ROLE" >"$ROLE_FILE"
-    log_raw "role: $ROLE"
+    [[ $HOST == olympus ]] && REPOS_DIR="$HOME/repos"
+    mkdir -p "$(dirname "$HOST_FILE")" && printf '%s\n' "$HOST" >"$HOST_FILE"
+    log_raw "host profile: $HOST"
 }
 
 main() {
@@ -961,7 +1161,7 @@ main() {
         case "$1" in
             -y|--yes)  ASSUME_YES=1 ;;
             --no-mas)  NO_MAS=1 ;;
-            --role)    ROLE="${2:-}"; shift ;;
+            --host)    HOST="${2:-}"; shift ;;
             --only)    ONLY="${2:-}"; shift ;;
             --skip)    SKIP="${2:-}"; shift ;;
             --list)    list_steps; exit 0 ;;
@@ -973,12 +1173,12 @@ main() {
     done
 
     [[ "$(uname)" == "Darwin" ]] || fatal "macOS only."
-    case "$ROLE" in laptop|server|"") ;; *) fatal "--role must be laptop or server" ;; esac
+    [[ -z "$HOST" ]] || contains "$(IFS=,; echo "${HOSTS[*]}")" "$HOST" || fatal "--host must be one of: ${HOSTS[*]}"
     mkdir -p "$(dirname "$LOG")"
     log_raw ""
     log_raw "################ bootstrap $(date '+%F %T') ################"
 
-    resolve_role
+    resolve_host
     banner
     if [[ $ASSUME_YES -eq 0 ]]; then
         printf '\n'
@@ -1012,10 +1212,8 @@ main() {
     [[ -f "$HOME/Library/Application Support/sops/age/keys.txt" ]] \
         || followup "Restore the age key to ~/Library/Application Support/sops/age/keys.txt (sops / just decrypt)"
     [[ -f "$HOME/.ssh/config" ]] || followup "Restore ~/.ssh (keys + config with olympus/minsky/zeus hosts)"
-    [[ -d "$HOME/.claude-config.git" ]] \
-        || followup "Set up the ~/.claude sync: bare repo git@github.com:pseudobun/claude-config.git + LaunchAgent cloud.bunnys.claude-config-sync"
-    if [[ $NO_MAS -eq 1 ]] && grep -qE '^mas ' "$dotfiles_path/Brewfile" 2>/dev/null; then
-        followup "Sign in to the App Store, then: brew bundle --file $dotfiles_path/Brewfile (mas apps were skipped)"
+    if [[ $NO_MAS -eq 1 ]] && grep -qE '^mas ' "$(brewfile)" 2>/dev/null; then
+        followup "Sign in to the App Store, then: brew bundle --file $(brewfile) (mas apps were skipped)"
     fi
 
     summary

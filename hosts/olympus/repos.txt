@@ -1,0 +1,3 @@
+# owner/repo, cloned into ~/repos on olympus by bootstrap.sh (step server). paw and hop come from step apps.
+pseudobun/olympus-dashboard
+lutralabs/chronos

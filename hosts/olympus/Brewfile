@@ -1,0 +1,193 @@
+tap "anomalyco/tap", trusted: true
+tap "espressif/eim", trusted: true
+tap "pseudobun/tap", trusted: true
+tap "shaunsingh/sfmono-nerd-font-ligaturized", "https://github.com/shaunsingh/homebrew-SFMono-Nerd-Font-Ligaturized", trusted: true
+tap "supabase/tap", trusted: true
+tap "unsecretised/tap", trusted: true
+tap "yakitrak/yakitrak", trusted: true
+# Static analysis and lint tool, for (ba)sh scripts
+brew "shellcheck"
+# Static checker for GitHub Actions workflow files
+brew "actionlint"
+# Simple, modern, secure file encryption
+brew "age"
+# GitOps Continuous Delivery for Kubernetes
+brew "argocd"
+# Official Amazon AWS command-line interface
+brew "awscli"
+# Clone of cat(1) with syntax highlighting and Git integration
+brew "bat"
+# Yet another cross-platform graphical process/system monitor
+brew "bottom"
+# Core application library for C
+brew "glib"
+# Low-level library for pixel manipulation
+brew "pixman"
+# Cross-platform make
+brew "cmake"
+# Dependency manager for Cocoa projects
+brew "cocoapods"
+# Container Signing
+brew "cosign"
+# Tool for interacting with remote images and registries
+brew "crane"
+# USB programmer
+brew "dfu-util"
+# Image format providing lossless and lossy compression for web images
+brew "webp"
+# Development kit for the Java programming language
+brew "openjdk"
+# LLVM bytecode to JavaScript compiler
+brew "emscripten"
+# Modern, maintained replacement for ls
+brew "eza"
+# SDL2 compatibility layer that uses SDL3 behind the scenes
+brew "sdl2-compat"
+# User-friendly command-line shell for UNIX-like operating systems
+brew "fish"
+# Fast and simple Node.js version manager
+brew "fnm"
+# Command-line fuzzy finder written in Go
+brew "fzf"
+# GitHub command-line tool
+brew "gh"
+# Multi-platform software reverse engineering framework
+brew "ghidra"
+# Render markdown on the CLI
+brew "glow"
+# Cryptographic library based on the code from GnuPG
+brew "libgcrypt"
+# GNU Privacy Guard (OpenPGP)
+brew "gnupg"
+# Kubernetes package manager
+brew "helm"
+# Agent multiplexer that lives in your terminal
+brew "herdr"
+# Client library for huggingface.co hub
+brew "hf"
+# Tool to download photos from iCloud
+brew "icloudpd"
+# Handy way to save and run project-specific commands
+brew "just"
+# FAST Kubernetes manifests validator, with support for Custom Resources!
+brew "kubeconform"
+# Much more powerful alternative to kubectx and kubens
+brew "kubie"
+# Template-free customization of Kubernetes YAML manifests
+brew "kustomize"
+# Postgres C API library
+brew "libpq"
+# General purpose TCP-IP emulator
+brew "libslirp"
+# Text-to-HTML conversion tool
+brew "markdown"
+# Deep clean and optimize your Mac
+brew "mole"
+# Port scanning utility for large networks
+brew "nmap"
+# Prometheus exporter for machine metrics
+brew "node_exporter"
+# General-purpose speech recognition model
+brew "openai-whisper"
+# Provides a software solution to manage, store, and distribute sensitive data
+brew "openbao"
+# Drop-in replacement for Terraform. Infrastructure as Code Tool
+brew "opentofu"
+# OCI Registry As Storage
+brew "oras"
+# Pinentry for GPG on Mac
+brew "pinentry-mac"
+# PDF rendering library (based on the xpdf-3.0 code base)
+brew "poppler"
+# Interpreted, interactive, object-oriented programming language
+brew "python@3.13"
+# Rsync for cloud storage
+brew "rclone"
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
+# Editor of encrypted files
+brew "sops"
+# Cross-shell prompt for astronauts
+brew "starship"
+# CLI for generating a Software Bill of Materials from container images
+brew "syft"
+# Netcat-like tool over Tailscale's data plane, without its control plane
+brew "tailcat"
+# Terminal multiplexer
+brew "tmux"
+# Vulnerability scanner for container images, file systems, and Git repos
+brew "trivy"
+# Extremely fast Python package installer and resolver, written in Rust
+brew "uv"
+# Executes a program periodically, showing output fullscreen
+brew "watch"
+# Command-line client for WebSockets
+brew "websocat"
+# Internet file retriever
+brew "wget"
+# Tools for the WireGuard secure network tunnel
+brew "wireguard-tools"
+# Generate your Xcode project from a spec file and your folder structure
+brew "xcodegen"
+# Process YAML, JSON, XML, CSV and properties documents from the CLI
+brew "yq"
+# Shell extension to navigate your filesystem faster
+brew "zoxide"
+# OpenCode V2 - the AI coding agent for the terminal
+brew "anomalyco/tap/opencode-v2", trusted: true
+# ESP-IDF Installation Manager - CLI tool for setting up ESP-IDF development environment
+brew "espressif/eim/eim", trusted: true
+# iOS App Store alternative
+cask "altserver"
+# 3D model slicing software for 3D printers, maintained by Bambu Lab
+cask "bambu-studio"
+# 3D creation suite
+cask "blender"
+# Web browser focusing on privacy
+cask "brave-browser"
+# OpenAI's official ChatGPT desktop app
+cask "chatgpt"
+# Anthropic's official Claude AI desktop app
+cask "claude"
+# OpenAI's coding agent that runs in your terminal
+cask "codex"
+cask "font-sf-mono-nerd-font-ligaturized"
+# 3D parametric modeller
+cask "freecad"
+# Terminal emulator that uses platform-native UI and GPU acceleration
+cask "ghostty"
+# 2D and 3D game engine
+cask "godot"
+# Electronics design automation suite
+cask "kicad"
+# Reverse proxy, secure introspectable tunnels to localhost
+cask "ngrok"
+# Knowledge base that works on top of a local folder of plain text Markdown files
+cask "obsidian"
+cask "tossinger"
+npm "@openai/codex"
+npm "@tobilu/qmd"
+npm "acpx"
+npm "agent-browser"
+npm "corepack"
+npm "eas-cli"
+npm "pnpm"
+npm "vercel"
+
+# --- not installed through brew before, needed by bootstrap, sketchybar and the desktop ---
+tap "felixkratz/formulae", trusted: true
+tap "sdkman/tap", trusted: true
+brew "dockutil"
+brew "fastfetch"
+brew "ifstat"
+brew "jq"
+brew "lua"
+brew "mas"
+brew "media-control"
+brew "switchaudio-osx"
+brew "felixkratz/formulae/sketchybar"
+brew "sdkman/tap/sdkman-cli"
+cask "docker-desktop"
+cask "font-geist-mono-nerd-font"
+cask "font-jetbrains-mono-nerd-font"
+cask "font-symbols-only-nerd-font"

@@ -1,0 +1,120 @@
+// hop configuration (JSON5: comments and trailing commas are fine).
+// Saved changes apply immediately. Delete a key to use its default.
+// ${NAME} values come from .env beside this file — decrypted from .env.enc (just decrypt).
+{
+  general: {
+    // cmd, ctrl, alt/opt, shift or hyper, plus a key: "cmd+space", "alt+space", "hyper+k"
+    hotkey: "cmd+space",
+    // How loosely search matches: "low", "medium" or "high"
+    sensitivity: "high",
+    // Reopening after this many seconds starts back at the root search
+    popToRootSeconds: 90,
+    openAtLogin: true,
+    menuBarIcon: true,
+    // "og" or "modern"
+    theme: "og",
+  },
+
+  hyperKey: {
+    // Caps Lock becomes ⌃⌥⌘⇧ (needs Accessibility permission)
+    enabled: true,
+    // Caps Lock tapped on its own sends Escape
+    quickPressEscape: false,
+  },
+
+  wireguard: {
+    enabled: true,
+    // Flag from a tunnel name prefix: "si-home" → 🇸🇮
+    showFlags: true,
+  },
+
+  keepass: {
+    enabled: false,
+    // One entry per database; switch between them with ⌘D in hop.
+    databases: [
+      {
+        name: "Personal",
+        path: "${KEEPASS_PERSONAL_DB}",
+        keyFile: "${KEEPASS_PERSONAL_KEY}",
+        password: "keychain",
+      },
+      {
+        name: "Lutras",
+        path: "${KEEPASS_LUTRAS_DB}",
+        keyFile: "${KEEPASS_LUTRAS_KEY}",
+        password: "keychain",
+      },
+    ],
+    // password: where a database's master password comes from. Never write it in this file.
+    //   "keychain" ask once in hop, keep it in the Keychain behind Touch ID
+    //   "prompt"   ask every time the database is unlocked
+    //   "command"  run passwordCommand and read the password from its output,
+    //              e.g. "security find-generic-password -w -s hop-keepass"
+    //   "none"     the database has no password (key file only)
+    // Lock after this many minutes without use; -1 never
+    lockAfterMinutes: 10,
+    // Path to keepassxc-cli if it is not in KeePassXC.app or Homebrew
+    cli: "",
+    // Allow `hop kp get` to print passwords, TOTP codes and notes (e.g. for agents)
+    cliAccess: false,
+  },
+
+  calendar: {
+    // Root search shows events starting within this many minutes, and ones running now
+    soonMinutes: 90,
+  },
+
+  system: {
+    // Folder emptied by "Clear Downloads"
+    downloadsFolder: "~/Downloads",
+  },
+
+  // Links you can search from hop; ↵ opens them in the default browser.
+  // name, url, aliases (other names that find it), icon (image file relative to
+  // this folder, ~/ or absolute, an SF Symbol name or an emoji), color (tile colour
+  // for an SF Symbol), subtitle (defaults to the URL).
+  // Seeded from olympus-dashboard config/dashboard.yaml services; icons from its
+  // apps/web/public/icons.
+  bookmarks: [
+    { name: "Bunny's Den", url: "${DEN_URL}", aliases: ["dashboard", "dash", "olympus", "den"], icon: "icons/bunnys-den.png" },
+    { name: "Sonarr", url: "${DEN_URL}/media?type=tv", aliases: ["tv", "series", "shows"], icon: "icons/sonarr.svg" },
+    { name: "Radarr", url: "${DEN_URL}/media?type=movie", aliases: ["movies", "films"], icon: "icons/radarr.svg" },
+    { name: "Lidarr", url: "http://${LAN_HOST}:8686", aliases: ["music"], icon: "icons/lidarr.svg" },
+    { name: "Prowlarr", url: "http://${LAN_HOST}:9696", aliases: ["indexers"], icon: "icons/prowlarr.svg" },
+    { name: "Bazarr", url: "http://${LAN_HOST}:6767", aliases: ["subtitles"], icon: "icons/bazarr.svg" },
+    { name: "qBittorrent", url: "${DEN_URL}/torrents", aliases: ["qbit", "qb", "torrents"], icon: "icons/qbittorrent.svg" },
+    { name: "Tautulli", url: "http://${LAN_HOST}:8181", aliases: ["plex stats"], icon: "icons/tautulli.svg" },
+    { name: "Jellyfin", url: "http://${LAN_HOST}:8096", aliases: ["jelly", "media server"], icon: "icons/jellyfin.svg" },
+    { name: "Navidrome", url: "http://${LAN_HOST}:4533", aliases: ["music", "navi"], icon: "icons/navidrome.svg" },
+    { name: "Immich", url: "http://${LAN_HOST}:8081", aliases: ["photos"], icon: "icons/immich.svg" },
+    { name: "Frigate", url: "https://${LAN_HOST}:8971", aliases: ["nvr", "cameras", "cams"], icon: "icons/frigate.svg" },
+    { name: "Nextcloud", url: "https://${LAN_HOST}:8444", aliases: ["nc", "cloud", "files"], icon: "icons/nextcloud.svg" },
+    { name: "Tdarr", url: "${DEN_URL}/tdarr", aliases: ["transcode"], icon: "icons/tdarr.png" },
+    { name: "Iris", url: "${DEN_URL}/iris", aliases: ["whatsapp", "bot"], icon: "bubble.left.and.text.bubble.right.fill", color: "#25d366" },
+    { name: "Hermes", url: "${DEN_URL}/subs", aliases: ["subs"], icon: "icons/hermes.svg" },
+    { name: "Traefik", url: "http://${LAN_HOST}:8183/dashboard/", aliases: ["proxy"], icon: "icons/traefik.svg" },
+    { name: "Home Assistant", url: "http://${LAN_HOST}:8123", aliases: ["hass", "ha", "home"], icon: "icons/home-assistant.svg" },
+    { name: "PiKVM", url: "${DEN_URL}/kvm", aliases: ["kvm"], icon: "icons/pikvm.svg" },
+    { name: "Beszel", url: "http://${LAN_HOST}:8090", aliases: ["monitoring"], icon: "icons/beszel.svg" },
+    { name: "Chronos", url: "${CHRONOS_URL}", aliases: ["work"], icon: "icons/chronos.svg" },
+  ],
+
+  // Notes on ⌥. — folder of Markdown files (Obsidian vault)
+  notes: {
+    folder: "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/obsidian",
+  },
+
+  // Global hotkeys for any command or app
+  hotkeys: {
+    "emoji.search": "ctrl+cmd+space",
+  },
+
+  translate: {
+    // text in the first language goes to the second, anything else to the first
+    languages: ["sl", "en"],
+  },
+
+  ocr: {
+    languages: ["sl-SI", "en-US"],
+  },
+}
