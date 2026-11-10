@@ -35,8 +35,6 @@ brew "crane"
 brew "dfu-util"
 # Image format providing lossless and lossy compression for web images
 brew "webp"
-# Development kit for the Java programming language
-brew "openjdk"
 # Tool version manager (Java via ~/.config/mise/config.toml)
 brew "mise"
 # LLVM bytecode to JavaScript compiler

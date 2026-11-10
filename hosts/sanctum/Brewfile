@@ -241,8 +241,6 @@ brew "protobuf"
 brew "openai-whisper"
 # Provides a software solution to manage, store, and distribute sensitive data
 brew "openbao"
-# Development kit for the Java programming language
-brew "openjdk"
 # Tool version manager (Java via ~/.config/mise/config.toml)
 brew "mise"
 # Tools and libraries for smart cards
