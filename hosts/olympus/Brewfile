@@ -185,6 +185,7 @@ brew "mas"
 brew "media-control"
 brew "switchaudio-osx"
 brew "felixkratz/formulae/sketchybar"
+cask "sf-symbols"          # SF Pro: sketchybar's icons (the Apple logo, symbols)
 cask "docker-desktop"
 cask "font-geist-mono-nerd-font"
 cask "font-jetbrains-mono-nerd-font"

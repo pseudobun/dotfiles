@@ -735,6 +735,7 @@ step_macos() {
     local w="defaults write"
     # menu bar: hidden, sketchybar replaces it
     $w NSGlobalDomain _HIHideMenuBar -bool true
+    $w com.apple.controlcenter AutoHideMenuBarOption -int 0   # macOS 15+: "always" auto-hide
     # dock
     $w com.apple.dock autohide -bool true
     # paw tiles: no macOS edge / ⌥-drag tiling (its outlines show next to paw's drop preview)
