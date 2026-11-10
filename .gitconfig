@@ -6,6 +6,13 @@
 	gpgSign = true
 [credential]
 	helper = osxkeychain
+# GitHub over HTTPS through the gh login (the vault repo and agents push this way)
+[credential "https://github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
 [gpg]
 	program = /opt/homebrew/bin/gpg
 [gitbutler]
