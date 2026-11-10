@@ -297,8 +297,6 @@ brew "switchaudio-osx"
 brew "telnet"
 # Terminal image and video viewer
 brew "timg"
-# Simplified and community-driven man pages
-brew "tlrc"
 # Terminal multiplexer
 brew "tmux"
 # Lightweight BitTorrent client
