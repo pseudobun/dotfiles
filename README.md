@@ -52,9 +52,8 @@ Their configs are linked from here: `paw/` → `~/.config/paw`, `hop/` → `~/.c
 
 ## Fonts
 
-All fonts come from the `Brewfile` (`brew bundle`, automatic in `bootstrap.sh`): JetBrains Mono,
-Roboto Mono and Ubuntu, plus the Nerd Fonts (JetBrains Mono, Geist Mono, Hack, Liga SFMono) that
-Ghostty and sketchybar use.
+All fonts are Nerd Fonts from the `Brewfile` (`brew bundle`, automatic in `bootstrap.sh`):
+JetBrains Mono, Roboto Mono, Ubuntu, Geist Mono, Hack and Liga SFMono.
 
 ## Exporting public and private GPG keys with `gpg`
 
