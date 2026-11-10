@@ -26,8 +26,6 @@ brew "arp-scan"
 brew "autoconf"
 # Tool for generating GNU Standards-compliant Makefiles
 brew "automake"
-# Tool for managing dock items
-brew "dockutil"
 # GNU internationalization (i18n) and localization (l10n) library
 brew "gettext"
 # Bourne-Again SHell, a UNIX command interpreter
@@ -70,6 +68,8 @@ brew "crane"
 brew "ctop"
 # Lightweight DNS forwarder and DHCP server
 brew "dnsmasq"
+# Tool for managing dock items
+brew "dockutil"
 # View disk space usage and delete unwanted data, fast
 brew "dua-cli"
 # Collection of reusable C++ library artifacts developed at Facebook
@@ -92,6 +92,8 @@ brew "exercism"
 brew "exiftool"
 # Modern, maintained replacement for ls
 brew "eza"
+# Like neofetch, but much faster because written mostly in C
+brew "fastfetch"
 # Easiest way to build and release mobile apps
 brew "fastlane"
 # Simple, fast and user-friendly alternative to find
@@ -210,16 +212,14 @@ brew "md5sha1sum", link: true
 brew "media-control"
 # Run a Kubernetes cluster locally
 brew "minikube"
+# Polyglot runtime manager (asdf rust clone)
+brew "mise"
 # Simple tool to make locally trusted development certificates
 brew "mkcert"
 # Deep clean and optimize your Mac
 brew "mole"
 # NCurses Disk Usage
 brew "ncdu"
-# Fast, highly customisable system info script
-brew "fastfetch"
-# Leaner iOS/tvOS/watchOS/visionOS simulators (~4x less RAM than plain simctl)
-brew "mobai-app/tap/simslim"
 # HTTP and WebDAV client library with a C interface
 brew "neon"
 # Utility for managing network connections
@@ -240,8 +240,10 @@ brew "protobuf"
 brew "openai-whisper"
 # Provides a software solution to manage, store, and distribute sensitive data
 brew "openbao"
-# Tool version manager (Java via ~/.config/mise/config.toml)
-brew "mise"
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
+# AI coding agent, built for the terminal
+brew "opencode"
 # Tools and libraries for smart cards
 brew "opensc"
 # Drop-in replacement for Terraform. Infrastructure as Code Tool
@@ -276,12 +278,12 @@ brew "qrencode"
 brew "redis"
 # SVG rendering tool and library
 brew "resvg"
-# Search tool like grep and The Silver Searcher
-brew "ripgrep"
 # 7-Zip is a file archiver with a high compression ratio
 brew "sevenzip"
 # Database of common MIME types
 brew "shared-mime-info"
+# Static analysis and lint tool, for (ba)sh scripts
+brew "shellcheck"
 # Editor of encrypted files
 brew "sops"
 # SSH server & client auditing
@@ -328,23 +330,20 @@ brew "zlib"
 brew "zoxide"
 # Geo-scale, next-generation sharing platform built on top of OpenZiti
 brew "zrok"
-# OpenCode V2 - the AI coding agent for the terminal
-brew "opencode"
 # CLI app to manage your Apple Notes and Apple reminders
 brew "antoniorodr/memo/memo"
-# Simple hotkey-daemon for macOS.
 # The best way of working with Protocol Buffers.
-brew "bufbuild/buf/buf"
-# A tiling window manager for macOS based on binary space partitioning.
+brew "bufbuild/buf/buf", trusted: true
 # ESP-IDF Installation Manager - CLI tool for setting up ESP-IDF development environment
 brew "espressif/eim/eim"
 # Custom macOS statusbar with shell plugin, interaction and graph support
 brew "felixkratz/formulae/sketchybar"
 # CLI for GitOps continuous delivery
-brew "fluxcd/tap/flux"
-# Kubernetes GUI for GitOps with Flux and Helm
+brew "fluxcd/tap/flux", trusted: true
 # Terminal-based battery and energy monitor for macos and linux
 brew "jordond/tap/jolt"
+# Run more iOS, tvOS, watchOS, and visionOS simulators on one Mac by disabling unneeded background daemons
+brew "mobai-app/tap/simslim", trusted: true
 # CLI for Polymarket — browse markets, trade, and manage positions
 brew "polymarket/polymarket-cli/polymarket"
 # Ookla Speedtest
@@ -379,7 +378,6 @@ cask "cleanshot"
 cask "codex"
 # Multi-platform client-side cloud file encryption tool
 cask "cryptomator"
-# Reverse engineering platform powered by Rizin
 # Voice and text chat software
 cask "discord"
 # App to build and share containerised applications and microservices
@@ -405,10 +403,10 @@ cask "godot"
 cask "google-drive"
 # Video stabilization using gyroscope data
 cask "gyroflow"
-# Desktop automation application
 # Open-source video transcoder
 cask "handbrake-app"
-# Keyboard shortcuts for every button on your screen
+# Tiny native launcher with calculator, clipboard history, snippets and notes
+cask "pseudobun/tap/hop", trusted: true
 # Free and open-source media player
 cask "iina"
 # JetBrains tools manager
@@ -439,14 +437,12 @@ cask "mole-app"
 cask "notion"
 # Knowledge base that works on top of a local folder of plain text Markdown files
 cask "obsidian"
-# Launcher: apps, answers, clipboard history, snippets, notes (updates itself)
-cask "pseudobun/tap/hop"
-# Tiling window manager with virtual workspaces and stacks (updates itself)
-cask "pseudobun/tap/paw"
 # AI coding agent desktop client
 cask "opencode-desktop"
 # Smart card libraries and utilities
 cask "opensc-app"
+# Tiling window manager with virtual workspaces, presets and stack indicators
+cask "pseudobun/tap/paw", trusted: true
 # Home media player
 cask "plex"
 # Open source virtual/remote desktop application
@@ -498,15 +494,16 @@ mas "TestFlight", id: 899247664
 mas "The Unarchiver", id: 425424353
 mas "WireGuard", id: 1451685025
 mas "Xcode", id: 497799835
+go "github.com/OJ/gobuster/v3"
+go "golang.org/x/tools/gopls"
+go "honnef.co/go/tools/cmd/staticcheck"
 cargo "cargo-generate"
 cargo "graphql_client_cli"
 cargo "wasm-pack"
 uv "nano-pdf"
-npm "corepack"
-npm "eas-cli"
+npm "clawhub"
 npm "pnpm"
 # REA: reverse engineering MCP server + CLI (skill reverse-engineer-anything comes with claude-config)
 npm "rea-agents"
-npm "wscat"
 # Cutter (cask "cutter") is installed by bootstrap.sh install_cutter: its DMG is not notarized
 # and brew cannot mount it while quarantined.
