@@ -653,9 +653,17 @@ step_links() {
     fi
 
     setup_sketchybar
+    decrypt_env
     link_config paw "$HOME/.config/paw" "paw config"
     link_config hop "$HOME/.config/hop" "hop config"
-    decrypt_env
+    # With host overrides ~/.config/hop is a real folder: link hop's secret files by name too, so they
+    # work once `just secrets-import` / `just decrypt` creates them later (a dangling link is harmless).
+    if [[ -d "$HOME/.config/hop" && ! -L "$HOME/.config/hop" ]]; then
+        local s
+        for s in .env snippets.json5; do
+            [[ -e "$HOME/.config/hop/$s" && ! -L "$HOME/.config/hop/$s" ]] || ln -sfn "$d/hop/$s" "$HOME/.config/hop/$s"
+        done
+    fi
 
     # Hourly `brew outdated` refresh for the sketchybar brew item
     local agent="sh.pseudobun.brew-refresh"
@@ -842,7 +850,7 @@ step_agents() {
         run "claude-config checkout + sync agent" bash -c 'cd ~ && git --git-dir="$HOME/.claude-config.git" show main:.claude-config/bootstrap.sh | bash' || return 1
     else
         note "pseudobun/claude-config is private and GitHub is not logged in yet"
-        followup "Log in to GitHub, then: ~/.dotfiles/bootstrap.sh --only agents"
+        followup "Log in to GitHub, then: ~/.dotfiles/bootstrap.sh --only agents (claude-config, REA, Ghidra)"
         return 2
     fi
     if [[ -f "$HOME/.claude/CLAUDE.md" ]]; then link_agent_instructions; else warn "~/.claude/CLAUDE.md is missing after the checkout"; fi
@@ -851,6 +859,9 @@ step_agents() {
     if command -v npx &>/dev/null && command -v claude &>/dev/null; then
         install_ghidra
         rea_setup
+    else
+        warn "npx or claude missing: REA and Ghidra skipped"
+        followup "REA + Ghidra: ~/.dotfiles/bootstrap.sh --only agents"
     fi
     return 0
 }
