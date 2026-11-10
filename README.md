@@ -12,7 +12,6 @@ Run this command to bootstrap your machine:
 
 > Note: 
 > Some of the commands in the script require `sudo` access. You will be prompted for your password. 
-> Some features (such as omf installation) are currently experimental.
 
 Currently, [Go](https://go.dev/) needs to be installed [manually](https://go.dev/doc/install).
 
@@ -26,7 +25,6 @@ Currently, [Go](https://go.dev/) needs to be installed [manually](https://go.dev
 
 * [Ghostty](https://ghostty.org/)
 * [fish](https://github.com/fish-shell/fish-shell)
-* [oh-my-fish](https://github.com/oh-my-fish/oh-my-fish)
 * hop — my native launcher (private repo `pseudobun/hop`)
 * paw — my tiling window manager with virtual workspaces (private repo `pseudobun/paw`)
 * [sketchybar](https://github.com/FelixKratz/SketchyBar)
@@ -52,15 +50,11 @@ Their configs are linked from here: `paw/` → `~/.config/paw`, `hop/` → `~/.c
 * `just secrets-export` / `just secrets-import <file>` — GPG, SSH and the age key between Macs; import also decrypts the `.env` files
 
 
-## Install fonts 
+## Fonts
 
-1. Liga SFMono Nerd Font now comes with `Brewfile`, so you can just run `brew bundle` to install it (automatic in `bootstrap.sh` ).
-   
-
-    I switched to Liga SFMono because of the Nerd Font support. For customizable installation, follow the instructions in [their repo](https://github.com/shaunsingh/SFMono-Nerd-Font-Ligaturized).
-
-2. Install the fonts included ([JetBrains Mono](/fonts/JetBrainsMono/) or [Roboto Mono](/fonts/RobotoMono/)).
-   1. Click on desired `.tiff` files and click install.
+All fonts come from the `Brewfile` (`brew bundle`, automatic in `bootstrap.sh`): JetBrains Mono,
+Roboto Mono and Ubuntu, plus the Nerd Fonts (JetBrains Mono, Geist Mono, Hack, Liga SFMono) that
+Ghostty and sketchybar use.
 
 ## Exporting public and private GPG keys with `gpg`
 

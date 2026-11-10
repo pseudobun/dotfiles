@@ -391,9 +391,12 @@ cask "espressif/eim/eim-gui"
 cask "finetune"
 cask "font-geist-mono-nerd-font"
 cask "font-hack-nerd-font"
+cask "font-jetbrains-mono"
 cask "font-jetbrains-mono-nerd-font"
+cask "font-roboto-mono"
 cask "font-sf-mono-nerd-font-ligaturized"
 cask "font-symbols-only-nerd-font"
+cask "font-ubuntu"
 # 3D parametric modeller
 cask "freecad"
 # Terminal emulator that uses platform-native UI and GPU acceleration

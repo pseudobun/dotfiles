@@ -47,7 +47,7 @@ LOG="$HOME/Library/Logs/dotfiles-bootstrap.log"
 START_TS=$(date +%s)
 STEP_STARTED=$START_TS
 
-STEP_IDS=(xcode clone homebrew secrets shell gpg ssh links fish devtools spicetify macos terminal fonts github apps services)
+STEP_IDS=(xcode clone homebrew secrets shell gpg ssh links fish devtools spicetify macos terminal github apps services)
 STEP_TITLES=(
     "Xcode Command Line Tools"
     "Dotfiles repository"
@@ -62,7 +62,6 @@ STEP_TITLES=(
     "Spicetify"
     "macOS defaults"
     "Extra terminals"
-    "Bundled fonts"
     "GitHub CLI login"
     "hop & paw"
     "Services"
@@ -413,11 +412,6 @@ step_shell() {
         fi
     fi
 
-    if ask_yes_no "Install Oh-My-Fish? (experimental)" "n"; then
-        run "Oh-My-Fish" bash -c 'curl -fsSL https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install -o /tmp/omf-install && fish /tmp/omf-install --noninteractive --yes' \
-            || warn "Oh-My-Fish install had issues"
-    fi
-
     if ask_yes_no "Install Fisher + the plugins in fish/fish_plugins?"; then
         if run "Fisher" fish -c 'curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher'; then
             if [[ -f "$dotfiles_path/fish/fish_plugins" ]]; then
@@ -617,7 +611,7 @@ step_links() {
 
 step_fish() {
     command -v fish &>/dev/null || { warn "fish is not installed"; return 2; }
-    if ! ask_yes_no "Run setup.fish (PATH entries, omf theme if present, Fisher)?"; then return 2; fi
+    if ! ask_yes_no "Run setup.fish (PATH entries, Fisher)?"; then return 2; fi
     run "setup.fish" fish "$dotfiles_path/setup.fish" || warn "setup.fish reported problems"
     return 0
 }
@@ -711,17 +705,6 @@ step_macos() {
 step_terminal() {
     if ! ask_yes_no "Install Kitty?" "n"; then return 2; fi
     run "kitty" bash -c 'curl -fsSL https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n' || warn "kitty failed"
-    return 0
-}
-
-step_fonts() {
-    note "JetBrains Mono + Roboto Mono from fonts/ (Nerd Fonts come from the Brewfile)"
-    if ! ask_yes_no "Copy bundled fonts to ~/Library/Fonts?"; then return 2; fi
-    mkdir -p "$HOME/Library/Fonts"
-    local n=0 f
-    while IFS= read -r -d '' f; do cp "$f" "$HOME/Library/Fonts/" && n=$((n + 1)); done \
-        < <(find "$dotfiles_path/fonts" -type f \( -name '*.ttf' -o -name '*.otf' \) -print0)
-    if (( n > 0 )); then success "$n font files installed"; else warn "no fonts found in fonts/"; fi
     return 0
 }
 
