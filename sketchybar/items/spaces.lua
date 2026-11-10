@@ -2,7 +2,7 @@ local colors = require("colors")
 local icons = require("icons")
 local settings = require("settings")
 local island = require("island")
-local app_icons = require("app_icons")
+local app_image = require("app_image")
 
 -- Workspaces come from paw (`paw query --json`), not yabai. One long-lived `paw subscribe`
 -- turns paw's events into sketchybar events (a snapshot first; it reconnects when paw
@@ -150,7 +150,11 @@ local function refresh(animate, retries)
             apps[i][j]:set({
               display = display_of(ws),
               drawing = true,
-              label = { string = app_icons.get(w.app), color = app_color(w, ws.focused) },
+              label = { string = (app_image.icon(w.app)), color = app_color(w, ws.focused),
+                        width = select(2, app_image.icon(w.app)) and 18 or "dynamic" },
+              background = select(2, app_image.icon(w.app))
+                and { drawing = true, image = { string = select(2, app_image.icon(w.app)), scale = 0.45 } }
+                or { drawing = false },
               padding_right = j == #shown and 8 or 0,
             })
           else

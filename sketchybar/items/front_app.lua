@@ -1,7 +1,7 @@
 local colors = require("colors")
 local settings = require("settings")
 local island = require("island")
-local app_icons = require("app_icons")
+local app_image = require("app_image")
 
 local e1 = island.edge("left")
 local front_app = sbar.add("item", "front_app", {
@@ -14,7 +14,15 @@ local e2 = island.edge("left")
 
 front_app:subscribe("front_app_switched", function(env)
   local app = env.INFO
-  front_app:set({ icon = { string = app_icons.get(app) }, label = { string = app } })
+  local glyph, image = app_image.icon(app)
+  front_app:set({
+    icon = {
+      string = glyph,
+      width = image and 20 or "dynamic",
+      background = image and { drawing = true, image = { string = image, scale = 0.5 } } or { drawing = false },
+    },
+    label = { string = app },
+  })
   -- The app's own colour from paw (picked from its icon); gold when it has none.
   sbar.exec("paw color '" .. app:gsub("'", "'\\''") .. "' 2>/dev/null", function(out)
     local c = tonumber(type(out) == "string" and out:match("0x%x+") or "")
