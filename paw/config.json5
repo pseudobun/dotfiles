@@ -193,6 +193,8 @@
   // Setting bindings replaces this whole list.
   bindings: {
     "hyper+tab": "overview",
+    "hyper+.": "move-workspace next",
+    "hyper+,": "move-workspace prev",
     "hyper+j": "zoom in",
     "hyper+k": "zoom out",
     "hyper+z": "undo",
