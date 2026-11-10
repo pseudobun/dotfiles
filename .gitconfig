@@ -1,0 +1,12 @@
+[user]
+	name = Urban Vidovič
+	email = urbanfoundit@gmail.com
+	signingkey = 3C6FB610DBED15600E8FAEB4389F01C7E97E0262
+[commit]
+	gpgSign = true
+[credential]
+	helper = osxkeychain
+[gpg]
+	program = /opt/homebrew/bin/gpg
+[gitbutler]
+	gitbutlerCommitter = 0

@@ -1,0 +1,99 @@
+# Minimal starship config for SSH sessions (no Nerd Font icons)
+"$schema" = 'https://starship.rs/config-schema.json'
+
+add_newline = true
+format = '''
+$username$hostname $directory $status
+$character
+'''
+right_format = '''
+$git_branch$git_status$nodejs$bun$rust$golang$python$cmd_duration$jobs
+'''
+
+[character]
+success_symbol = '[>](cyan)'
+error_symbol = '[>](bold red)'
+
+[username]
+style_user = 'cyan'
+style_root = 'red'
+format = '[$user]($style)'
+disabled = false
+show_always = true
+
+[directory]
+truncation_symbol = '.../'
+format = '\[[$path](green)\]'
+repo_root_style = 'green bold'
+before_repo_root_style = 'green'
+repo_root_format = '[$repo_root]($repo_root_style)[$path](green)'
+truncate_to_repo = true
+fish_style_pwd_dir_length = 1
+home_symbol = "~"
+
+[jobs]
+format = "[$symbol$number](bold green) "
+symbol = '+ '
+number_threshold = 2
+symbol_threshold = 1
+
+[cmd_duration]
+min_time = 1
+format = 'took [$duration](bold yellow) '
+
+[git_branch]
+symbol = ''
+format = '[$symbol$branch(:$remote_branch)](purple bold) '
+
+[git_status]
+format = "$ahead_behind$stashed$conflicted$deleted$renamed$modified$untracked$staged"
+conflicted = '[C](red bold) '
+ahead = '[^${count}](green) '
+behind = '[v${count}](yellow) '
+diverged = '[^${ahead_count}](green)[v${behind_count}](yellow) '
+up_to_date = '[ok](green bold) '
+untracked = '[?](yellow bold) '
+stashed = '[s](blue bold) '
+modified = '[x](red bold) '
+staged = '[++\($count\)](green) '
+renamed = "[r](yellow) "
+deleted = "[d](red) "
+
+[rust]
+symbol = "rs "
+format = '[$symbol$version](red bold) '
+
+[golang]
+symbol = "go "
+format = '[$symbol$version](bold cyan) '
+
+[nodejs]
+format = '[$symbol$version$engines_version]($style) '
+symbol = "node "
+style = "bold yellow"
+not_capable_style = "bold red"
+
+[python]
+format = "[$symbol$pyenv_prefix($version )(($virtualenv) )]($style)"
+symbol = 'py '
+pyenv_version_name = false
+style = "yellow bold"
+python_binary = ['./venv/bin/python', 'python', 'python3', 'python2']
+
+[status]
+style = 'bold red'
+symbol = '! '
+format = '[\($symbol$common_meaning$signal_name$maybe_int $status\)]($style) '
+disabled = false
+
+[bun]
+format = '[bun $version](bold green) '
+
+[hostname]
+ssh_only = true
+format = '[@](green)[$hostname](purple)'
+trim_at = '.local'
+disabled = false
+
+[os]
+disabled = true

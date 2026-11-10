@@ -1,0 +1,505 @@
+tap "anomalyco/tap", trusted: true
+tap "antoniorodr/memo", trusted: true
+tap "bufbuild/buf", trusted: true
+tap "crmne/tap", trusted: true
+tap "espressif/eim", trusted: true
+tap "felixkratz/formulae", trusted: true
+tap "fluxcd/tap", trusted: true
+tap "gromgit/fuse", trusted: true
+tap "iina/mpv-iina", trusted: true
+tap "infisical/get-cli", trusted: true
+tap "jordond/tap", trusted: true
+tap "ngrok/ngrok", trusted: true
+tap "nikitabobko/tap", trusted: true
+tap "polymarket/polymarket-cli", "https://github.com/Polymarket/polymarket-cli", trusted: true
+tap "pseudobun/tap", trusted: true
+tap "sdkman/tap", trusted: true
+tap "shaunsingh/sfmono-nerd-font-ligaturized", trusted: true
+tap "stripe/stripe-cli", trusted: true
+tap "supabase/tap", trusted: true
+tap "teamookla/speedtest", trusted: true
+tap "tw93/tap", trusted: true
+# Simple, modern, secure file encryption
+brew "age"
+# ARP scanning and fingerprinting tool
+brew "arp-scan"
+# Automatic configure script builder
+brew "autoconf"
+# Tool for generating GNU Standards-compliant Makefiles
+brew "automake"
+# GNU internationalization (i18n) and localization (l10n) library
+brew "gettext"
+# Bourne-Again SHell, a UNIX command interpreter
+brew "bash"
+# C library implementing the SSH2 protocol
+brew "libssh2"
+# Cryptography and SSL/TLS Toolkit
+brew "openssl@3"
+# Clone of cat(1) with syntax highlighting and Git integration
+brew "bat"
+# General-purpose data compression with high compression ratio
+brew "xz"
+# Searches a binary image for embedded files and executable code
+brew "binwalk"
+# Toolchain of the web
+brew "biome"
+# Collection of portable C++ source libraries
+brew "boost"
+# Yet another cross-platform graphical process/system monitor
+brew "bottom"
+# New way to see and navigate directory trees
+brew "broot"
+# Powerful, enterprise-ready, open source web server with automatic HTTPS
+brew "caddy"
+# Core application library for C
+brew "glib"
+# Cross-platform make
+brew "cmake"
+# Dependency manager for Cocoa projects
+brew "cocoapods"
+# General-purpose scripting language
+brew "php"
+# Dependency Manager for PHP
+brew "composer"
+# Container Signing
+brew "cosign"
+# Tool for interacting with remote images and registries
+brew "crane"
+# Top-like interface for container metrics
+brew "ctop"
+# Lightweight DNS forwarder and DHCP server
+brew "dnsmasq"
+# View disk space usage and delete unwanted data, fast
+brew "dua-cli"
+# Collection of reusable C++ library artifacts developed at Facebook
+brew "folly"
+# C++14 implementation of the TLS-1.3 standard
+brew "fizz"
+# Modular, composable client/server abstractions framework
+brew "wangle"
+# Facebook's branch of Apache Thrift, including a new C++ server
+brew "fbthrift"
+# Thrift functions for querying information from a service
+brew "fb303"
+# Shared library for Watchman and Eden projects
+brew "edencommon"
+# Charset analyzer and converter
+brew "enca"
+# Command-line tool to interact with exercism.io
+brew "exercism"
+# Perl lib for reading and writing EXIF metadata
+brew "exiftool"
+# Modern, maintained replacement for ls
+brew "eza"
+# Easiest way to build and release mobile apps
+brew "fastlane"
+# Simple, fast and user-friendly alternative to find
+brew "fd"
+# Play, record, convert, and stream select audio and video codecs
+brew "ffmpeg"
+# Create thumbnails for your video files
+brew "ffmpegthumbnailer"
+# User-friendly command-line shell for UNIX-like operating systems
+brew "fish"
+# Fast and simple Node.js version manager
+brew "fnm"
+# Command-line fuzzy finder written in Go
+brew "fzf"
+# GNU compiler collection
+brew "gcc"
+# GitHub command-line tool
+brew "gh"
+# OpenType text shaping engine
+brew "harfbuzz"
+# Image processing and image analysis library
+brew "leptonica"
+# Multi-format archive and compression library
+brew "libarchive"
+# OCR (Optical Character Recognition) engine
+brew "tesseract"
+# Interpreter for PostScript and PDF
+brew "ghostscript"
+# Simple gRPC benchmarking and load testing tool
+brew "ghz"
+# GIF image/animation creator/editor
+brew "gifsicle"
+# Render markdown on the CLI
+brew "glow"
+# International domain name library (IDNA2008, Punycode and TR46)
+brew "libidn2"
+# Library to load and enumerate PKCS#11 modules
+brew "p11-kit"
+# GNU Transport Layer Security (TLS) Library
+brew "gnutls"
+# GNU Privacy Guard (OpenPGP)
+brew "gnupg"
+# Library access to GnuPG
+brew "gpgme"
+# Validating, recursive, caching DNS resolver
+brew "unbound"
+# MIME mail utilities
+brew "gmime"
+# Ping, but with a graph
+brew "gping"
+# ISO/IEC 23008-12:2017 HEIF file format decoder and encoder
+brew "libheif"
+# Package compiler and linker metadata toolkit
+brew "pkgconf"
+# GNU Ubiquitous Intelligent Language for Extensions
+brew "guile"
+# Tool for glamorous shell scripts
+brew "gum"
+# World's fastest and most advanced password recovery utility
+brew "hashcat"
+# File format designed to store large amounts of data
+brew "hdf5"
+# Kubernetes package manager
+brew "helm"
+# Agent multiplexer that lives in your terminal
+brew "herdr"
+# Client library for huggingface.co hub
+brew "hf"
+# Improved top (interactive process viewer)
+brew "htop"
+# User-friendly cURL replacement (command-line HTTP client)
+brew "httpie"
+# Tool to download photos from iCloud
+brew "icloudpd"
+# Tool to report network interface bandwidth
+brew "ifstat"
+# Tools and libraries to manipulate images in select formats
+brew "imagemagick"
+# Update of iperf: measures TCP, UDP, and SCTP bandwidth
+brew "iperf3"
+# Lightweight and flexible command-line JSON processor
+brew "jq"
+# Handy way to save and run project-specific commands
+brew "just"
+# Modern load testing tool, using Go and JavaScript
+brew "k6"
+# Kubernetes command-line interface
+brew "kubernetes-cli"
+# Much more powerful alternative to kubectx and kubens
+brew "kubie"
+# Template-free customization of Kubernetes YAML manifests
+brew "kustomize"
+# Subtitle renderer for the ASS/SSA subtitle format
+brew "libass"
+# Library to communicate with iOS devices natively
+brew "libimobiledevice"
+# LLVM's OpenMP runtime library
+brew "libomp"
+# Library for reading RAW files from digital photo cameras
+brew "libraw"
+# Powerful, lightweight programming language
+brew "lua"
+# Text-based web browser
+brew "lynx"
+# Securely transfers data between computers
+brew "magic-wormhole"
+# Quickly generate a temporary email address
+brew "mailsy"
+# Text-to-HTML conversion tool
+brew "markdown"
+# Mac App Store command-line interface
+brew "mas"
+# Hash utilities
+brew "md5sha1sum", link: true
+# Control and observe media playback from the command-line
+brew "media-control"
+# Run a Kubernetes cluster locally
+brew "minikube"
+# Simple tool to make locally trusted development certificates
+brew "mkcert"
+# Deep clean and optimize your Mac
+brew "mole"
+# NCurses Disk Usage
+brew "ncdu"
+# Fast, highly customisable system info script
+brew "fastfetch"
+# HTTP and WebDAV client library with a C interface
+brew "neon"
+# Utility for managing network connections
+brew "netcat"
+# HTTP(S) server and reverse proxy, and IMAP/POP3 proxy server
+brew "nginx"
+# Port scanning utility for large networks
+brew "nmap"
+# Thread-based email index, search, and tagging
+brew "notmuch"
+# Send push notifications to your phone or desktop via PUT/POST
+brew "ntfy"
+# Smart, Fast and Extensible Build System
+brew "nx"
+# Protocol buffers (Google's data interchange format)
+brew "protobuf"
+# General-purpose speech recognition model
+brew "openai-whisper"
+# Provides a software solution to manage, store, and distribute sensitive data
+brew "openbao"
+# Development kit for the Java programming language
+brew "openjdk"
+# Tools and libraries for smart cards
+brew "opensc"
+# Drop-in replacement for Terraform. Infrastructure as Code Tool
+brew "opentofu"
+# SSL/TLS VPN implementing OSI layer 2 or 3 secure network extension
+brew "openvpn"
+# OCI Registry As Storage
+brew "oras"
+# Swiss-army knife of markup format conversion
+brew "pandoc"
+# Pinentry for GPG on Mac
+brew "pinentry-mac"
+# Execute binaries from Python packages in isolated environments
+brew "pipx"
+# PDF rendering library (based on the xpdf-3.0 code base)
+brew "poppler"
+# Object-relational database system
+brew "postgresql@15"
+# Framework for managing multi-language pre-commit hooks
+brew "pre-commit"
+# Tool Command Language
+brew "tcl-tk"
+# Python interface to Tcl/Tk
+brew "python-tk@3.14"
+# Interpreted, interactive, object-oriented programming language
+brew "python@3.11"
+# Tools for and transforming and inspecting PDF files
+brew "qpdf"
+# QR Code generation
+brew "qrencode"
+# Persistent key-value database, with built-in net interface
+brew "redis"
+# SVG rendering tool and library
+brew "resvg"
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
+# 7-Zip is a file archiver with a high compression ratio
+brew "sevenzip"
+# Database of common MIME types
+brew "shared-mime-info"
+# Editor of encrypted files
+brew "sops"
+# SSH server & client auditing
+brew "ssh-audit"
+# SSTP (Microsoft's Remote Access Solution for PPP over SSL) client
+brew "sstp-client"
+# Cross-shell prompt for astronauts
+brew "starship"
+# Command-line tool for Stripe
+brew "stripe-cli"
+# Change macOS audio source from the command-line
+brew "switchaudio-osx"
+# User interface to the TELNET protocol
+brew "telnet"
+# Terminal image and video viewer
+brew "timg"
+# Simplified and community-driven man pages
+brew "tlrc"
+# Terminal multiplexer
+brew "tmux"
+# Lightweight BitTorrent client
+brew "transmission-cli"
+# Display directories as trees (with optional color/HTML output)
+brew "tree"
+# Command-line unarchiving tools supporting multiple formats
+brew "unar"
+# Extremely fast Python package installer and resolver, written in Rust
+brew "uv"
+# Executes a program periodically, showing output fullscreen
+brew "watch"
+# Watch files and take action when they change
+brew "watchman"
+# Command-line client for WebSockets
+brew "websocat"
+# Internet file retriever
+brew "wget"
+# Tools for the WireGuard secure network tunnel
+brew "wireguard-tools"
+# Tool for managing your YubiKey configuration
+brew "ykman"
+# Feature-rich command-line audio/video downloader
+brew "yt-dlp"
+# General-purpose lossless data-compression library
+brew "zlib"
+# Shell extension to navigate your filesystem faster
+brew "zoxide"
+# Geo-scale, next-generation sharing platform built on top of OpenZiti
+brew "zrok"
+# OpenCode V2 - the AI coding agent for the terminal
+brew "anomalyco/tap/opencode-v2", trusted: true
+# CLI app to manage your Apple Notes and Apple reminders
+brew "antoniorodr/memo/memo"
+# Simple hotkey-daemon for macOS.
+# The best way of working with Protocol Buffers.
+brew "bufbuild/buf/buf"
+# A tiling window manager for macOS based on binary space partitioning.
+# ESP-IDF Installation Manager - CLI tool for setting up ESP-IDF development environment
+brew "espressif/eim/eim"
+# Custom macOS statusbar with shell plugin, interaction and graph support
+brew "felixkratz/formulae/sketchybar"
+# CLI for GitOps continuous delivery
+brew "fluxcd/tap/flux"
+# Kubernetes GUI for GitOps with Flux and Helm
+# Terminal-based battery and energy monitor for macos and linux
+brew "jordond/tap/jolt"
+# CLI for Polymarket — browse markets, trade, and manage positions
+brew "polymarket/polymarket-cli/polymarket"
+# SDKMAN! the Software Development Kit Manager
+brew "sdkman/tap/sdkman-cli"
+# Ookla Speedtest
+brew "teamookla/speedtest/speedtest"
+# Collection of apps and services for photography, design, video, web, and UX
+cask "adobe-creative-cloud"
+# Utility to add Dynamic Island like features to notch area
+cask "alcove"
+# Menu bar tool to limit maximum charging percentage
+cask "aldente"
+# Application uninstaller
+cask "appcleaner"
+# Tool to flash OS images to SD cards & USB drives
+cask "balenaetcher"
+# 3D model slicing software for 3D printers, maintained by Bambu Lab
+cask "bambu-studio"
+# 3D creation suite
+cask "blender"
+# Web browser focusing on privacy
+cask "brave-browser"
+# Open source IDE for exploring and testing APIs
+cask "bruno"
+# Web debugging Proxy application
+cask "charles"
+# OpenAI's official ChatGPT desktop app
+cask "chatgpt"
+# Anthropic's official Claude AI desktop app
+cask "claude"
+# Screen capturing tool
+cask "cleanshot"
+# OpenAI's coding agent that runs in your terminal
+cask "codex"
+# Multi-platform client-side cloud file encryption tool
+cask "cryptomator"
+# Reverse engineering platform powered by Rizin
+# Voice and text chat software
+cask "discord"
+# App to build and share containerised applications and microservices
+cask "docker-desktop"
+# GUI application for installing and managing ESP-IDF development environment
+cask "espressif/eim/eim-gui"
+# Per-application volume mixer, equalizer, and audio router
+cask "finetune"
+cask "font-geist-mono-nerd-font"
+cask "font-hack-nerd-font"
+cask "font-jetbrains-mono-nerd-font"
+cask "font-sf-mono-nerd-font-ligaturized"
+cask "font-symbols-only-nerd-font"
+# 3D parametric modeller
+cask "freecad"
+# Terminal emulator that uses platform-native UI and GPU acceleration
+cask "ghostty"
+# 2D and 3D game engine
+cask "godot"
+# Client for the Google Drive storage service
+cask "google-drive"
+# Video stabilization using gyroscope data
+cask "gyroflow"
+# Desktop automation application
+# Open-source video transcoder
+cask "handbrake-app"
+# Keyboard shortcuts for every button on your screen
+# Free and open-source media player
+cask "iina"
+# Terminal emulator as alternative to Apple's Terminal app
+cask "iterm2"
+# JetBrains tools manager
+cask "jetbrains-toolbox"
+# Password manager app
+cask "keepassxc"
+# Blocks all Keyboard and TouchBar input
+cask "keyboardcleantool"
+# Electronics design automation suite
+cask "kicad"
+# PostScript printer driver
+cask "konica-minolta-bizhub-c750i-driver"
+# Free cross-platform office suite, fresh version
+cask "libreoffice"
+# Customise mouse behavior
+cask "linearmouse"
+# Open-source cross-platform alternative to AirDrop
+cask "localsend"
+# File system integration
+cask "macfuse"
+# Provides updates to various Microsoft products
+cask "microsoft-auto-update"
+# Word processor
+cask "microsoft-word"
+# Deep clean, analyze, and optimize app
+cask "mole-app"
+# App to write, plan, collaborate, and get organised
+cask "notion"
+# Knowledge base that works on top of a local folder of plain text Markdown files
+cask "obsidian"
+# AI coding agent desktop client
+cask "opencode-desktop"
+# Smart card libraries and utilities
+cask "opensc-app"
+# Home media player
+cask "plex"
+# Open source virtual/remote desktop application
+cask "rustdesk"
+# Screen recorder and editor
+cask "screen-studio"
+# Tool that provides consistent, highly configurable symbols for apps
+cask "sf-symbols"
+# Instant messaging application focusing on security
+cask "signal"
+# Team communication and collaboration software
+cask "slack"
+# Displays all open files and sockets in use by all running processes
+cask "sloth"
+# File sharing network
+cask "soulseek"
+# Bitcoin wallet application
+cask "sparrow"
+# Native Spotify client
+cask "crmne/tap/spotifast", trusted: true
+# Music streaming service
+cask "spotify"
+# Video game digital distribution service
+cask "steam"
+# Interior design application
+cask "sweet-home3d"
+# Minimal GUI for AI code agents
+cask "t3-code"
+# Messaging app with a focus on speed and security
+cask "telegram"
+# Virtual machines UI using QEMU
+cask "utm"
+# Administration tool for MikroTik RouterOS
+cask "winbox"
+# Network protocol analyzer
+cask "wireshark-app"
+# Full-featured companion app to the YubiKey
+cask "yubico-authenticator"
+# Libraries and utilities to interact with a YubiHSM 2 natively and via PKCS#11
+cask "yubihsm2-sdk"
+# Multiplayer code editor
+cask "zed"
+mas "Developer", id: 640199958
+mas "FileZilla Pro", id: 1298486723
+mas "Infuse", id: 1136220934
+mas "Reeder", id: 6475002485
+mas "Reins", id: 6739738501
+mas "TestFlight", id: 899247664
+mas "The Unarchiver", id: 425424353
+mas "WireGuard", id: 1451685025
+mas "Xcode", id: 497799835
+cargo "cargo-generate"
+cargo "graphql_client_cli"
+cargo "wasm-pack"
+uv "nano-pdf"
+npm "corepack"
+npm "eas-cli"
+npm "pnpm"
+npm "wscat"

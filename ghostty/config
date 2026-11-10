@@ -1,0 +1,37 @@
+# Colors mirror iTerm profile "pseudobun" (DraculaPlus-based)
+background = #0b0d0f
+foreground = #f8f8f2
+cursor-color = #708ca9
+cursor-text = #f8f8f2
+selection-background = #414d58
+selection-foreground = #c6c6c2
+bold-color = #ffffff
+
+palette = 0=#0b0d0f
+palette = 1=#ff9580
+palette = 2=#8aff80
+palette = 3=#ffff80
+palette = 4=#9580ff
+palette = 5=#ff80bf
+palette = 6=#80ffea
+palette = 7=#f8f8f2
+palette = 8=#364049
+palette = 9=#ffaa99
+palette = 10=#a2ff99
+palette = 11=#ffff99
+palette = 12=#aa99ff
+palette = 13=#ff99cc
+palette = 14=#99ffee
+palette = 15=#ffffff
+
+font-family = JetBrainsMono Nerd Font Mono
+font-size = 12
+
+# Quake terminal: bottom, same hotkey as iTerm "overlay" profile (cmd+shift+ key code 24)
+quick-terminal-position = bottom
+quick-terminal-screen = mouse
+keybind = global:cmd+shift+equal=toggle_quick_terminal
+
+# Block cursor; stop shell integration from switching it to a bar at the prompt
+cursor-style = block
+shell-integration-features = no-cursor

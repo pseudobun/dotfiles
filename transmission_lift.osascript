@@ -1,0 +1,22 @@
+tell application "iTerm2"
+    activate
+
+    # FIRST SESSION
+    tell first session of current tab of current window
+        split vertically with default profile
+        write text "watch --interval 1 'transmission-remote -l'"
+        split horizontally with default profile
+    end tell
+    delay 1
+    # SECOND SESSION
+    tell second session of current tab of current window
+        write text "transmission-daemon --foreground"
+    end tell
+    delay 1
+    # THIRD SESSIONS
+    tell third session of current tab of current window
+        split horizontally with default profile
+        write text "watch --interval 1 'lsof -nP -iTCP -sTCP:LISTEN | grep 51413'"
+    end tell
+
+end tell

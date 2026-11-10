@@ -1,0 +1,8 @@
+backup.sh
+
+*.lock.json
+*.out
+env.local.sh
+hop/snippets.json5
+.env
+*.bak-*

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>GlassKVM — icon · dark</title>
+  <rect width="1024" height="1024" rx="230.4" ry="230.4" fill="#0A1A1C"></rect>
+  <g transform="translate(194.56 194.56) scale(0.62)">
+    <line x1="294.78" y1="294.78" x2="729.22" y2="729.22" stroke="#14B8A6" stroke-width="59.39" stroke-linecap="round"></line>
+    <circle cx="294.78" cy="294.78" r="55.3" fill="#0A1A1C"></circle>
+    <circle cx="294.78" cy="294.78" r="44.03" fill="none" stroke="#14B8A6" stroke-width="22.53"></circle>
+    <circle cx="729.22" cy="729.22" r="55.3" fill="#0A1A1C"></circle>
+    <circle cx="729.22" cy="729.22" r="44.03" fill="none" stroke="#14B8A6" stroke-width="22.53"></circle>
+    <circle cx="512" cy="512" r="83.97" fill="#14B8A6"></circle>
+    <circle cx="512" cy="512" r="22.53" fill="#FFFFFF"></circle>
+  </g>
+</svg>
