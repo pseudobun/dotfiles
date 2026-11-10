@@ -14,7 +14,6 @@ tap "ngrok/ngrok", trusted: true
 tap "nikitabobko/tap", trusted: true
 tap "polymarket/polymarket-cli", "https://github.com/Polymarket/polymarket-cli", trusted: true
 tap "pseudobun/tap", trusted: true
-tap "sdkman/tap", trusted: true
 tap "shaunsingh/sfmono-nerd-font-ligaturized", trusted: true
 tap "stripe/stripe-cli", trusted: true
 tap "supabase/tap", trusted: true
@@ -244,6 +243,8 @@ brew "openai-whisper"
 brew "openbao"
 # Development kit for the Java programming language
 brew "openjdk"
+# Tool version manager (Java via ~/.config/mise/config.toml)
+brew "mise"
 # Tools and libraries for smart cards
 brew "opensc"
 # Drop-in replacement for Terraform. Infrastructure as Code Tool
@@ -349,8 +350,6 @@ brew "fluxcd/tap/flux"
 brew "jordond/tap/jolt"
 # CLI for Polymarket — browse markets, trade, and manage positions
 brew "polymarket/polymarket-cli/polymarket"
-# SDKMAN! the Software Development Kit Manager
-brew "sdkman/tap/sdkman-cli"
 # Ookla Speedtest
 brew "teamookla/speedtest/speedtest"
 # Collection of apps and services for photography, design, video, web, and UX

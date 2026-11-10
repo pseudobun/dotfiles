@@ -37,6 +37,8 @@ brew "dfu-util"
 brew "webp"
 # Development kit for the Java programming language
 brew "openjdk"
+# Tool version manager (Java via ~/.config/mise/config.toml)
+brew "mise"
 # LLVM bytecode to JavaScript compiler
 brew "emscripten"
 # Modern, maintained replacement for ls
@@ -176,7 +178,6 @@ npm "vercel"
 
 # --- not installed through brew before, needed by bootstrap, sketchybar and the desktop ---
 tap "felixkratz/formulae", trusted: true
-tap "sdkman/tap", trusted: true
 brew "dockutil"
 brew "fastfetch"
 brew "ifstat"
@@ -186,7 +187,6 @@ brew "mas"
 brew "media-control"
 brew "switchaudio-osx"
 brew "felixkratz/formulae/sketchybar"
-brew "sdkman/tap/sdkman-cli"
 cask "docker-desktop"
 cask "font-geist-mono-nerd-font"
 cask "font-jetbrains-mono-nerd-font"

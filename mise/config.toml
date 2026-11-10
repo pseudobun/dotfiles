@@ -1,0 +1,5 @@
+# Global tool versions (mise: https://mise.jdx.dev). Linked to ~/.config/mise/config.toml.
+# Node stays on fnm; mise handles the JVM.
+[tools]
+# Ghidra 12.1 (REA) needs Java 21
+java = "temurin-21"

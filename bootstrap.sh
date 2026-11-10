@@ -635,6 +635,7 @@ step_links() {
 
     link "$d/.gitconfig"               "$HOME/.gitconfig"                       ".gitconfig"
     link "$d/starship.toml"            "$HOME/.config/starship.toml"            "starship"
+    link "$d/mise/config.toml"         "$HOME/.config/mise/config.toml"         "mise (global tool versions)"
     link "$d/ghostty/config"           "$HOME/.config/ghostty/config"           "ghostty"
     link "$d/pseudobun.fish"           "$HOME/.config/fish/pseudobun.fish"      "pseudobun.fish"
     link "$d/fish/config.fish"         "$HOME/.config/fish/config.fish"         "config.fish"
@@ -675,6 +676,11 @@ step_fish() {
 
 step_devtools() {
     if ! ask_yes_no "Install development toolchains?"; then return 2; fi
+
+    # mise/config.toml: the JVM (Java 21 for Ghidra). Node stays on fnm.
+    if command -v mise &>/dev/null; then
+        run "mise install (Java)" mise install || warn "mise install failed"
+    fi
 
     if command -v rustup &>/dev/null || [[ -x ~/.cargo/bin/rustup ]]; then
         success "Rust already installed"
@@ -832,15 +838,46 @@ step_agents() {
     if [[ -f "$HOME/.claude/CLAUDE.md" ]]; then link_agent_instructions; else warn "~/.claude/CLAUDE.md is missing after the checkout"; fi
     # The REA skill comes with claude-config; its MCP server lives in ~/.claude.json, which is not synced.
     if command -v rea &>/dev/null && command -v claude &>/dev/null; then
-        if claude mcp get rea &>/dev/null; then
-            success "REA MCP server already registered"
-        elif run "register REA MCP server" claude mcp add --scope user rea -- "$(command -v rea)" mcp; then
-            success "REA MCP server registered for Claude Code"
+        install_ghidra
+        claude mcp remove --scope user rea &>/dev/null || true
+        if run "register REA MCP server" claude mcp add --scope user rea \
+            -e GHIDRA_INSTALL_DIR="$HOME/opt/ghidra" -e JAVA_HOME="$GHIDRA_JAVA_HOME" -- "$(command -v rea)" mcp; then
+            success "REA MCP server registered for Claude Code ${C_GREY}(Ghidra $GHIDRA_VERSION)${C_RESET}"
         else
             warn "REA MCP server did not register"
         fi
     fi
     return 0
+}
+
+# Ghidra for REA, which accepts only the 12.1 line (verified 12.1.4) on Java 21. Homebrew ships 12.2,
+# so the release zip goes to ~/opt (link ~/opt/ghidra); the release has no macOS arm64 natives
+# (decompiler, sleigh), so they are built once with Ghidra's own Gradle wrapper.
+GHIDRA_VERSION=12.1.4
+GHIDRA_ZIP=ghidra_12.1.4_PUBLIC_20260921.zip
+GHIDRA_SHA256=ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db
+GHIDRA_JAVA_HOME="$HOME/.local/share/mise/installs/java/temurin-21"
+install_ghidra() {
+    local dir="$HOME/opt/ghidra_${GHIDRA_VERSION}_PUBLIC" tmp
+    command -v mise &>/dev/null && mise install java >>"$LOG" 2>&1
+    if [[ ! -x "$dir/support/analyzeHeadless" ]]; then
+        tmp=$(mktemp -d)
+        if ! run "download Ghidra $GHIDRA_VERSION" curl -fsSL -o "$tmp/$GHIDRA_ZIP" \
+            "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${GHIDRA_VERSION}_build/$GHIDRA_ZIP"; then
+            warn "Ghidra download failed"; return 1
+        fi
+        if ! echo "$GHIDRA_SHA256  $tmp/$GHIDRA_ZIP" | shasum -a 256 -c - >>"$LOG" 2>&1; then
+            warn "Ghidra download does not match its SHA-256; not installed"; return 1
+        fi
+        mkdir -p "$HOME/opt" && ditto -x -k "$tmp/$GHIDRA_ZIP" "$HOME/opt/"
+        rm -rf "$tmp"
+    fi
+    ln -sfn "$dir" "$HOME/opt/ghidra"
+    if [[ ! -x "$dir/Ghidra/Features/Decompiler/build/os/mac_arm_64/decompile" ]]; then
+        run "build Ghidra natives (decompiler, sleigh)" bash -c "cd '$dir/support/gradle' && JAVA_HOME='$GHIDRA_JAVA_HOME' ./gradlew -q buildNatives" \
+            || { warn "Ghidra natives did not build (needs the Command Line Tools)"; return 1; }
+    fi
+    success "Ghidra $GHIDRA_VERSION ${C_GREY}→ ~/opt/ghidra${C_RESET}"
 }
 
 # The Obsidian vault lives in iCloud Drive. olympus keeps it downloaded (agents read it, qmd indexes it)
