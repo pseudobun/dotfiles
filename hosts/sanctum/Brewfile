@@ -9,6 +9,7 @@ tap "gromgit/fuse", trusted: true
 tap "iina/mpv-iina", trusted: true
 tap "infisical/get-cli", trusted: true
 tap "jordond/tap", trusted: true
+tap "mobai-app/tap", trusted: true
 tap "ngrok/ngrok", trusted: true
 tap "nikitabobko/tap", trusted: true
 tap "polymarket/polymarket-cli", "https://github.com/Polymarket/polymarket-cli", trusted: true
@@ -219,6 +220,8 @@ brew "mole"
 brew "ncdu"
 # Fast, highly customisable system info script
 brew "fastfetch"
+# Leaner iOS/tvOS/watchOS/visionOS simulators (~4x less RAM than plain simctl)
+brew "mobai-app/tap/simslim"
 # HTTP and WebDAV client library with a C interface
 brew "neon"
 # Utility for managing network connections
