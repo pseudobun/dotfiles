@@ -51,8 +51,6 @@ brew "fnm"
 brew "fzf"
 # GitHub command-line tool
 brew "gh"
-# Multi-platform software reverse engineering framework
-brew "ghidra"
 # Render markdown on the CLI
 brew "glow"
 # Cryptographic library based on the code from GnuPG
