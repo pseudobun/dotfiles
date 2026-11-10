@@ -3,7 +3,7 @@
 // The settings window (paw settings, or the menu bar icon) writes this file too.
 {
   layout: {
-    // New workspaces: "bsp", "stack" or "float"
+    // New workspaces: "bsp", "columns", "master", "stack" or "float"
     default: "stack",
     gap: 10,
     padding: { top: 2, bottom: 2, left: 24, right: 24 },
@@ -15,6 +15,17 @@
     // Where initiate and setup switches put windows of apps no preset or rule places:
 // a workspace ("4"), or "" to leave them on the workspace they're on
     unassignedWorkspace: "",
+    // bsp: tiles never get smaller than this; when more windows don't fit, the tree grows past
+    // the screen and the screen follows focus (like TrellisWM's canvas). 0: off, tiles shrink
+    // freely and only windows whose app refuses the size get a placeholder
+    minTileWidth: 0,
+    minTileHeight: 0,
+    // A window whose app won't shrink to its tile waits out of sight and a placeholder with its
+    // icon takes the tile; false: the window keeps its size and sticks out over its neighbours
+    placeholders: true,
+    // resizing stops before a tile, and so a placeholder, gets smaller than this
+    placeholderMinWidth: 160,
+    placeholderMinHeight: 120,
   },
 
   focus: {
@@ -105,6 +116,8 @@
 
   // Stack indicators: an island next to each stack with one app icon per window
   indicator: {
+    // the islands beside stacks, one icon per window
+    enabled: true,
     // "auto" (outside, on the side nearer the screen edge), "left", "right", "insideLeft", "insideRight"
     side: "auto",
     offsetX: 6,
@@ -165,9 +178,43 @@
     displaysChanged: "~/.config/sketchybar/plugins/displays_changed.sh",
   },
 
+  mouse: {
+    // Drop a dragged tile on a tile's edge to split it there, on the gap between tiles to make
+    // room there, at the screen's edge to dock beside everything, in a tile's middle to swap
+    // (holding stackModifier: to stack). A preview shows where it lands.
+    dropZones: true,
+    stackModifier: "alt", // alt, cmd, ctrl or shift
+    // Drag the gap between two tiles to resize both; double-click it to even them out
+    seamHandles: true,
+    // Hold a mouse button (middle, back, forward), drag left/right/up/down (or "click"), release
+    gestures: [
+      { button: "middle", direction: "left", command: "workspace prev" },
+      { button: "middle", direction: "right", command: "workspace next" },
+      { button: "middle", direction: "up", command: "overview" },
+    ],
+    // No gestures while one of these is in front (they pan or orbit with the middle button)
+    gestureIgnoreApps: ["/CAD/", "/Fusion/", "/Slicer$/", "/Bambu ?Studio/", "Blender", "FreeCAD", "SketchUp", "Shapr3D", "/KiCad/", "Figma", "Affinity Designer", "/Unity|Unreal/", "Godot", "Minecraft"],
+    // Hold it and scroll or pinch over a window to zoom through the tree towards it ("off": never)
+    zoomModifier: "alt",
+  },
+
+  // overview (hyper+tab): every workspace and its windows. Arrows move, Return goes there,
+  // typing filters, drag a window onto a workspace or next to another window, Esc closes.
+  overview: {
+    // Window pictures: "auto" (if Screen Recording is already allowed), "on" (asks), "off" (icons)
+    thumbnails: "auto",
+  },
+
+  // The island that flashes the workspace's number and apps when you switch
+  hud: {
+    workspace: true,
+    durationMs: 600,
+  },
+
+  // A line around the focused window (or a placeholder that has focus)
   border: {
     enabled: false,
-    color: "0xccead186",
+    color: "0xccead186", // 0xAARRGGBB or "#RRGGBB"
     width: 2,
     radius: 12,
     offset: 2,
@@ -183,35 +230,35 @@
 
   openAtLogin: true,
 
+  // New versions from GitHub releases. Homebrew installs can also `brew upgrade --cask pseudobun/tap/paw`.
+  updates: {
+    check: true, // look once a day and offer to install
+    automatic: true, // install without asking; paw relaunches
+  },
+
   // Keys: cmd ctrl alt shift fn hyper meh, lalt/ralt (and lcmd, rctrl…), a key name or 0x keycode.
   // Commands (also `paw <command>`; chain with ";"):
   //   focus west|east|north|south|stack.next|stack.prev   swap|warp|stack <dir>   swap stack.next|stack.prev   unstack [all]
-  //   layout bsp|stack|float   toggle float|zoom|split   balance   rotate 90|180|270
+  //   layout bsp|columns|master|stack|float   toggle float|zoom|split   balance   rotate 90|180|270
+  //   undo   redo   focus back|forward   find <app or title>   overview   zoom in|out
   //   resize <dir> <points>   grid rows:cols:x:y:w:h   workspace <n>|next|prev|last|new|close
   //   move-to <n>|next|prev [--follow]   display <dir>|next|n   move-to-display <dir> [--follow]
   //   arrange [workspace|all]   initiate   mode <name>|exit   retile   recover   reload   exec <shell command>
   // Setting bindings replaces this whole list.
   bindings: {
-    "hyper+tab": "overview",
-    "hyper+š": "move-workspace prev",
-    "hyper+đ": "move-workspace next",
-    "hyper+j": "zoom in",
-    "hyper+k": "zoom out",
-    "hyper+z": "undo",
-    "hyper+y": "redo",
     "hyper+o": "focus back",
-    "hyper+i": "focus forward",
     "ctrl+right": "focus east",
+    "hyper+i": "focus forward",
     "ctrl+up": "focus north",
     "ctrl+down": "focus south",
     "hyper+right": "focus stack.next",
     "hyper+left": "focus stack.prev",
-    "hyper+up": "swap stack.prev",
-    "hyper+down": "swap stack.next",
     "ctrl+left": "focus west",
     "ctrl+alt+right": "swap east",
     "ctrl+alt+up": "swap north",
     "ctrl+alt+down": "swap south",
+    "hyper+down": "swap stack.next",
+    "hyper+up": "swap stack.prev",
     "ctrl+alt+left": "swap west",
     "ctrl+shift+right": "stack east",
     "ctrl+shift+up": "stack north",
@@ -244,6 +291,8 @@
     "hyper+n": "workspace new",
     "ralt+d": "workspace next",
     "ralt+a": "workspace prev",
+    "ctrl+0": "workspace side",
+    "ralt+0": "workspace side",
     "ctrl+1": "workspace 1",
     "ralt+1": "workspace 1",
     "ctrl+2": "workspace 2",
@@ -262,8 +311,9 @@
     "ralt+8": "workspace 8",
     "ctrl+9": "workspace 9",
     "ralt+9": "workspace 9",
-    "ctrl+0": "workspace side",
-    "ralt+0": "workspace side",
+    "cmd+ctrl+0": "move-to side --follow",
+    "cmd+ralt+0": "move-to side --follow",
+    "ralt+shift+0": "move-to side",
     "cmd+ctrl+1": "move-to 1 --follow",
     "cmd+ralt+1": "move-to 1 --follow",
     "ralt+shift+1": "move-to 1",
@@ -291,12 +341,16 @@
     "cmd+ctrl+9": "move-to 9 --follow",
     "cmd+ralt+9": "move-to 9 --follow",
     "ralt+shift+9": "move-to 9",
-    "cmd+ctrl+0": "move-to side --follow",
-    "cmd+ralt+0": "move-to side --follow",
-    "ralt+shift+0": "move-to side",
     "hyper+r": "mode resize",
+    "hyper+z": "undo",
+    "hyper+y": "redo",
+    "hyper+tab": "overview",
     "cmd+alt+r": "recover",
     "hyper+0x18": "exec open -a Alacritty",
+    "hyper+đ": "move-workspace next",
+    "hyper+š": "move-workspace prev",
+    "hyper+j": "zoom in",
+    "hyper+k": "zoom out",
   },
 
   // While a mode is on (`mode resize`, hyper+r), its keys come before the bindings above and an
