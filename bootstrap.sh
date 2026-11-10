@@ -826,6 +826,7 @@ step_agents() {
         success "Claude Code already installed ${C_GREY}($("$HOME/.local/bin/claude" --version 2>/dev/null | head -1))${C_RESET}"
     elif run "Claude Code (native installer)" bash -c 'curl -fsSL https://claude.ai/install.sh | bash'; then
         success "Claude Code ${C_GREY}→ ~/.local/bin/claude${C_RESET}"
+        followup "Log in to Claude Code: run claude, then /login"
     else
         warn "Claude Code did not install"; followup "Install Claude Code: curl -fsSL https://claude.ai/install.sh | bash"
     fi
@@ -846,6 +847,7 @@ step_agents() {
     fi
     if [[ -f "$HOME/.claude/CLAUDE.md" ]]; then link_agent_instructions; else warn "~/.claude/CLAUDE.md is missing after the checkout"; fi
     # The REA skill comes with claude-config; its MCP server lives in ~/.claude.json, which is not synced.
+    export PATH="$HOME/.local/bin:$PATH"   # a claude installed a moment ago
     if command -v npx &>/dev/null && command -v claude &>/dev/null; then
         install_ghidra
         rea_setup
