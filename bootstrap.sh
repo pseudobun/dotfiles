@@ -830,6 +830,16 @@ step_agents() {
         return 2
     fi
     if [[ -f "$HOME/.claude/CLAUDE.md" ]]; then link_agent_instructions; else warn "~/.claude/CLAUDE.md is missing after the checkout"; fi
+    # The REA skill comes with claude-config; its MCP server lives in ~/.claude.json, which is not synced.
+    if command -v rea &>/dev/null && command -v claude &>/dev/null; then
+        if claude mcp get rea &>/dev/null; then
+            success "REA MCP server already registered"
+        elif run "register REA MCP server" claude mcp add --scope user rea -- "$(command -v rea)" mcp; then
+            success "REA MCP server registered for Claude Code"
+        else
+            warn "REA MCP server did not register"
+        fi
+    fi
     return 0
 }
 

@@ -505,6 +505,8 @@ uv "nano-pdf"
 npm "corepack"
 npm "eas-cli"
 npm "pnpm"
+# REA: reverse engineering MCP server + CLI (skill reverse-engineer-anything comes with claude-config)
+npm "rea-agents"
 npm "wscat"
 # Cutter (cask "cutter") is installed by bootstrap.sh install_cutter: its DMG is not notarized
 # and brew cannot mount it while quarantined.
