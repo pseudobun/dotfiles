@@ -104,6 +104,8 @@ brew "rclone"
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
 # Editor of encrypted files
+# Multipurpose relay (SOcket CAT)
+brew "socat"
 brew "sops"
 # Cross-shell prompt for astronauts
 brew "starship"
