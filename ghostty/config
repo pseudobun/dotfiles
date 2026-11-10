@@ -35,3 +35,35 @@ keybind = global:cmd+shift+equal=toggle_quick_terminal
 # Block cursor; stop shell integration from switching it to a bar at the prompt
 cursor-style = block
 shell-integration-features = no-cursor
+
+# Copy mode (cmd+shift+e): arrows / PgUp / PgDn / Home / End scroll the history, shift+arrows
+# grow a selection (start it with the mouse), cmd+c copies and leaves, esc or q leaves.
+keybind = super+shift+e=activate_key_table:copy
+keybind = copy/
+keybind = copy/catch_all=ignore
+keybind = copy/escape=deactivate_key_table
+keybind = copy/q=deactivate_key_table
+keybind = copy/up=scroll_page_lines:-1
+keybind = copy/down=scroll_page_lines:1
+keybind = copy/k=scroll_page_lines:-1
+keybind = copy/j=scroll_page_lines:1
+keybind = copy/page_up=scroll_page_up
+keybind = copy/page_down=scroll_page_down
+keybind = copy/home=scroll_to_top
+keybind = copy/end=scroll_to_bottom
+keybind = copy/shift+up=adjust_selection:up
+keybind = copy/shift+down=adjust_selection:down
+keybind = copy/shift+left=adjust_selection:left
+keybind = copy/shift+right=adjust_selection:right
+keybind = copy/shift+page_up=adjust_selection:page_up
+keybind = copy/shift+page_down=adjust_selection:page_down
+keybind = copy/shift+home=adjust_selection:home
+keybind = copy/shift+end=adjust_selection:end
+keybind = copy/shift+super+left=adjust_selection:beginning_of_line
+keybind = copy/shift+super+right=adjust_selection:end_of_line
+keybind = copy/super+a=select_all
+keybind = copy/super+c=copy_to_clipboard
+keybind = chain=deactivate_key_table
+
+# Whole history in a text editor (cmd+shift+h): full cursor, word jumps, shift-selection, search
+keybind = super+shift+h=write_scrollback_file:open
