@@ -163,6 +163,10 @@ cask "kicad"
 cask "ngrok"
 # Knowledge base that works on top of a local folder of plain text Markdown files
 cask "obsidian"
+# Launcher: apps, answers, clipboard history, snippets, notes (updates itself)
+cask "pseudobun/tap/hop"
+# Tiling window manager with virtual workspaces and stacks (updates itself)
+cask "pseudobun/tap/paw"
 cask "tossinger"
 npm "@tobilu/qmd"
 npm "acpx"

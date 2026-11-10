@@ -985,42 +985,10 @@ step_vault() {
     return 0
 }
 
-# hop (launcher) and paw (window manager) are private repos built from source
-# into ~/repos/personal: they need a GitHub login (gh or an SSH key) first.
+# GitHub login (gh or an SSH key), for the private clones and the agent config.
 github_ready() {
     gh auth status &>/dev/null && return 0
     ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | grep -q 'successfully authenticated'
-}
-
-# install_from_source <name> <just recipe> — 0 installed/up to date, 1 failed, 2 not possible yet
-install_from_source() {
-    local name="$1" recipe="$2" dir="$REPOS_DIR/$1" before="" after
-    if [[ -d "$dir/.git" ]]; then
-        before=$(git -C "$dir" rev-parse HEAD 2>/dev/null)
-        run "git pull $name" git -C "$dir" pull --ff-only || warn "$name: could not fast-forward; building the checkout as is"
-    elif github_ready; then
-        if gh auth status &>/dev/null; then
-            run "clone pseudobun/$name" gh repo clone "pseudobun/$name" "$dir" || return 1
-        else
-            run "clone pseudobun/$name" git clone "git@github.com:pseudobun/$name.git" "$dir" || return 1
-        fi
-    else
-        note "$name: pseudobun/$name is private and GitHub is not logged in yet"
-        return 2
-    fi
-    after=$(git -C "$dir" rev-parse HEAD 2>/dev/null)
-    if [[ -n "$before" && "$before" == "$after" && -d "/Applications/$name.app" ]]; then
-        success "$name is up to date"
-        return 0
-    fi
-    # self-signed certificate, so the Accessibility grant survives rebuilds
-    if ! security find-identity -p codesigning 2>/dev/null | grep -q "$name Local Signing"; then
-        run "$name signing certificate" bash -c "cd '$dir' && just local-cert" || note "$name: no local certificate — ad-hoc signed, Accessibility resets on rebuilds"
-    fi
-    run "build + install $name" bash -c "cd '$dir' && just $recipe" || return 1
-    # the app was replaced in place: refresh LaunchServices so Finder and System Settings show its icon
-    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "/Applications/$name.app" 2>/dev/null || true
-    return 0
 }
 
 # yabai, skhd, Hammerspoon (stackline) and Homerow are replaced by paw and hop: take them off
@@ -1080,20 +1048,19 @@ grant_accessibility() {
     done
     open_privacy_pane Accessibility
     info "System Settings › Privacy & Security › Accessibility is open:"
-    note "    turn on: $* (use + › /Applications if one is missing from the list)"
+    note "    first confirm macOS's \"downloaded from the Internet\" dialog for each app (Open)"
+    note "    then turn on: $* (use + › /Applications if one is missing from the list)"
     if wait_for_manual_step; then
         # restart them: an app started before the grant does not pick up the windows that are already open
         for app in "$@"; do
-            if [[ $app == paw ]] && launchctl print "gui/$(id -u)/dev.paw.app" &>/dev/null; then
-                launchctl kickstart -k "gui/$(id -u)/dev.paw.app" 2>>"$LOG" || true
-            else
-                pkill -x "$app" 2>/dev/null; sleep 1
-                open -a "/Applications/$app.app" 2>/dev/null
-            fi
+            [[ $app == paw ]] && { timeout 10 paw quit 2>/dev/null || true; }
+            # by path: `pkill -x paw` would also end CLI runs such as sketchybar's `paw subscribe`
+            pkill -f "/Applications/$app.app/Contents/MacOS/$app\$" 2>/dev/null; sleep 1
+            open -a "/Applications/$app.app" 2>/dev/null
         done
         if command -v paw &>/dev/null && [[ " $* " == *" paw "* ]]; then
             sleep 2
-            if paw status 2>/dev/null | grep -q 'trusted: yes'; then success "paw is trusted"; else warn "paw is still not trusted — toggle it off and on in Accessibility"; fi
+            if timeout 10 paw status 2>/dev/null | grep -q 'trusted: yes'; then success "paw is trusted"; else warn "paw is still not trusted — toggle it off and on in Accessibility"; fi
         fi
         success "Accessibility granted to $*"
     else
@@ -1102,46 +1069,36 @@ grant_accessibility() {
 }
 
 step_apps() {
-    if ! ask_yes_no "Build and install hop (launcher) and paw (window manager) from source?"; then return 2; fi
-    command -v just &>/dev/null || { warn "just is not installed (Brewfile step skipped?)"; return 2; }
-    local rc later=0 built=()
+    # Signed, notarized releases from pseudobun/tap (the Brewfiles list both casks too); they update
+    # themselves. To work on one: clone it and `just dev` builds a separate "hop Dev" / "paw Dev".
+    if ! ask_yes_no "Install hop (launcher) and paw (window manager) from Homebrew?"; then return 2; fi
+    local app missing=() casks=()
 
     remove_legacy_wm
 
-    # both repos are private: log in here when the GitHub step was skipped or declined
-    if ! github_ready && [[ $ASSUME_YES -eq 0 ]] && command -v gh &>/dev/null \
-        && ask_yes_no "hop and paw are private repos — log in to GitHub now?"; then
-        if gh auth login </dev/tty; then success "logged in to GitHub"; else warn "GitHub login cancelled"; fi
-    fi
-
-    # paw: SwiftPM — the Command Line Tools are enough. `just launchd` installs and starts it at login.
-    install_from_source paw launchd; rc=$?
-    case $rc in 0) built+=(paw) ;; 2) later=1 ;; *) warn "paw failed" ;; esac
-
-    # hop: an Xcode project — needs the full Xcode (Mac App Store), not just the Command Line Tools
-    if ! xcodebuild -version &>/dev/null && [[ ! -d /Applications/Xcode.app ]] && [[ $ASSUME_YES -eq 0 ]] \
-        && command -v mas &>/dev/null && ask_yes_no "hop needs Xcode — install it from the App Store now (signed in to the App Store, ~12 GB)?" "n"; then
-        run "Xcode (mas)" mas install 497799835 || warn "Xcode install failed — is the App Store signed in?"
-    fi
-    if [[ -d /Applications/Xcode.app ]] && ! xcodebuild -version &>/dev/null; then
-        # a fresh Xcode still points xcode-select at the CLT and needs its licence and first launch
-        run "select Xcode" sudo xcode-select -s /Applications/Xcode.app/Contents/Developer || true
-        run "Xcode licence + first launch" bash -c 'sudo xcodebuild -license accept && sudo xcodebuild -runFirstLaunch' || true
-    fi
-    if ! xcodebuild -version &>/dev/null; then
-        note "hop needs Xcode (App Store) — only the Command Line Tools are here"
-        followup "Install Xcode from the App Store, then build hop: ~/.dotfiles/bootstrap.sh --only apps"
-        later=1
+    for app in paw hop; do
+        brew list --cask "pseudobun/tap/$app" &>/dev/null || missing+=("$app")
+    done
+    if (( ${#missing[@]} == 0 )); then
+        success "hop and paw are installed from Homebrew (they update themselves)"
     else
-        install_from_source hop install; rc=$?
-        case $rc in 0) built+=(hop) ;; 2) later=1 ;; *) warn "hop failed" ;; esac
+        for app in "${missing[@]}"; do
+            # an old build from source in /Applications blocks the cask
+            if [[ -d "/Applications/$app.app" ]]; then
+                note "/Applications/$app.app is not from Homebrew (an old build from source) — moving it to the Trash"
+                [[ $app == paw ]] && { timeout 10 paw quit 2>/dev/null || true; }
+                pkill -f "/Applications/$app.app/Contents/MacOS/$app\$" 2>/dev/null; sleep 1
+                mv "/Applications/$app.app" "$HOME/.Trash/$app-from-source-$(date +%s).app" || return 1
+                [[ -L "$(brew --prefix)/bin/$app" ]] && rm -f "$(brew --prefix)/bin/$app"
+            fi
+            casks+=("pseudobun/tap/$app")
+        done
+        run "brew install --cask ${missing[*]}" brew install --cask "${casks[@]}" || { warn "brew install failed"; return 1; }
     fi
-
-    if ! github_ready; then
-        followup "Log in to GitHub (gh auth login, or import the SSH key), then build hop and paw: ~/.dotfiles/bootstrap.sh --only apps"
-    fi
-    (( ${#built[@]} )) && grant_accessibility "${built[@]}"
-    (( ${#built[@]} == 0 && later == 1 )) && return 2
+    local need=()
+    timeout 10 paw status 2>/dev/null | grep -q 'trusted: yes' || need+=(paw)
+    timeout 10 hop permissions 2>/dev/null | grep -qE '^Accessibility[[:space:]]+granted' || need+=(hop)
+    if (( ${#need[@]} )); then grant_accessibility "${need[@]}"; else success "hop and paw have Accessibility"; fi
     return 0
 }
 

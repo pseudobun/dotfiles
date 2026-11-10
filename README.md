@@ -45,17 +45,23 @@ Currently, [Go](https://go.dev/) needs to be installed [manually](https://go.dev
 
 * [Ghostty](https://ghostty.org/)
 * [fish](https://github.com/fish-shell/fish-shell)
-* hop — my native launcher (private repo `pseudobun/hop`)
-* paw — my tiling window manager with virtual workspaces (private repo `pseudobun/paw`)
+* [hop](https://github.com/pseudobun/hop) — my native launcher
+* [paw](https://github.com/pseudobun/paw) — my tiling window manager with virtual workspaces
 * [sketchybar](https://github.com/FelixKratz/SketchyBar)
 * [modern UNIX tools](https://github.com/ibraheemdev/modern-unix)
 * [pyenv](https://github.com/pyenv/pyenv)
 
 ## hop and paw
 
-`bootstrap.sh` clones both into `~/repos/personal` and builds them once GitHub is logged in
-(`gh auth login` or the SSH key from `just secrets-import`); hop also needs Xcode from the App Store.
-Re-run just that part with `~/.dotfiles/bootstrap.sh --only apps`, then grant both Accessibility.
+Both are signed, notarized releases from [`pseudobun/tap`](https://github.com/pseudobun/homebrew-tap):
+the host Brewfiles list `cask "pseudobun/tap/hop"` and `cask "pseudobun/tap/paw"`, and they update
+themselves (Sparkle, in the background). The `apps` step (`~/.dotfiles/bootstrap.sh --only apps`)
+installs them if the Brewfile step didn't, moves an old build from source out of `/Applications`
+to the Trash, and walks through the first start (confirm macOS's "downloaded from the Internet"
+dialog) and the Accessibility grant. No clone and no Xcode needed.
+
+To work on one, clone it and `just dev`: that builds "hop Dev" / "paw Dev" (`com.pseudobun.*.dev`,
+own data and grants) into `~/Applications` and runs it instead of the release; `just undev` goes back.
 
 Their configs are linked from here: `paw/` → `~/.config/paw`, `hop/` → `~/.config/hop`.
 `hop/config.json5` uses `${NAME}` placeholders for hosts and paths; hop fills them from `hop/.env`.
