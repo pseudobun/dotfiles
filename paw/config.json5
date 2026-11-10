@@ -97,7 +97,8 @@
   // app: name or /regex/; title / unlessTitle: substring or /regex/
   // manage: false leaves windows alone, float: true floats them, workspace: where they open
   rules: [
-    { app: "/^(He3|System Settings|Parallels Desktop|CleanShot X|Raycast|Perplexity)$/", float: true },
+    { app: "/^(He3|System Settings|Parallels Desktop|Raycast|Perplexity)$/", float: true },
+    { app: "/^(CleanShot X|Screen Studio|Shottr|Loom|OBS|Kap|Xnapper)$/", manage: false },
     { app: "Brave Browser", unlessTitle: "Brave", float: true },
     { app: "/^Digital Colou?r Meter$/", float: true },
   ],
@@ -157,11 +158,19 @@
   // modeChanged when a mode turns on or off ($PAW_MODE, "" for off);
   // displaysChanged after displays come, go or move and paw has retiled ($PAW_DISPLAYS)
   hooks: {
-    workspaceChanged: "sketchybar --trigger paw_workspace_change",
+    workspaceChanged: "",
     windowFocused: "",
-    windowsChanged: "sketchybar --trigger paw_windows_change",
+    windowsChanged: "",
     modeChanged: "",
     displaysChanged: "~/.config/sketchybar/plugins/displays_changed.sh",
+  },
+
+  border: {
+    enabled: true,
+    color: "0xccead186",
+    width: 2,
+    radius: 12,
+    offset: 2,
   },
 
   // `paw initiate` (also `paw reset`): opens the apps, waits for their windows, then arranges
@@ -183,6 +192,13 @@
   //   arrange [workspace|all]   initiate   mode <name>|exit   retile   recover   reload   exec <shell command>
   // Setting bindings replaces this whole list.
   bindings: {
+    "hyper+tab": "overview",
+    "hyper+j": "zoom in",
+    "hyper+k": "zoom out",
+    "hyper+z": "undo",
+    "hyper+y": "redo",
+    "hyper+o": "focus back",
+    "hyper+i": "focus forward",
     "ctrl+right": "focus east",
     "ctrl+up": "focus north",
     "ctrl+down": "focus south",

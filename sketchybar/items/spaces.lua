@@ -4,19 +4,24 @@ local settings = require("settings")
 local island = require("island")
 local app_icons = require("app_icons")
 
--- Workspaces come from paw (`paw query --json`), not yabai. paw's hooks trigger the events:
---   hooks: {
---     workspaceChanged: "sketchybar --trigger paw_workspace_change",
---     windowsChanged: "sketchybar --trigger paw_windows_change",
---   }
+-- Workspaces come from paw (`paw query --json`), not yabai. One long-lived `paw subscribe`
+-- turns paw's events into sketchybar events (a snapshot first; it reconnects when paw
+-- restarts), instead of a hook per event.
 local IGNORED = { ["Screen Studio"] = true, ["Raycast"] = true, ["Dropover"] = true }
 local SLOTS = 10
 local APPS = 6 -- app icons per workspace
 local slots, apps, names = {}, {}, {}
 local first_edge = island.edge("left")
 
-sbar.add("event", "paw_workspace_change")
-sbar.add("event", "paw_windows_change")
+sbar.add("event", "paw_snapshot")
+sbar.add("event", "paw_workspaceChanged")
+sbar.add("event", "paw_windowsChanged")
+
+-- "[p]aw" keeps pkill from matching its own shell; the old bridge goes when sketchybar loads.
+sbar.exec("pkill -f '[p]aw subscribe.*--trigger paw_'", function()
+  sbar.exec("nohup paw subscribe workspaceChanged,windowsChanged --reconnect "
+    .. "--exec 'sketchybar --trigger paw_$PAW_EVENT' >/dev/null 2>&1 &")
+end)
 
 local function focus(i, env)
   local name = names[i]
@@ -158,8 +163,8 @@ local function refresh(animate, retries)
   end)
 end
 
-creator:subscribe("paw_workspace_change", function() refresh(true) end)
-creator:subscribe({ "paw_windows_change", "system_woke" }, function() refresh(false) end)
+creator:subscribe("paw_workspaceChanged", function() refresh(true) end)
+creator:subscribe({ "paw_snapshot", "paw_windowsChanged", "system_woke" }, function() refresh(false) end)
 creator:subscribe("display_change", function() refresh(false) end)
 refresh(false, 60)
 

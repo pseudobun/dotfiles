@@ -737,6 +737,10 @@ step_macos() {
     $w NSGlobalDomain _HIHideMenuBar -bool true
     # dock
     $w com.apple.dock autohide -bool true
+    # paw tiles: no macOS edge / ⌥-drag tiling (its outlines show next to paw's drop preview)
+    $w com.apple.WindowManager EnableTilingByEdgeDrag -bool false
+    $w com.apple.WindowManager EnableTopTilingByEdgeDrag -bool false
+    $w com.apple.WindowManager EnableTilingOptionAccelerator -bool false
     $w com.apple.dock autohide-time-modifier -float 0.05
     $w com.apple.dock tilesize -int 56
     $w com.apple.dock mru-spaces -bool false          # keep spaces in order
