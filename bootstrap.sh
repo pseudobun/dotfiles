@@ -906,6 +906,8 @@ install_from_source() {
         run "$name signing certificate" bash -c "cd '$dir' && just local-cert" || note "$name: no local certificate — ad-hoc signed, Accessibility resets on rebuilds"
     fi
     run "build + install $name" bash -c "cd '$dir' && just $recipe" || return 1
+    # the app was replaced in place: refresh LaunchServices so Finder and System Settings show its icon
+    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "/Applications/$name.app" 2>/dev/null || true
     return 0
 }
 
@@ -968,9 +970,19 @@ grant_accessibility() {
     info "System Settings › Privacy & Security › Accessibility is open:"
     note "    turn on: $* (use + › /Applications if one is missing from the list)"
     if wait_for_manual_step; then
+        # restart them: an app started before the grant does not pick up the windows that are already open
         for app in "$@"; do
-            pgrep -xq "$app" || open -a "/Applications/$app.app" 2>/dev/null
+            if [[ $app == paw ]] && launchctl print "gui/$(id -u)/dev.paw.app" &>/dev/null; then
+                launchctl kickstart -k "gui/$(id -u)/dev.paw.app" 2>>"$LOG" || true
+            else
+                pkill -x "$app" 2>/dev/null; sleep 1
+                open -a "/Applications/$app.app" 2>/dev/null
+            fi
         done
+        if command -v paw &>/dev/null && [[ " $* " == *" paw "* ]]; then
+            sleep 2
+            if paw status 2>/dev/null | grep -q 'trusted: yes'; then success "paw is trusted"; else warn "paw is still not trusted — toggle it off and on in Accessibility"; fi
+        fi
         success "Accessibility granted to $*"
     else
         followup "$todo"
@@ -1068,6 +1080,8 @@ step_server() {
         fi
     done
     followup "Full Disk Access for /opt/homebrew/bin/just (vault-mirror reads iCloud Drive at night)"
+    [[ -f "$HOME/Library/LaunchAgents/com.t3tools.t3code.service.plist" ]] \
+        || followup "Install the T3 Code service (agents run through it; LaunchAgent com.t3tools.t3code.service)"
 
     # cron: the security monitors install their own crontab lines (other lines stay)
     for f in "$HOME"/repos/olympus-dashboard/scripts/security/install-cron.py "$HOME"/repos/chronos/scripts/security-monitor/install-cron.py; do
