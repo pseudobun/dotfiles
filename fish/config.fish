@@ -7,8 +7,8 @@ export NARGO_HOME="$HOME/.nargo"
 
 export PATH="$PATH:$NARGO_HOME/bin"
 set -gx PATH $HOME/.bb $PATH
-uv generate-shell-completion fish | source
-uvx --generate-shell-completion fish | source
+command -q uv; and uv generate-shell-completion fish | source
+command -q uvx; and uvx --generate-shell-completion fish | source
 
 fish_add_path -a $HOME/.foundry/bin
 

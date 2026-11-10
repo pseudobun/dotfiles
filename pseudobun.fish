@@ -6,18 +6,18 @@ set --export GPG_TTY $(tty)
 eval (/opt/homebrew/bin/brew shellenv)
 fish_add_path ~/.cargo/bin/
 
-kubectl completion fish | source
+command -q kubectl; and kubectl completion fish | source
 alias please='sudo'
 alias sweep='fd --hidden --no-ignore "^.DS_Store\$" --exclude "*node_modules*" --exec rm'
 alias tsm='transmission-remote'
 alias watchtsm="watch --interval 1 'transmission-remote -l'"
 # pyenv init - | source
-zoxide init fish | source
+command -q zoxide; and zoxide init fish | source
 if set -q SSH_CONNECTION
     set -gx STARSHIP_CONFIG ~/.dotfiles/starship-ssh.toml
 end
-starship init fish | source
-fzf --fish | source
+command -q starship; and starship init fish | source
+command -q fzf; and fzf --fish | source
 # Undo fzf 0.68+'s Shift+Tab -> fzf-completion; restore fish default (complete-and-search)
 # Erases the shift-tab keybinding for both default and insert modes,
 # so fish's native complete-and-search handles it instead of fzf-completion.
@@ -98,4 +98,4 @@ function brew
     end
 end
 
-fnm env --use-on-cd --version-file-strategy=recursive --log-level=quiet | source
+command -q fnm; and fnm env --use-on-cd --version-file-strategy=recursive --log-level=quiet | source
