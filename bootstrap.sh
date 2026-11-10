@@ -362,6 +362,29 @@ step_homebrew() {
         grep -E "has failed!|^Error: " "$LOG" | tail -n 20 | strip_ansi | while IFS= read -r l; do note "    $l"; done
         followup "Retry failed Brewfile entries: brew bundle --file $(brewfile)"
     fi
+    [[ $HOST == sanctum ]] && install_cutter
+    return 0
+}
+
+# Cutter (reverse engineering, used with REA) is not notarized: macOS cancels mounting its
+# quarantined DMG, so `brew install --cask cutter` fails. Fetch with brew, drop the quarantine,
+# mount and copy it ourselves.
+install_cutter() {
+    if [[ -d /Applications/Cutter.app ]]; then success "Cutter already installed"; return 0; fi
+    local dmg mnt
+    dmg=$(brew --cache --cask cutter)
+    run "fetch Cutter" brew fetch --cask cutter || { warn "Cutter download failed"; return 0; }
+    xattr -c "$dmg"
+    mnt=$(mktemp -d)
+    if diskutil image attach --mountOptions nobrowse --readOnly --mountPoint "$mnt" "$dmg" >>"$LOG" 2>&1 \
+        && ditto "$mnt/Cutter.app" /Applications/Cutter.app; then
+        xattr -dr com.apple.quarantine /Applications/Cutter.app
+        success "Cutter ${C_GREY}→ /Applications${C_RESET}"
+    else
+        warn "Cutter did not install (see the log)"
+    fi
+    hdiutil detach "$mnt" -quiet 2>/dev/null
+    rmdir "$mnt" 2>/dev/null
     return 0
 }
 

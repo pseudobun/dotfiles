@@ -506,3 +506,5 @@ npm "corepack"
 npm "eas-cli"
 npm "pnpm"
 npm "wscat"
+# Cutter (cask "cutter") is installed by bootstrap.sh install_cutter: its DMG is not notarized
+# and brew cannot mount it while quarantined.
