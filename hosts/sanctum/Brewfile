@@ -1,4 +1,3 @@
-tap "anomalyco/tap", trusted: true
 tap "antoniorodr/memo", trusted: true
 tap "bufbuild/buf", trusted: true
 tap "crmne/tap", trusted: true
@@ -330,7 +329,7 @@ brew "zoxide"
 # Geo-scale, next-generation sharing platform built on top of OpenZiti
 brew "zrok"
 # OpenCode V2 - the AI coding agent for the terminal
-brew "anomalyco/tap/opencode-v2", trusted: true
+brew "opencode"
 # CLI app to manage your Apple Notes and Apple reminders
 brew "antoniorodr/memo/memo"
 # Simple hotkey-daemon for macOS.

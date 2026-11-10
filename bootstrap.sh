@@ -820,6 +820,15 @@ link_agent_instructions() {
 
 step_agents() {
     if ! ask_yes_no "Set up the synced agent config (~/.claude + AGENTS.md for Codex and opencode)?"; then return 2; fi
+    # Claude Code: Anthropic's native installer (~/.local/bin/claude, updates itself). The Homebrew
+    # cask lags behind and does not auto-update. Codex and opencode come from the Brewfile.
+    if [[ -x "$HOME/.local/bin/claude" ]]; then
+        success "Claude Code already installed ${C_GREY}($("$HOME/.local/bin/claude" --version 2>/dev/null | head -1))${C_RESET}"
+    elif run "Claude Code (native installer)" bash -c 'curl -fsSL https://claude.ai/install.sh | bash'; then
+        success "Claude Code ${C_GREY}→ ~/.local/bin/claude${C_RESET}"
+    else
+        warn "Claude Code did not install"; followup "Install Claude Code: curl -fsSL https://claude.ai/install.sh | bash"
+    fi
     if [[ -d "$HOME/.claude-config.git" ]]; then
         success "claude-config already checked out"
     elif github_ready; then

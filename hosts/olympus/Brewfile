@@ -1,4 +1,3 @@
-tap "anomalyco/tap", trusted: true
 tap "espressif/eim", trusted: true
 tap "pseudobun/tap", trusted: true
 tap "shaunsingh/sfmono-nerd-font-ligaturized", "https://github.com/shaunsingh/homebrew-SFMono-Nerd-Font-Ligaturized", trusted: true
@@ -134,7 +133,7 @@ brew "yq"
 # Shell extension to navigate your filesystem faster
 brew "zoxide"
 # OpenCode V2 - the AI coding agent for the terminal
-brew "anomalyco/tap/opencode-v2", trusted: true
+brew "opencode"
 # ESP-IDF Installation Manager - CLI tool for setting up ESP-IDF development environment
 brew "espressif/eim/eim", trusted: true
 # iOS App Store alternative
@@ -165,7 +164,6 @@ cask "ngrok"
 # Knowledge base that works on top of a local folder of plain text Markdown files
 cask "obsidian"
 cask "tossinger"
-npm "@openai/codex"
 npm "@tobilu/qmd"
 npm "acpx"
 npm "agent-browser"
