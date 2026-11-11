@@ -663,13 +663,16 @@ step_links() {
         done
     fi
 
-    # Hourly `brew outdated` refresh for the sketchybar brew item
-    local agent="sh.pseudobun.brew-refresh"
-    local plist="$HOME/Library/LaunchAgents/$agent.plist"
+    # brew-refresh: hourly `brew outdated` for the sketchybar brew item
+    # shell-env: SHELL=fish for GUI apps (T3 Code terminals and agents, editors)
+    local agent plist
     mkdir -p "$HOME/Library/LaunchAgents"
-    cp "$d/launchd/$agent.plist" "$plist"
-    launchctl bootout "gui/$(id -u)/$agent" 2>/dev/null || true
-    if launchctl bootstrap "gui/$(id -u)" "$plist" 2>>"$LOG"; then success "LaunchAgent $agent loaded"; else warn "LaunchAgent $agent did not load"; fi
+    for agent in sh.pseudobun.brew-refresh sh.pseudobun.shell-env; do
+        plist="$HOME/Library/LaunchAgents/$agent.plist"
+        cp "$d/launchd/$agent.plist" "$plist"
+        launchctl bootout "gui/$(id -u)/$agent" 2>/dev/null || true
+        if launchctl bootstrap "gui/$(id -u)" "$plist" 2>>"$LOG"; then success "LaunchAgent $agent loaded"; else warn "LaunchAgent $agent did not load"; fi
+    done
     return 0
 }
 
