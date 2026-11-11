@@ -10,7 +10,7 @@
 #
 #  What travels:
 #    gpg      my secret keys, their public keys and ownertrust (no one else's keys)
-#    ssh      ~/.ssh (keys, config, known_hosts), without backups and SSH_SKIP keys
+#    ssh      ~/.ssh (keys, config, known_hosts), without backups
 #    age      ~/Library/Application Support/sops/age/keys.txt
 #    certs    personal certificates with their private keys from the login keychain,
 #             only those issued by CERT_ISSUERS (macOS asks once per private key:
@@ -30,8 +30,6 @@ AGE_KEYS="$HOME/Library/Application Support/sops/age/keys.txt"
 # Certificates worth carrying: Slovenian qualified e-ID (SIGEN-CA). Apple Development and
 # Developer ID stay behind (CI signs releases); proXSign makes its own localhost one.
 CERT_ISSUERS="${CERT_ISSUERS:-CN = SIGEN-CA}"
-# ~/.ssh files left out of the bundle (basenames, private and .pub alike)
-SSH_SKIP=()
 
 if [[ -t 1 ]]; then
     G=$'\033[38;5;78m'; Y=$'\033[38;5;214m'; R=$'\033[38;5;203m'; D=$'\033[38;5;245m'; B=$'\033[1m'; N=$'\033[0m'
@@ -84,7 +82,7 @@ cmd_export() {
     fi
 
     # certificates with private keys (.p12): iCloud Keychain does not carry them
-    local login_kc="$HOME/Library/Keychains/login.keychain-db" pass names f
+    local login_kc="$HOME/Library/Keychains/login.keychain-db" pass names
     if security find-identity 2>/dev/null | grep -qE '^ +[1-9][0-9]* identities found'; then
         pass=$(openssl rand -hex 24)
         printf '  %s  macOS asks for each private key: login password, then Always Allow%s\n' "$D" "$N"
@@ -105,9 +103,8 @@ cmd_export() {
     fi
 
     stash "$HOME/.ssh" "ssh"
-    # no backups, and the keys left out on purpose
+    # no backups
     rm -f "$WORK/bundle/ssh/"*.bak* "$WORK/bundle/ssh/"*.old "$WORK/bundle/ssh/"*~ 2>/dev/null
-    for f in "${SSH_SKIP[@]}"; do rm -f "$WORK/bundle/ssh/$f" "$WORK/bundle/ssh/$f.pub" "$WORK/bundle/ssh/$f-cert.pub"; done
     stash "$AGE_KEYS" "age/keys.txt"
 
     # never carry sockets or agent junk
