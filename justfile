@@ -44,3 +44,7 @@ secrets-import file:
 # Show what a secrets bundle holds: files, certificates (with or without private key), GPG keys.
 secrets-list file:
     bash scripts/secrets.sh list {{file}}
+
+# Only the WireGuard app tunnels, as a plain zip of .conf files (for an encrypted vault).
+secrets-wireguard out_dir="~/Downloads":
+    bash scripts/secrets.sh wireguard {{out_dir}}

@@ -8,6 +8,7 @@
 #  import <file>      unpack it on a new machine into the right places,
 #                     backing up anything that would be overwritten
 #  list <file>        show what a bundle holds (files, certificates, GPG keys)
+#  wireguard [dir]    only the WireGuard tunnels, as a plain zip (default ~/Downloads)
 #
 #  What travels:
 #    gpg      my secret keys, their public keys and ownertrust (no one else's keys)
@@ -61,6 +62,32 @@ stash() { # stash <src> <name-in-bundle>
     fi
 }
 
+# wg_dump <dir> — every WireGuard app tunnel from the login keychain into <dir>/<name>.conf
+wg_dump() {
+    local dir="$1" acct tun nt=0
+    while IFS= read -r acct; do
+        tun="${acct%: *}"
+        mkdir -p "$dir" && chmod 700 "$dir"
+        if security find-generic-password -s com.wireguard.macos -a "$acct" -w >"$dir/$tun.conf" 2>/dev/null \
+            && grep -q '^\[Interface\]' "$dir/$tun.conf"; then
+            chmod 600 "$dir/$tun.conf"; nt=$((nt + 1))
+        else
+            rm -f "$dir/$tun.conf"; warn "wireguard: $tun was not readable"
+        fi
+    done < <(security dump-keychain 2>/dev/null | awk '/"acct"<blob>=/{a=$0} /"svce"<blob>="com.wireguard.macos"/{sub(/.*"acct"<blob>="/,"",a); sub(/"$/,"",a); print a}')
+    if (( nt )); then ok "wireguard ($nt tunnels: $(ls "$dir" | sed 's/\.conf$//' | paste -sd, - | sed 's/,/, /g'))"; else skip "wireguard (no tunnels)"; return 1; fi
+}
+
+# wireguard [out-dir] — only the tunnels, as a plain zip (for an encrypted vault)
+cmd_wireguard() {
+    local out_dir="${1:-$HOME/Downloads}" out
+    out="$out_dir/wireguard-tunnels-$(date +%Y%m%d).zip"
+    printf '\n  %sExporting WireGuard tunnels%s\n  %s  macOS asks for each tunnel: login password, then Always Allow%s\n\n' "$B" "$N" "$D" "$N"
+    wg_dump "$WORK/wireguard" || exit 1
+    rm -f "$out"; (cd "$WORK/wireguard" && zip -q -X "$out" ./*.conf) && chmod 600 "$out"
+    printf '\n  %s✓ %s%s\n  %s  not encrypted: private keys inside — keep it only in the vault%s\n\n' "$G$B" "$out" "$N" "$D" "$N"
+}
+
 cmd_export() {
     local out_dir="${1:-$HOME/Downloads}" host out
     host="$(scutil --get LocalHostName 2>/dev/null || hostname -s)"
@@ -106,18 +133,7 @@ cmd_export() {
     fi
 
     # WireGuard app tunnels: the keychain holds each one as a wg-quick config
-    local acct tun nt=0
-    while IFS= read -r acct; do
-        tun="${acct%: *}"
-        mkdir -p "$WORK/bundle/wireguard"
-        if security find-generic-password -s com.wireguard.macos -a "$acct" -w >"$WORK/bundle/wireguard/$tun.conf" 2>/dev/null \
-            && grep -q '^\[Interface\]' "$WORK/bundle/wireguard/$tun.conf"; then
-            nt=$((nt + 1))
-        else
-            rm -f "$WORK/bundle/wireguard/$tun.conf"; warn "wireguard: $tun was not readable"
-        fi
-    done < <(security dump-keychain 2>/dev/null | awk '/"acct"<blob>=/{a=$0} /"svce"<blob>="com.wireguard.macos"/{sub(/.*"acct"<blob>="/,"",a); sub(/"$/,"",a); print a}')
-    if (( nt )); then ok "wireguard ($nt tunnels: $(ls "$WORK/bundle/wireguard" | sed 's/\.conf$//' | paste -sd, - | sed 's/,/, /g'))"; else skip "wireguard (no tunnels)"; fi
+    wg_dump "$WORK/bundle/wireguard"
 
     stash "$HOME/.ssh" "ssh"
     # no backups
@@ -254,6 +270,7 @@ cmd_list() {
 case "${1:-}" in
     export) shift; cmd_export "$@" ;;
     list)   shift; cmd_list "$@" ;;
+    wireguard) shift; cmd_wireguard "$@" ;;
     import) shift; cmd_import "$@" ;;
-    *) sed -n '3,26p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+    *) sed -n '3,27p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac
