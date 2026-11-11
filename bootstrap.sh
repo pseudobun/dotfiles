@@ -50,7 +50,7 @@ LOG="$HOME/Library/Logs/dotfiles-bootstrap.log"
 START_TS=$(date +%s)
 STEP_STARTED=$START_TS
 
-STEP_IDS=(xcode clone homebrew secrets shell gpg ssh links fish devtools spicetify macos debloat github agents vault apps server services)
+STEP_IDS=(xcode clone homebrew secrets shell gpg ssh links fish devtools macos debloat github agents vault apps server services)
 STEP_TITLES=(
     "Xcode Command Line Tools"
     "Dotfiles repository"
@@ -62,7 +62,6 @@ STEP_TITLES=(
     "Dotfile links & sketchybar"
     "Fish configuration"
     "Development tools"
-    "Spicetify"
     "macOS defaults"
     "Debloat"
     "GitHub CLI login"
@@ -361,6 +360,7 @@ step_homebrew() {
         grep -E "has failed!|^Error: " "$LOG" | tail -n 20 | strip_ansi | while IFS= read -r l; do note "    $l"; done
         followup "Retry failed Brewfile entries: brew bundle --file $(brewfile)"
     fi
+    grep -q '^# Not in Homebrew' "$(brewfile)" && followup "Apps outside Homebrew: see the end of hosts/$HOST/Brewfile"
     [[ $HOST == sanctum ]] && install_cutter
     return 0
 }
@@ -719,13 +719,6 @@ step_devtools() {
     return 0
 }
 
-step_spicetify() {
-    if ! ask_yes_no "Install Spicetify (Spotify theming)?" "n"; then return 2; fi
-    run "spicetify cli" bash -c 'curl -fsSL https://raw.githubusercontent.com/spicetify/cli/main/install.sh | sh' || warn "spicetify cli failed"
-    run "spicetify marketplace" bash -c 'curl -fsSL https://raw.githubusercontent.com/spicetify/marketplace/main/resources/install.sh | sh' || warn "marketplace failed"
-    return 0
-}
-
 step_macos() {
     note "menu bar hidden (sketchybar) · dock · finder · input · dark mode"
     if ! ask_yes_no "Apply macOS defaults?"; then return 2; fi
@@ -750,14 +743,42 @@ step_macos() {
     $w com.apple.finder FXPreferredViewStyle -string Nlsv
     # input
     $w .GlobalPreferences com.apple.mouse.scaling -1
+    $w NSGlobalDomain com.apple.trackpad.scaling -float 1.5
     $w NSGlobalDomain com.apple.swipescrolldirection -bool false
     $w NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+    $w NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
+    $w NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+    # trackpad: no three-finger Look Up tap (hop rings can use tap3)
+    $w com.apple.AppleMultitouchTrackpad TrackpadThreeFingerTapGesture -int 0
+    $w com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerTapGesture -int 0
+    # hot corners: none (bottom right is Quick Note by default)
+    $w com.apple.dock wvous-br-corner -int 1
+    $w com.apple.dock wvous-br-modifier -int 0
     # appearance
     $w NSGlobalDomain AppleInterfaceStyle -string Dark
     success "menu bar hidden, dock auto-hide 50 ms / size 56, fixed spaces, list view, no natural scroll, no autocorrect, dark"
+    set_wallpaper
     killall Dock Finder SystemUIServer 2>/dev/null || true
     note "some settings need a logout"
     return 0
+}
+
+# The bunny wallpaper on every display: portrait displays get the portrait one.
+set_wallpaper() {
+    local land="$dotfiles_path/wallpapers/bunny-4k-landscape.png" port="$dotfiles_path/wallpapers_portrait/bunny-4k-portrait.png"
+    [[ -f "$land" && -f "$port" ]] || { warn "wallpapers missing in the repo"; return 0; }
+    if osascript -l JavaScript - "$land" "$port" >>"$LOG" 2>&1 <<'JXA'
+ObjC.import('AppKit')
+function run(argv) {
+  const ws = $.NSWorkspace.sharedWorkspace, screens = $.NSScreen.screens
+  for (let i = 0; i < screens.count; i++) {
+    const s = screens.objectAtIndex(i), f = s.frame
+    const url = $.NSURL.fileURLWithPath(f.size.height > f.size.width ? argv[1] : argv[0])
+    ws.setDesktopImageURLForScreenOptionsError(url, s, $({}), null)
+  }
+}
+JXA
+    then success "wallpaper set on every display"; else warn "wallpaper not set (see the log)"; fi
 }
 
 # Apple's extra apps live on the sealed system volume (/System/Applications): macOS refuses to
@@ -1165,10 +1186,6 @@ step_services() {
         run "sketchybar" brew services restart sketchybar || warn "sketchybar did not start"
     else
         warn "sketchybar is not installed"
-    fi
-
-    if command -v spicetify &>/dev/null && ask_yes_no "Apply Spicetify? (Spotify must have been opened once)" "n"; then
-        run "spicetify apply" spicetify apply || warn "spicetify apply failed"
     fi
     return 0
 }

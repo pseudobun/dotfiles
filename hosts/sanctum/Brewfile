@@ -357,6 +357,7 @@ cask "alcove"
 # Menu bar tool to limit maximum charging percentage
 cask "aldente"
 # Application uninstaller
+cask "android-studio"
 cask "appcleaner"
 # Tool to flash OS images to SD cards & USB drives
 cask "balenaetcher"
@@ -369,6 +370,7 @@ cask "brave-browser"
 # Open source IDE for exploring and testing APIs
 cask "bruno"
 # Web debugging Proxy application
+cask "buzz"
 cask "charles"
 # OpenAI's official ChatGPT desktop app
 cask "chatgpt"
@@ -404,12 +406,14 @@ cask "godot"
 # Client for the Google Drive storage service
 cask "google-drive"
 # Video stabilization using gyroscope data
+cask "gpg-suite"
 cask "gyroflow"
 # Open-source video transcoder
 cask "handbrake-app"
 # Tiny native launcher with calculator, clipboard history, snippets and notes
 cask "pseudobun/tap/hop", trusted: true
 # Free and open-source media player
+cask "icon-composer"
 cask "iina"
 # JetBrains tools manager
 cask "jetbrains-toolbox"
@@ -448,6 +452,7 @@ cask "pseudobun/tap/paw", trusted: true
 # Home media player
 cask "plex"
 # Open source virtual/remote desktop application
+cask "qflipper"
 cask "rustdesk"
 # Screen recorder and editor
 cask "screen-studio"
@@ -509,3 +514,10 @@ npm "pnpm"
 npm "rea-agents"
 # Cutter (cask "cutter") is installed by bootstrap.sh install_cutter: its DMG is not notarized
 # and brew cannot mount it while quarantined.
+
+# Not in Homebrew — install by hand (bootstrap lists them at the end):
+#   ExpressLRS Configurator   https://github.com/ExpressLRS/ExpressLRS-Configurator/releases
+#   Imaging Edge Desktop      https://www.sony.net/disoft/
+#   Blackmagic Proxy Generator Lite, VelociDrone, Liftoff (Steam)
+#   eOIActivator, SETCCE proXSign (Slovenian e-ID and e-signature)
+#   Storyteller apps: ArtCraft Launcher, CADCraft, LightCraft, PdfCraft

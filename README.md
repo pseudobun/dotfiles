@@ -72,17 +72,6 @@ Their configs are linked from here: `paw/` → `~/.config/paw`, `hop/` → `~/.c
 All fonts are Nerd Fonts from the `Brewfile` (`brew bundle`, automatic in `bootstrap.sh`):
 JetBrains Mono, Roboto Mono, Ubuntu, Geist Mono, Hack and Liga SFMono.
 
-## Exporting public and private GPG keys with `gpg`
-
-1. Export public key using `gpg --export --armor your@email.com > public_key.asc`.
-2. List privaye keys using `gpg --list-secret-keys`.
-3. Find the key by ID (e.g. 12345678) and export it using `gpg --export-secret-keys -a 12345678 > private_key.asc`.
-
-## Importing public and private GPG keys with `gpg`
-
-1. Import public key using `gpg --import public_key.asc`.
-2. Import private key using `gpg --import private_key.asc`.
-
 ## Inspiration:
 
 * [martines3000/dotfiles](https://github.com/martines3000/dotfiles)
