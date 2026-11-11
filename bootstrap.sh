@@ -713,9 +713,6 @@ step_devtools() {
     if ask_yes_no "Foundry (Ethereum)?" "n"; then
         run "foundryup" bash -c 'curl -fsSL https://foundry.paradigm.xyz | bash && ~/.foundry/bin/foundryup' || warn "foundry failed"
     fi
-    if ask_yes_no "Deno?" "n"; then
-        run "deno" bash -c 'curl -fsSL https://deno.land/install.sh | sh -s -- -y' || warn "deno failed"
-    fi
     return 0
 }
 
