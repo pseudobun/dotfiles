@@ -6,7 +6,7 @@ local app_image = require("app_image")
 local e1 = island.edge("left")
 local front_app = sbar.add("item", "front_app", {
   position = "left",
-  icon = { font = { family = settings.font.apps, style = "Regular", size = 14.0 }, color = colors.gold },
+  icon = { font = { family = settings.font.apps, style = "Regular", size = 14.0 }, color = colors.fg },
   label = { font = { family = settings.font.text, style = "SemiBold", size = 12.0 }, max_chars = 20 },
   updates = true,
 })
@@ -23,10 +23,10 @@ front_app:subscribe("front_app_switched", function(env)
     },
     label = { string = app },
   })
-  -- The app's own colour from paw (picked from its icon); gold when it has none.
+  -- The app's own colour from paw (picked from its icon); white when it has none.
   sbar.exec("paw color '" .. app:gsub("'", "'\\''") .. "' 2>/dev/null", function(out)
     local c = tonumber(type(out) == "string" and out:match("0x%x+") or "")
-    front_app:set({ icon = { color = c or colors.gold } })
+    front_app:set({ icon = { color = c or colors.fg } })
   end)
 end)
 
