@@ -7,3 +7,4 @@ hop/snippets.json5
 .env
 *.bak-*
 sketchybar/helper/helper
+__pycache__/

@@ -46,7 +46,7 @@ def split(p12, password, out_dir, issuer_re):
         issuer = re.search(r"^issuer=(.*)$", info, re.M)[1]
         if not re.search(issuer_re, issuer):
             continue
-        name = re.search(r"CN = ([^,+]*)", info)
+        name = re.search(r"CN = ([^,+\n]*)", info)
         name = name[1].strip() if name else f"identity-{kept + 1}"
         if kid not in keys:
             print(f"no private key: {name}", file=sys.stderr)
