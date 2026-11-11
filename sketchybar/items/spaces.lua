@@ -16,10 +16,11 @@ local first_edge = island.edge("left")
 sbar.add("event", "paw_snapshot")
 sbar.add("event", "paw_workspaceChanged")
 sbar.add("event", "paw_windowsChanged")
+sbar.add("event", "paw_zoomChanged")
 
 -- "[p]aw" keeps pkill from matching its own shell; the old bridge goes when sketchybar loads.
 sbar.exec("pkill -f '[p]aw subscribe.*--trigger paw_'", function()
-  sbar.exec("nohup paw subscribe workspaceChanged,windowsChanged --reconnect "
+  sbar.exec("nohup paw subscribe workspaceChanged,windowsChanged,zoomChanged --reconnect "
     .. "--exec 'sketchybar --trigger paw_$PAW_EVENT' >/dev/null 2>&1 &")
 end)
 
@@ -45,7 +46,14 @@ for i = 1, SLOTS do
       padding_left = 7,
       padding_right = 5,
     },
-    label = { drawing = false },
+    -- How far the workspace on screen is zoomed in (paw zoom in/out): magnifier + level.
+    label = {
+      drawing = false,
+      font = { family = settings.font.symbols, style = "Semibold", size = 10.0 },
+      color = colors.gold,
+      padding_left = 0,
+      padding_right = 5,
+    },
     padding_left = 2,
     padding_right = 0,
   })
@@ -137,6 +145,8 @@ local function refresh(animate, retries)
             display = display,
             drawing = true,
             icon = { string = ws.name, highlight = ws.focused },
+            label = { drawing = ws.visible and (ws.zoom or 0) > 0,
+                      string = "􀊫" .. tostring(math.tointeger(ws.zoom or 0) or 0) },
             padding_right = #shown == 0 and 2 or 0,
           })
           slots[i].bracket:set({ background = { color = ws.visible and colors.island_hi or colors.transparent } })
@@ -168,7 +178,7 @@ local function refresh(animate, retries)
 end
 
 creator:subscribe("paw_workspaceChanged", function() refresh(true) end)
-creator:subscribe({ "paw_snapshot", "paw_windowsChanged", "system_woke" }, function() refresh(false) end)
+creator:subscribe({ "paw_snapshot", "paw_windowsChanged", "paw_zoomChanged", "system_woke" }, function() refresh(false) end)
 creator:subscribe("display_change", function() refresh(false) end)
 refresh(false, 60)
 
