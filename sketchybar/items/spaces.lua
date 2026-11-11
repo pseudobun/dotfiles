@@ -46,14 +46,7 @@ for i = 1, SLOTS do
       padding_left = 7,
       padding_right = 5,
     },
-    -- How far the workspace on screen is zoomed in (paw zoom in/out): magnifier + level.
-    label = {
-      drawing = false,
-      font = { family = settings.font.symbols, style = "Semibold", size = 10.0 },
-      color = colors.gold,
-      padding_left = 0,
-      padding_right = 5,
-    },
+    label = { drawing = false },
     padding_left = 2,
     padding_right = 0,
   })
@@ -120,6 +113,25 @@ local function display_of(ws)
   return a > 0 and tostring(a) or "active"
 end
 
+-- How far the workspace on screen is zoomed in (paw zoom in/out): its own island per display,
+-- shown only while zoomed. Added after the spaces island below; filled in here.
+local ZOOM_DISPLAYS = 4
+local zooms = {}
+
+local function update_zoom(workspaces)
+  local level = {}
+  for _, ws in ipairs(workspaces) do
+    local a = math.tointeger(ws.arrangement or 0) or 0
+    local z = math.tointeger(ws.zoom or 0) or 0
+    if ws.visible and a > 0 and z > 0 then level[a] = z end
+  end
+  for d = 1, ZOOM_DISPLAYS do
+    local z = level[d]
+    for _, item in ipairs(zooms[d] or {}) do item:set({ drawing = z ~= nil }) end
+    if z and zooms[d] then zooms[d][2]:set({ label = { string = tostring(z) } }) end
+  end
+end
+
 -- retries: at login sketchybar can be up before paw, so keep asking until paw answers.
 local function refresh(animate, retries)
   sbar.exec("paw query --json 2>/dev/null", function(workspaces)
@@ -128,6 +140,7 @@ local function refresh(animate, retries)
       return
     end
     local function apply()
+      update_zoom(workspaces)
       for i = 1, SLOTS do
         local ws = workspaces[i]
         names[i] = ws and ws.name or nil
@@ -145,8 +158,6 @@ local function refresh(animate, retries)
             display = display,
             drawing = true,
             icon = { string = ws.name, highlight = ws.focused },
-            label = { drawing = ws.visible and (ws.zoom or 0) > 0,
-                      string = "􀊫" .. tostring(math.tointeger(ws.zoom or 0) or 0) },
             padding_right = #shown == 0 and 2 or 0,
           })
           slots[i].bracket:set({ background = { color = ws.visible and colors.island_hi or colors.transparent } })
@@ -185,3 +196,26 @@ refresh(false, 60)
 local last_edge = island.edge("left")
 island.wrap("spaces.island", { first_edge, "/space\\..*/", last_edge })
 island.gap("left")
+
+for d = 1, ZOOM_DISPLAYS do
+  local e1 = island.edge("left")
+  local item = sbar.add("item", "zoom." .. d, {
+    position = "left",
+    icon = {
+      string = "􀊫",
+      font = { family = settings.font.symbols, style = "Semibold", size = 11.0 },
+      color = colors.gold,
+    },
+    label = { font = { family = settings.font.text, style = "Bold", size = 12.0 }, color = colors.gold },
+  })
+  local e2 = island.edge("left")
+  island.wrap("zoom." .. d .. ".island", { e1, item.name, e2 })
+  local gap = island.gap("left").name
+  zooms[d] = {}
+  for _, name in ipairs({ e1, item.name, e2, gap }) do
+    sbar.set(name, { display = d, drawing = false })
+    zooms[d][#zooms[d] + 1] = { set = function(_, props) sbar.set(name, props) end }
+  end
+  zooms[d][2] = item
+end
+refresh(false)
