@@ -7,6 +7,7 @@
 #                     (age -p) — default out-dir: ~/Downloads
 #  import <file>      unpack it on a new machine into the right places,
 #                     backing up anything that would be overwritten
+#  list <file>        show what a bundle holds (files, certificates, GPG keys)
 #
 #  What travels:
 #    gpg      my secret keys, their public keys and ownertrust (no one else's keys)
@@ -194,8 +195,34 @@ cmd_import() {
     printf '\n  %s✓ done%s %s— delete %s now%s\n\n' "$G$B" "$N" "$D" "$file" "$N"
 }
 
+cmd_list() {
+    local file="${1:-}" p12 pw has
+    [[ -f "$file" ]] || die "usage: secrets.sh list <secrets-….tar.gz.age>"
+    mkdir -p "$WORK/bundle"
+    if [[ -n "${AGE_IDENTITY:-}" ]]; then age -d -i "$AGE_IDENTITY" "$file"; else age -d "$file"; fi \
+        | tar -C "$WORK/bundle" -xzf - || die "decryption failed (wrong passphrase?)"
+    printf '\n  %sFiles%s\n' "$B" "$N"
+    sed 's#^\./#    #' "$WORK/bundle/MANIFEST"
+    if compgen -G "$WORK/bundle/certs/*.p12" >/dev/null; then
+        printf '\n  %sCertificates%s\n' "$B" "$N"
+        pw="$(cat "$WORK/bundle/certs/password")"
+        for p12 in "$WORK/bundle/certs/"*.p12; do
+            has="no private key"
+            openssl pkcs12 -in "$p12" -passin "pass:$pw" -nocerts -nodes 2>/dev/null | grep -q 'PRIVATE KEY' && has="private key ✓"
+            openssl pkcs12 -in "$p12" -passin "pass:$pw" -nokeys 2>/dev/null | openssl x509 -noout -subject -issuer -enddate -nameopt utf8,sep_comma_plus,space_eq 2>/dev/null \
+                | awk -v has="$has" -F'CN = ' '/^subject/{split($2,a,/[,+]/);s=a[1]} /^issuer/{split($2,a,/[,+]/);i=a[1]} /^notAfter/{sub(/notAfter=/,"");e=$0} END{printf "    %-22s ← %-14s until %s  (%s)\n", s, i, e, has}'
+        done
+    fi
+    if [[ -f "$WORK/bundle/gpg/secret.asc" ]]; then
+        printf '\n  %sGPG secret keys%s\n' "$B" "$N"
+        gpg --show-keys "$WORK/bundle/gpg/secret.asc" 2>/dev/null | grep -E '^(sec|uid)' | sed 's/^/    /' 
+    fi
+    printf '\n'
+}
+
 case "${1:-}" in
     export) shift; cmd_export "$@" ;;
+    list)   shift; cmd_list "$@" ;;
     import) shift; cmd_import "$@" ;;
-    *) sed -n '3,23p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+    *) sed -n '3,24p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

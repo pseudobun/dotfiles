@@ -40,3 +40,7 @@ secrets-export out_dir="~/Downloads":
 # Unpack a secrets bundle from `just secrets-export` into place on this machine.
 secrets-import file:
     bash scripts/secrets.sh import {{file}}
+
+# Show what a secrets bundle holds: files, certificates (with or without private key), GPG keys.
+secrets-list file:
+    bash scripts/secrets.sh list {{file}}
