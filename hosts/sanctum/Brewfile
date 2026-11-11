@@ -427,8 +427,6 @@ cask "kicad"
 cask "konica-minolta-bizhub-c750i-driver"
 # Free cross-platform office suite, fresh version
 cask "libreoffice"
-# Customise mouse behavior
-cask "linearmouse"
 # Open-source cross-platform alternative to AirDrop
 cask "localsend"
 # File system integration

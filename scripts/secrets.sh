@@ -12,6 +12,9 @@
 #    gpg      all secret + public keys and ownertrust
 #    ssh      ~/.ssh (keys, config, known_hosts)
 #    age      ~/Library/Application Support/sops/age/keys.txt, ~/age.agekey
+#    certs    every identity (certificate + private key) in the login keychain:
+#             personal e-ID certificates, Apple Development, Developer ID
+#             (macOS asks once per private key: enter the login password, Always Allow)
 #
 #  The .env files (hop, sketchybar) are in the repo as sops-encrypted *.enc;
 #  import decrypts them with the age key it just placed (scripts/env.sh).
@@ -69,6 +72,24 @@ cmd_export() {
         ok "gpg ($(gpg --list-secret-keys --with-colons | grep -c '^sec') secret keys)"
     else
         skip "gpg (no secret keys)"
+    fi
+
+    # certificates with private keys (.p12): iCloud Keychain does not carry them
+    local login_kc="$HOME/Library/Keychains/login.keychain-db" pass n
+    n=$(security find-identity 2>/dev/null | sed -n 's/^ *\([0-9]*\) identities found$/\1/p' | head -n 1)
+    if [[ "${n:-0}" -gt 0 ]]; then
+        mkdir -p "$WORK/bundle/certs"
+        pass=$(openssl rand -hex 24)
+        printf '  %s  macOS asks for each private key: login password, then Always Allow%s\n' "$D" "$N"
+        if security export -k "$login_kc" -t identities -f pkcs12 -P "$pass" -o "$WORK/bundle/certs/identities.p12" >/dev/null 2>&1; then
+            printf '%s' "$pass" >"$WORK/bundle/certs/password"
+            ok "certs ($n identities from the login keychain)"
+        else
+            rm -rf "$WORK/bundle/certs"
+            warn "certs: the keychain export was refused — export them by hand in Keychain Access (My Certificates › Export…)"
+        fi
+    else
+        skip "certs (no identities in the login keychain)"
     fi
 
     stash "$HOME/.ssh" "ssh"
@@ -137,6 +158,20 @@ cmd_import() {
     else
         skip "gpg (not in the bundle)"
     fi
+    if [[ -f "$WORK/bundle/certs/identities.p12" ]]; then
+        # -A: apps may use the keys without asking (codesign, browsers, proXSign)
+        if security import "$WORK/bundle/certs/identities.p12" -k "$HOME/Library/Keychains/login.keychain-db" \
+            -f pkcs12 -P "$(cat "$WORK/bundle/certs/password")" -A >/dev/null 2>&1; then
+            ok "certs → login keychain ($(security find-identity 2>/dev/null | sed -n 's/^ *\([0-9]*\) identities found$/\1/p' | head -n 1) identities)"
+        else
+            mkdir -p "$HOME/Desktop/certs-import" && chmod 700 "$HOME/Desktop/certs-import"
+            cp "$WORK/bundle/certs/identities.p12" "$WORK/bundle/certs/password" "$HOME/Desktop/certs-import/"
+            warn "certs did not import — open ~/Desktop/certs-import/identities.p12 (password in the file next to it), then delete the folder"
+        fi
+    else
+        skip "certs (not in the bundle)"
+    fi
+
     if [[ -f "$AGE_KEYS" ]] && command -v sops >/dev/null; then
         bash "$DOTFILES/scripts/env.sh" decrypt || warn "the .env files did not decrypt — run: just decrypt"
     else
@@ -148,5 +183,5 @@ cmd_import() {
 case "${1:-}" in
     export) shift; cmd_export "$@" ;;
     import) shift; cmd_import "$@" ;;
-    *) sed -n '3,20p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+    *) sed -n '3,23p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

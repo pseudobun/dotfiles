@@ -64,7 +64,7 @@ Their configs are linked from here: `paw/` → `~/.config/paw`, `hop/` → `~/.c
 
 * `just decrypt` / `just encrypt` — `.enc` ↔ plain file (needs the age key)
 * `just edit-env hop/.env` — edit the encrypted file in place
-* `just secrets-export` / `just secrets-import <file>` — GPG, SSH and the age key between Macs; import also decrypts the `.env` files
+* `just secrets-export` / `just secrets-import <file>` — GPG, SSH, the age key and the login keychain certificates (.p12: e-ID, Apple Development, Developer ID) between Macs; import also decrypts the `.env` files
 
 
 ## Fonts
