@@ -33,14 +33,6 @@ Step `agents` checks out the synced agent config (`pseudobun/claude-config`) and
 Step `debloat` takes News, Books, Chess, Photo Booth, Podcasts, Tips and Games off the Dock;
 they are on the sealed system volume, so macOS does not let them be deleted.
 
-Currently, [Go](https://go.dev/) needs to be installed [manually](https://go.dev/doc/install).
-
-## TODOs
-
-* [ ] Add option to generate new GPG key pair/import it from file and set it to default for git.
-* [ ] Add option to generate new SSH key pair/import it from file and add it to SSH agent.
-* [ ] Installing Go
-
 ## Some of the tools I use:
 
 * [Ghostty](https://ghostty.org/)
@@ -49,7 +41,6 @@ Currently, [Go](https://go.dev/) needs to be installed [manually](https://go.dev
 * [paw](https://github.com/pseudobun/paw) — my tiling window manager with virtual workspaces
 * [sketchybar](https://github.com/FelixKratz/SketchyBar)
 * [modern UNIX tools](https://github.com/ibraheemdev/modern-unix)
-* [pyenv](https://github.com/pyenv/pyenv)
 
 ## hop and paw
 

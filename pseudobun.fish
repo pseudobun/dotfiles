@@ -3,15 +3,11 @@ set --export BUN_INSTALL "$HOME/.bun"
 set --export PATH $BUN_INSTALL/bin $PATH
 set --export GPG_TTY $(tty)
 
-eval (/opt/homebrew/bin/brew shellenv)
-fish_add_path ~/.cargo/bin/
-
 command -q kubectl; and kubectl completion fish | source
 alias please='sudo'
 alias sweep='fd --hidden --no-ignore "^.DS_Store\$" --exclude "*node_modules*" --exec rm'
 alias tsm='transmission-remote'
 alias watchtsm="watch --interval 1 'transmission-remote -l'"
-# pyenv init - | source
 command -q zoxide; and zoxide init fish | source
 if set -q SSH_CONNECTION
     set -gx STARSHIP_CONFIG ~/.dotfiles/starship-ssh.toml
@@ -30,7 +26,6 @@ abbr -a top btm
 abbr -a cd z
 abbr -a l 'eza --icons -ahliH'
 abbr -a k kubectl
-abbr -a code cursor
 abbr -a rsync 'rsync -avh --progress'
 
 # git abbrs
@@ -60,9 +55,6 @@ abbr -a olympus 'ssh pseudobun@olympus'
 
 abbr -a grp 'git remote prune origin'
 abbr -a grb "git branch -vv | grep ': gone]' | awk '{print \$1}' | xargs git branch -D"
-
-# openclaw
-abbr -a oc "openclaw"
 
 # docker
 abbr -a dp 'docker ps'

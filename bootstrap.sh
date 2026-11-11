@@ -50,7 +50,7 @@ LOG="$HOME/Library/Logs/dotfiles-bootstrap.log"
 START_TS=$(date +%s)
 STEP_STARTED=$START_TS
 
-STEP_IDS=(xcode clone homebrew secrets shell gpg ssh links fish devtools spicetify macos debloat terminal github agents vault apps server services)
+STEP_IDS=(xcode clone homebrew secrets shell gpg ssh links fish devtools spicetify macos debloat github agents vault apps server services)
 STEP_TITLES=(
     "Xcode Command Line Tools"
     "Dotfiles repository"
@@ -65,7 +65,6 @@ STEP_TITLES=(
     "Spicetify"
     "macOS defaults"
     "Debloat"
-    "Extra terminals"
     "GitHub CLI login"
     "Agent config (Claude, Codex, opencode)"
     "Obsidian vault"
@@ -640,9 +639,7 @@ step_links() {
     link "$d/pseudobun.fish"           "$HOME/.config/fish/pseudobun.fish"      "pseudobun.fish"
     link "$d/fish/config.fish"         "$HOME/.config/fish/config.fish"         "config.fish"
     link_each "$d/fish/conf.d"         "$HOME/.config/fish/conf.d"              "fish conf.d"
-    link_each "$d/functions"           "$HOME/.config/fish/functions"           "fish functions"
     link "$d/fish/fish_plugins"        "$HOME/.config/fish/fish_plugins"        "fisher plugin list"
-    [[ -d "$d/macchina" ]] && link "$d/macchina" "$HOME/.config/macchina" "macchina"
 
     if [[ $HOST == olympus ]]; then
         mkdir -p "$HOME/repos"
@@ -783,12 +780,6 @@ step_debloat() {
     fi
     killall Dock 2>/dev/null || true
     success "Dock auto-hides"
-    return 0
-}
-
-step_terminal() {
-    if ! ask_yes_no "Install Kitty?" "n"; then return 2; fi
-    run "kitty" bash -c 'curl -fsSL https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n' || warn "kitty failed"
     return 0
 }
 

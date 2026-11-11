@@ -3,9 +3,6 @@ source $HOME/.config/fish/pseudobun.fish
 fish_add_path -g $HOME/.local/bin
 export PATH="$HOME/.fuelup/bin:$PATH"
 
-export NARGO_HOME="$HOME/.nargo"
-
-export PATH="$PATH:$NARGO_HOME/bin"
 set -gx PATH $HOME/.bb $PATH
 command -q uv; and uv generate-shell-completion fish | source
 command -q uvx; and uvx --generate-shell-completion fish | source
