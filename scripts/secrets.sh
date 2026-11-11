@@ -68,7 +68,8 @@ wg_dump() {
     while IFS= read -r acct; do
         tun="${acct%: *}"
         mkdir -p "$dir" && chmod 700 "$dir"
-        if security find-generic-password -s com.wireguard.macos -a "$acct" -w >"$dir/$tun.conf" 2>/dev/null \
+        # `security -w` prints the config hex-encoded (it has newlines)
+        if security find-generic-password -s com.wireguard.macos -a "$acct" -w 2>/dev/null | xxd -r -p >"$dir/$tun.conf" \
             && grep -q '^\[Interface\]' "$dir/$tun.conf"; then
             chmod 600 "$dir/$tun.conf"; nt=$((nt + 1))
         else
