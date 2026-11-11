@@ -13,6 +13,8 @@
 #    gpg      my secret keys, their public keys and ownertrust (no one else's keys)
 #    ssh      ~/.ssh (keys, config, known_hosts), without backups
 #    age      ~/Library/Application Support/sops/age/keys.txt
+#    wireguard  every tunnel of the WireGuard app (kept in the login keychain) as
+#             <name>.conf (macOS asks once per tunnel: login password, Always Allow)
 #    certs    personal certificates with their private keys from the login keychain,
 #             only those issued by CERT_ISSUERS (macOS asks once per private key:
 #             enter the login password, Always Allow)
@@ -103,6 +105,20 @@ cmd_export() {
         skip "certs (no identities in the login keychain)"
     fi
 
+    # WireGuard app tunnels: the keychain holds each one as a wg-quick config
+    local acct tun nt=0
+    while IFS= read -r acct; do
+        tun="${acct%: *}"
+        mkdir -p "$WORK/bundle/wireguard"
+        if security find-generic-password -s com.wireguard.macos -a "$acct" -w >"$WORK/bundle/wireguard/$tun.conf" 2>/dev/null \
+            && grep -q '^\[Interface\]' "$WORK/bundle/wireguard/$tun.conf"; then
+            nt=$((nt + 1))
+        else
+            rm -f "$WORK/bundle/wireguard/$tun.conf"; warn "wireguard: $tun was not readable"
+        fi
+    done < <(security dump-keychain 2>/dev/null | awk '/"acct"<blob>=/{a=$0} /"svce"<blob>="com.wireguard.macos"/{sub(/.*"acct"<blob>="/,"",a); sub(/"$/,"",a); print a}')
+    if (( nt )); then ok "wireguard ($nt tunnels: $(ls "$WORK/bundle/wireguard" | sed 's/\.conf$//' | paste -sd, - | sed 's/,/, /g'))"; else skip "wireguard (no tunnels)"; fi
+
     stash "$HOME/.ssh" "ssh"
     # no backups
     rm -f "$WORK/bundle/ssh/"*.bak* "$WORK/bundle/ssh/"*.old "$WORK/bundle/ssh/"*~ 2>/dev/null
@@ -169,6 +185,15 @@ cmd_import() {
     else
         skip "gpg (not in the bundle)"
     fi
+    if compgen -G "$WORK/bundle/wireguard/*.conf" >/dev/null; then
+        # the WireGuard app imports a zip of .conf files (File › Import Tunnel(s) from File)
+        local wg="$HOME/Desktop/wireguard-tunnels.zip"
+        (cd "$WORK/bundle/wireguard" && zip -q -X "$wg" ./*.conf) && chmod 600 "$wg"
+        warn "wireguard: import ~/Desktop/wireguard-tunnels.zip in the WireGuard app (File › Import Tunnel(s) from File), then delete it"
+    else
+        skip "wireguard (not in the bundle)"
+    fi
+
     if compgen -G "$WORK/bundle/certs/*.p12" >/dev/null; then
         local p12 failed=()
         for p12 in "$WORK/bundle/certs/"*.p12; do
@@ -213,6 +238,12 @@ cmd_list() {
                 | awk -v has="$has" -F'CN = ' '/^subject/{split($2,a,/[,+]/);s=a[1]} /^issuer/{split($2,a,/[,+]/);i=a[1]} /^notAfter/{sub(/notAfter=/,"");e=$0} END{printf "    %-22s ← %-14s until %s  (%s)\n", s, i, e, has}'
         done
     fi
+    if compgen -G "$WORK/bundle/wireguard/*.conf" >/dev/null; then
+        printf '\n  %sWireGuard tunnels%s\n' "$B" "$N"
+        for p12 in "$WORK/bundle/wireguard/"*.conf; do
+            printf '    %-14s %s\n' "$(basename "$p12" .conf)" "$(grep -m1 -i '^Endpoint' "$p12" | sed 's/^[^=]*= *//')"
+        done
+    fi
     if [[ -f "$WORK/bundle/gpg/secret.asc" ]]; then
         printf '\n  %sGPG secret keys%s\n' "$B" "$N"
         gpg --show-keys "$WORK/bundle/gpg/secret.asc" 2>/dev/null | grep -E '^(sec|uid)' | sed 's/^/    /' 
@@ -224,5 +255,5 @@ case "${1:-}" in
     export) shift; cmd_export "$@" ;;
     list)   shift; cmd_list "$@" ;;
     import) shift; cmd_import "$@" ;;
-    *) sed -n '3,24p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+    *) sed -n '3,26p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

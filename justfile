@@ -33,7 +33,7 @@ brew-extra:
 brew-untrusted:
     brew tap-info --installed --json | jq -r '.[] | select(.trusted == false) | .name'
 
-# Pack GPG keys, ~/.ssh, the age key and the keychain certificates (.p12) into one passphrase-encrypted file (the .env files come from the repo).
+# Pack GPG keys, ~/.ssh, the age key, WireGuard tunnels and the keychain certificates (.p12) into one passphrase-encrypted file (the .env files come from the repo).
 secrets-export out_dir="~/Downloads":
     bash scripts/secrets.sh export {{out_dir}}
 
