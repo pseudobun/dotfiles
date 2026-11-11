@@ -640,6 +640,7 @@ step_links() {
     link "$d/fish/config.fish"         "$HOME/.config/fish/config.fish"         "config.fish"
     link_each "$d/fish/conf.d"         "$HOME/.config/fish/conf.d"              "fish conf.d"
     link "$d/fish/fish_plugins"        "$HOME/.config/fish/fish_plugins"        "fisher plugin list"
+    link "$d/zsh/zshrc"                "$HOME/.zshrc"                           ".zshrc (mirror of the fish setup)"
 
     if [[ $HOST == olympus ]]; then
         mkdir -p "$HOME/repos"

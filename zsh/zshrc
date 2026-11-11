@@ -1,0 +1,76 @@
+# zsh mirror of the fish setup (fish/config.fish, pseudobun.fish, fish/conf.d). fish is the
+# login shell; this keeps a zsh opened by hand (or by a tool) the same. Linked to ~/.zshrc.
+
+# --- PATH --------------------------------------------------------------------------
+[[ -x /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+export BUN_INSTALL="$HOME/.bun"
+export PNPM_HOME="$HOME/Library/pnpm"
+typeset -U path
+path=(
+  "$PNPM_HOME"
+  "$HOME/.bb"
+  "$HOME/.fuelup/bin"
+  "$HOME/.local/bin"
+  "$BUN_INSTALL/bin"
+  "$HOME/.cargo/bin"
+  /opt/homebrew/opt/postgresql@15/bin
+  $path
+  "$HOME/.foundry/bin"
+)
+export PATH
+
+# mise: global tool versions (Java); shims outside interactive shells, like fish
+if command -v mise >/dev/null; then
+  if [[ -o interactive ]]; then eval "$(mise activate zsh)"; else eval "$(mise activate zsh --shims)"; fi
+fi
+command -v fnm >/dev/null && eval "$(fnm env --use-on-cd --version-file-strategy=recursive --log-level=quiet --shell zsh)"
+
+[[ -o interactive ]] || return
+
+# --- interactive -------------------------------------------------------------------
+export GPG_TTY=$(tty)
+autoload -Uz compinit && compinit -i
+
+command -v kubectl >/dev/null && source <(kubectl completion zsh)
+command -v uv >/dev/null && eval "$(uv generate-shell-completion zsh)"
+command -v uvx >/dev/null && eval "$(uvx --generate-shell-completion zsh)"
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
+[[ -n "$SSH_CONNECTION" ]] && export STARSHIP_CONFIG="$HOME/.dotfiles/starship-ssh.toml"
+command -v starship >/dev/null && eval "$(starship init zsh)"
+command -v fzf >/dev/null && source <(fzf --zsh)
+
+# fish abbreviations as aliases
+alias please='sudo'
+alias sweep='fd --hidden --no-ignore "^.DS_Store\$" --exclude "*node_modules*" --exec rm'
+alias tsm='transmission-remote'
+alias watchtsm="watch --interval 1 'transmission-remote -l'"
+alias htop='btm' top='btm'
+command -v zoxide >/dev/null && alias cd='z'
+alias l='eza --icons -ahliH'
+alias k='kubectl'
+alias rsync='rsync -avh --progress'
+
+alias ga='git add' gaa='git add --all' gs='git status' gp='git push' gc='git switch'
+alias gcm='git commit -S -m' gcma='git commit -aS -m' gm='git merge' gr='git rebase'
+alias gl='git pull' gf='git fetch' gb='git branch' gba='git branch -a' gbr='git branch -r'
+alias gbd='git branch -d' grp='git remote prune origin'
+alias grb="git branch -vv | grep ': gone]' | awk '{print \$1}' | xargs git branch -D"
+
+alias zeus='ssh root@zeus' minsky='ssh root@minsky' pikvm='ssh root@pikvm' olympus='ssh pseudobun@olympus'
+
+alias dp='docker ps' dpa='docker ps -a' di='docker image' dv='docker volume'
+alias dcu='docker compose up' dcd='docker compose down' dcb='docker compose build'
+alias dcr='docker compose restart' dcs='docker compose start' dcp='docker compose pause'
+
+cs() { z "$@" && eza --icons -ahliH; }
+md() { markdown "$1" | lynx -stdin; }
+
+# refresh sketchybar's brew count after brew update/upgrade/outdated
+brew() {
+  command brew "$@"
+  local rc=$?
+  if [[ " $* " == *" upgrade "* || " $* " == *" update "* || " $* " == *" outdated "* ]] && command -v sketchybar >/dev/null; then
+    (bash ~/.config/sketchybar/plugins/brew_refresh.sh &) >/dev/null 2>&1
+  fi
+  return $rc
+}
