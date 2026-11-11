@@ -9,12 +9,12 @@
 #                     backing up anything that would be overwritten
 #
 #  What travels:
-#    gpg      all secret + public keys and ownertrust
-#    ssh      ~/.ssh (keys, config, known_hosts)
-#    age      ~/Library/Application Support/sops/age/keys.txt, ~/age.agekey
-#    certs    every identity (certificate + private key) in the login keychain:
-#             personal e-ID certificates, Apple Development, Developer ID
-#             (macOS asks once per private key: enter the login password, Always Allow)
+#    gpg      my secret keys, their public keys and ownertrust (no one else's keys)
+#    ssh      ~/.ssh (keys, config, known_hosts), without backups and SSH_SKIP keys
+#    age      ~/Library/Application Support/sops/age/keys.txt
+#    certs    personal certificates with their private keys from the login keychain,
+#             only those issued by CERT_ISSUERS (macOS asks once per private key:
+#             enter the login password, Always Allow)
 #
 #  The .env files (hop, sketchybar) are in the repo as sops-encrypted *.enc;
 #  import decrypts them with the age key it just placed (scripts/env.sh).
@@ -27,6 +27,11 @@ set -uo pipefail
 
 DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
 AGE_KEYS="$HOME/Library/Application Support/sops/age/keys.txt"
+# Certificates worth carrying: Slovenian qualified e-ID (SIGEN-CA). Apple Development and
+# Developer ID stay behind (CI signs releases); proXSign makes its own localhost one.
+CERT_ISSUERS="${CERT_ISSUERS:-CN = SIGEN-CA}"
+# ~/.ssh files left out of the bundle (basenames, private and .pub alike)
+SSH_SKIP=()
 
 if [[ -t 1 ]]; then
     G=$'\033[38;5;78m'; Y=$'\033[38;5;214m'; R=$'\033[38;5;203m'; D=$'\033[38;5;245m'; B=$'\033[1m'; N=$'\033[0m'
@@ -66,35 +71,44 @@ cmd_export() {
     if command -v gpg >/dev/null && gpg --list-secret-keys --with-colons 2>/dev/null | grep -q '^sec'; then
         mkdir -p "$WORK/bundle/gpg"
         printf '  %s  gpg may ask for each key passphrase%s\n' "$D" "$N"
-        gpg --armor --export-secret-keys >"$WORK/bundle/gpg/secret.asc" || die "gpg secret key export failed"
-        gpg --armor --export >"$WORK/bundle/gpg/public.asc"
-        gpg --export-ownertrust >"$WORK/bundle/gpg/ownertrust.txt"
-        ok "gpg ($(gpg --list-secret-keys --with-colons | grep -c '^sec') secret keys)"
+        local fprs
+        fprs=$(gpg --list-secret-keys --with-colons | awk -F: '$1=="sec"{s=1;next} s&&$1=="fpr"{print $10;s=0}')
+        # shellcheck disable=SC2086
+        gpg --armor --export-secret-keys $fprs >"$WORK/bundle/gpg/secret.asc" || die "gpg secret key export failed"
+        # shellcheck disable=SC2086
+        gpg --armor --export $fprs >"$WORK/bundle/gpg/public.asc"
+        gpg --export-ownertrust | grep -F -f <(printf '%s\n' $fprs) >"$WORK/bundle/gpg/ownertrust.txt"
+        ok "gpg ($(wc -w <<<"$fprs" | tr -d ' ') secret keys, no one else's public keys)"
     else
         skip "gpg (no secret keys)"
     fi
 
     # certificates with private keys (.p12): iCloud Keychain does not carry them
-    local login_kc="$HOME/Library/Keychains/login.keychain-db" pass n
-    n=$(security find-identity 2>/dev/null | sed -n 's/^ *\([0-9]*\) identities found$/\1/p' | head -n 1)
-    if [[ "${n:-0}" -gt 0 ]]; then
-        mkdir -p "$WORK/bundle/certs"
+    local login_kc="$HOME/Library/Keychains/login.keychain-db" pass names f
+    if security find-identity 2>/dev/null | grep -qE '^ +[1-9][0-9]* identities found'; then
         pass=$(openssl rand -hex 24)
         printf '  %s  macOS asks for each private key: login password, then Always Allow%s\n' "$D" "$N"
-        if security export -k "$login_kc" -t identities -f pkcs12 -P "$pass" -o "$WORK/bundle/certs/identities.p12" >/dev/null 2>&1; then
-            printf '%s' "$pass" >"$WORK/bundle/certs/password"
-            ok "certs ($n identities from the login keychain)"
+        if security export -k "$login_kc" -t identities -f pkcs12 -P "$pass" -o "$WORK/all.p12" >/dev/null 2>&1; then
+            if names=$(python3 "$DOTFILES/scripts/certs.py" split "$WORK/all.p12" "$pass" "$WORK/bundle/certs" "$CERT_ISSUERS"); then
+                printf '%s' "$pass" >"$WORK/bundle/certs/password"
+                ok "certs ($(grep -c . <<<"$names") with private keys: $(paste -sd, - <<<"$names" | sed 's/,/, /g'))"
+            else
+                warn "certs: a certificate came without its private key — check the list above"
+                [[ -d "$WORK/bundle/certs" ]] && printf '%s' "$pass" >"$WORK/bundle/certs/password"
+            fi
         else
-            rm -rf "$WORK/bundle/certs"
             warn "certs: the keychain export was refused — export them by hand in Keychain Access (My Certificates › Export…)"
         fi
+        rm -f "$WORK/all.p12"
     else
         skip "certs (no identities in the login keychain)"
     fi
 
     stash "$HOME/.ssh" "ssh"
+    # no backups, and the keys left out on purpose
+    rm -f "$WORK/bundle/ssh/"*.bak* "$WORK/bundle/ssh/"*.old "$WORK/bundle/ssh/"*~ 2>/dev/null
+    for f in "${SSH_SKIP[@]}"; do rm -f "$WORK/bundle/ssh/$f" "$WORK/bundle/ssh/$f.pub" "$WORK/bundle/ssh/$f-cert.pub"; done
     stash "$AGE_KEYS" "age/keys.txt"
-    stash "$HOME/age.agekey" "age/age.agekey"
 
     # never carry sockets or agent junk
     find "$WORK/bundle" \( -type s -o -name '*.sock' \) -delete 2>/dev/null
@@ -144,7 +158,6 @@ cmd_import() {
         find "$HOME/.ssh" -type f \( -name '*.pub' -o -name 'known_hosts*' \) -exec chmod 644 {} \;
     fi
     place "age/keys.txt" "$AGE_KEYS" 600
-    place "age/age.agekey" "$HOME/age.agekey" 600
     # bundles from before the .env files moved into the repo: keep only what is not there yet
     [[ -f "$DOTFILES/sketchybar/env.local.sh.enc" ]] || place "dotfiles/sketchybar/env.local.sh" "$DOTFILES/sketchybar/env.local.sh" 600
 
@@ -158,15 +171,19 @@ cmd_import() {
     else
         skip "gpg (not in the bundle)"
     fi
-    if [[ -f "$WORK/bundle/certs/identities.p12" ]]; then
-        # -A: apps may use the keys without asking (codesign, browsers, proXSign)
-        if security import "$WORK/bundle/certs/identities.p12" -k "$HOME/Library/Keychains/login.keychain-db" \
-            -f pkcs12 -P "$(cat "$WORK/bundle/certs/password")" -A >/dev/null 2>&1; then
-            ok "certs → login keychain ($(security find-identity 2>/dev/null | sed -n 's/^ *\([0-9]*\) identities found$/\1/p' | head -n 1) identities)"
+    if compgen -G "$WORK/bundle/certs/*.p12" >/dev/null; then
+        local p12 failed=()
+        for p12 in "$WORK/bundle/certs/"*.p12; do
+            # -A: apps may use the key without asking (browsers, proXSign)
+            security import "$p12" -k "$HOME/Library/Keychains/login.keychain-db" -f pkcs12 \
+                -P "$(cat "$WORK/bundle/certs/password")" -A >/dev/null 2>&1 || failed+=("$p12")
+        done
+        if (( ${#failed[@]} == 0 )); then
+            ok "certs → login keychain ($(ls "$WORK/bundle/certs/"*.p12 | wc -l | tr -d ' ') with private keys)"
         else
             mkdir -p "$HOME/Desktop/certs-import" && chmod 700 "$HOME/Desktop/certs-import"
-            cp "$WORK/bundle/certs/identities.p12" "$WORK/bundle/certs/password" "$HOME/Desktop/certs-import/"
-            warn "certs did not import — open ~/Desktop/certs-import/identities.p12 (password in the file next to it), then delete the folder"
+            cp "${failed[@]}" "$WORK/bundle/certs/password" "$HOME/Desktop/certs-import/"
+            warn "${#failed[@]} certs did not import — open them from ~/Desktop/certs-import (password in the file next to them), then delete the folder"
         fi
     else
         skip "certs (not in the bundle)"
