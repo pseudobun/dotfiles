@@ -13,6 +13,8 @@ return {
   battery = { ["100"] = "􀛨", ["75"] = "􀺸", ["50"] = "􀺶", ["25"] = "􀛩", ["0"] = "􀛪", charging = "􀢋" },
   media = { play = "􀊄", pause = "􀊆", next = "􀊐", prev = "􀊎", note = "􀑪" },
   -- nerd font
+  ethernet = "\u{F0200}",
+  phone = "\u{F011C}",
   btc = "󰠓",
   eth = "󰡪",
   gas = "󰊘",

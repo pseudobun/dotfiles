@@ -27,11 +27,13 @@ clock:subscribe({ "routine", "forced", "system_woke" }, update)
 -- Zen mode: click the clock to hide everything except spaces and the clock.
 local ZEN = { "/front_app.*/", "/markets.*/", "/system.*/", "/cpu.*/", "/brew.*/", "/apple.*/" }
 local zen = false
+sbar.add("event", "zen_off") -- items that hide themselves (system.vpn) re-apply their state
 clock:subscribe("mouse.clicked", function()
   zen = not zen
   for _, pattern in ipairs(ZEN) do
     sbar.set(pattern, { drawing = not zen })
   end
+  if not zen then sbar.trigger("zen_off") end
 end)
 
 island.wrap("clock.island", { e_r, clock.name, e_l })

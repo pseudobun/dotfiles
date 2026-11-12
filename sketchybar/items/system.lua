@@ -35,35 +35,99 @@ local function battery_update()
 end
 battery:subscribe({ "routine", "forced", "power_source_change", "system_woke" }, battery_update)
 
--- wifi / vpn -----------------------------------------------------------------
-local wifi = sbar.add("item", "system.wifi", {
+-- network (cable / wifi / iphone) + vpn ----------------------------------------
+-- The link icon shows the primary interface: macOS routes through the highest
+-- connected service in the service order, and cable sits above Wi-Fi there.
+-- The VPN chip is separate and shows whenever any VPN service is Connected
+-- (scutil --nc); split-tunnel WireGuard never shows up in scutil --nwi.
+local label_font = { family = settings.font.text, style = "Medium", size = 11.0 }
+local nerd = { family = settings.font.text, style = "Regular", size = 15.0 }
+
+local vpn = sbar.add("item", "system.vpn", {
   position = "right",
+  drawing = false,
+  icon = { font = symbols, string = icons.vpn, color = colors.wave, padding_right = 2 },
+  label = { width = 0, padding_left = 3, color = colors.wave, font = label_font },
+})
+
+local net = sbar.add("item", "system.net", {
+  position = "right",
+  update_freq = 20, -- cable plug/unplug has no sketchybar event
   -- SF Symbols wifi glyph ink overhangs its measured width by ~1pt; 2pt right
   -- padding keeps it inside the item window (label pad 3 keeps icon->label = 5)
   icon = { font = symbols, string = icons.wifi_off, padding_right = 2 },
-  label = { width = 0, padding_left = 3, color = colors.muted, font = { family = settings.font.text, style = "Medium", size = 11.0 } },
+  label = { width = 0, padding_left = 3, color = colors.muted, font = label_font },
 })
 
-local function wifi_update()
-  sbar.exec("scutil --nwi", function(out)
-    -- a VPN only counts when a utun interface carries IPv4 (macOS keeps idle utuns around)
-    local v4 = out:match("IPv4 network interface information(.-)IPv6") or ""
-    local vpn = v4:match("utun%d+%s*:") ~= nil
-    local ip = v4:match("address%s*:%s*([%d%.]+)")
-    local icon, color = icons.wifi_off, colors.dim
-    if vpn then icon, color = icons.vpn, colors.wave
-    elseif ip then icon, color = icons.wifi, colors.fg end
-    wifi:set({ icon = { string = icon, color = color }, label = { string = vpn and "VPN" or (ip or "offline") } })
+-- device -> hardware port ("Wi-Fi", "iPhone USB", "USB 10/100/1000 LAN", ...)
+local ports = {}
+local function load_ports(cb)
+  sbar.exec("networksetup -listallhardwareports", function(out)
+    ports = {}
+    for port, dev in out:gmatch("Hardware Port: ([^\n]+)\nDevice: (%S+)") do
+      ports[dev] = port
+    end
+    if cb then cb() end
   end)
 end
-wifi:subscribe({ "wifi_change", "system_woke", "forced" }, wifi_update)
-wifi:subscribe("mouse.clicked", function()
-  local q = wifi:query()
-  local open = q.label and tonumber(q.label.width) == 0
-  sbar.animate("tanh", 15, function()
-    wifi:set({ label = { width = open and "dynamic" or 0 } })
+
+local last = nil
+local function net_update()
+  sbar.exec("scutil --nwi; echo '@@NC'; scutil --nc list", function(out)
+    local nwi, nc = out:match("^(.-)@@NC(.*)$")
+    nwi, nc = nwi or out, nc or ""
+    local v4 = nwi:match("IPv4 network interface information(.-)IPv6") or ""
+
+    -- first non-tunnel interface in the IPv4 block is the primary (ranked order)
+    local dev, ip
+    for d, a in v4:gmatch("(%w+)%s*:%s*flags[^\n]*\n%s*address%s*:%s*([%d%.]+)") do
+      if not d:match("^utun") and not d:match("^ipsec") then dev, ip = d, a break end
+    end
+
+    local vpns = {}
+    for name in nc:gmatch("%(Connected%)[^\n]-\"([^\"]+)\"") do vpns[#vpns + 1] = name end
+    local vpn_label = table.concat(vpns, " + ")
+
+    local state = (dev or "-") .. (ip or "") .. vpn_label
+    if state == last then return end
+    last = state
+
+    local port = dev and ports[dev] or ""
+    local icon, font, color, kind
+    if not dev then
+      icon, font, color, kind = icons.wifi_off, symbols, colors.dim, "offline"
+    elseif port == "Wi-Fi" then
+      icon, font, color, kind = icons.wifi, symbols, colors.fg, "Wi-Fi"
+    elseif port:match("iPhone") then
+      icon, font, color, kind = icons.phone, nerd, colors.warn, "iPhone"
+    else
+      icon, font, color, kind = icons.ethernet, nerd, colors.good, "LAN"
+    end
+
+    net:set({
+      icon = { string = icon, font = font, color = color },
+      label = { string = dev and (kind .. " " .. ip) or "offline" },
+    })
+    vpn:set({ drawing = #vpns > 0, label = { string = vpn_label } })
   end)
-end)
+end
+
+local function toggle(item)
+  return function()
+    local q = item:query()
+    local open = q.label and tonumber(q.label.width) == 0
+    sbar.animate("tanh", 15, function()
+      item:set({ label = { width = open and "dynamic" or 0 } })
+    end)
+  end
+end
+
+load_ports(net_update)
+net:subscribe({ "wifi_change", "routine", "forced" }, net_update)
+net:subscribe("system_woke", function() last = nil load_ports(net_update) end)
+net:subscribe("zen_off", function() last = nil net_update() end)
+net:subscribe("mouse.clicked", toggle(net))
+vpn:subscribe("mouse.clicked", toggle(vpn))
 
 -- cpu (mach helper pushes graph values + percent) ------------------------------
 local helper_dir = (os.getenv("CONFIG_DIR") or (os.getenv("HOME") .. "/.config/sketchybar")) .. "/helper"
@@ -164,5 +228,5 @@ local inset_l = inset("cpu.graph.inset_l")
 
 local e_l = island.edge("right")
 
-island.wrap("system.island", { e_r, battery.name, wifi.name, "cpu.top", "cpu.percent", "cpu.graph.frame", inset_r, "cpu.graph", inset_l, e_l })
+island.wrap("system.island", { e_r, battery.name, vpn.name, net.name, "cpu.top", "cpu.percent", "cpu.graph.frame", inset_r, "cpu.graph", inset_l, e_l })
 island.gap("right")
