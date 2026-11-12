@@ -11,6 +11,7 @@ tap "jordond/tap", trusted: true
 tap "mobai-app/tap", trusted: true
 tap "ngrok/ngrok", trusted: true
 tap "nikitabobko/tap", trusted: true
+tap "openai/tools", trusted: true
 tap "polymarket/polymarket-cli", "https://github.com/Polymarket/polymarket-cli", trusted: true
 tap "pseudobun/tap", trusted: true
 tap "shaunsingh/sfmono-nerd-font-ligaturized", trusted: true
@@ -339,7 +340,7 @@ brew "bufbuild/buf/buf", trusted: true
 # ESP-IDF Installation Manager - CLI tool for setting up ESP-IDF development environment
 brew "espressif/eim/eim"
 # macOS VMs (bootstrap tests)
-brew "cirruslabs/cli/tart"
+brew "openai/tools/tart"
 # Custom macOS statusbar with shell plugin, interaction and graph support
 brew "felixkratz/formulae/sketchybar"
 # CLI for GitOps continuous delivery
