@@ -1263,6 +1263,16 @@ list_steps() {
     done
 }
 
+# Installing ~250 packages leaves a pile of "Login Item Added" / "Background Activity"
+# notifications. Drop the delivered ones; the per-app notification settings stay.
+clear_notifications() {
+    local db="$HOME/Library/Group Containers/group.com.apple.usernoted/db2/db"
+    [[ -f "$db" ]] && command -v sqlite3 &>/dev/null || return 0
+    sqlite3 "$db" "DELETE FROM record; DELETE FROM delivered; DELETE FROM displayed; DELETE FROM requests;" >>"$LOG" 2>&1 \
+        && killall usernoted NotificationCenter 2>/dev/null
+    return 0
+}
+
 summary() {
     local i total ok=0 warned=0 failed=0 skipped=0 icon colour
     total=$(( $(date +%s) - START_TS ))
@@ -1367,6 +1377,7 @@ main() {
         followup "Sign in to the App Store, then: brew bundle --file $(brewfile) (mas apps were skipped)"
     fi
 
+    clear_notifications
     summary
 
     if [[ $ASSUME_YES -eq 0 ]]; then
