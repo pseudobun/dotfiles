@@ -222,7 +222,13 @@ run() {
             [[ "$cols" =~ ^[0-9]+$ ]] || cols=$(tput cols 2>/dev/null || echo 100)
             dur=$(fmt_duration "$now")
             width=$(( cols - ${#label} - ${#dur} - 12 ))
-            last=$(tail -n 1 "$LOG" 2>/dev/null | tr -d '\r' | strip_ansi | sed 's/^[[:space:]]*//')
+            # RUN_STATUS names a function that describes progress better than the last log line
+            # (brew bundle prints every name up front); it is re-run once a second.
+            if [[ -n "${RUN_STATUS:-}" ]]; then
+                (( i % 10 == 0 )) && last=$("$RUN_STATUS" 2>/dev/null)
+            else
+                last=$(tail -n 1 "$LOG" 2>/dev/null | tr -d '\r' | strip_ansi | sed 's/^[[:space:]]*//')
+            fi
             # Cut with an ellipsis rather than mid-word; drop it entirely when there is no room.
             if (( width < 8 )); then last=""
             elif (( ${#last} > width )); then last="${last:0:$((width - 1))}…"; fi
@@ -326,6 +332,22 @@ step_clone() {
 }
 
 brewfile() { printf '%s\n' "$dotfiles_path/hosts/$HOST/Brewfile"; }
+
+# brew bundle fetches everything first, then installs; count both against the Brewfile
+# (dependencies count too, so the numbers are approximate and capped at the total).
+brew_bundle_status() {
+    local total dl inst prefix="${HOMEBREW_PREFIX:-/opt/homebrew}"
+    total=$(grep -cE '^(brew|cask) ' "$(brewfile)")
+    dl=$(ls "$HOME/Library/Caches/Homebrew/downloads" 2>/dev/null | grep -vc '\.incomplete$')
+    inst=$(( $(ls "$prefix/Cellar" 2>/dev/null | wc -l) + $(ls "$prefix/Caskroom" 2>/dev/null | wc -l) ))
+    (( dl > total )) && dl=$total
+    (( inst > total )) && inst=$total
+    if (( inst > 0 )); then
+        printf 'installed %d/%d · downloaded %d/%d' "$inst" "$total" "$dl" "$total"
+    else
+        printf 'downloading %d/%d' "$dl" "$total"
+    fi
+}
 mas_ids() { grep -E '^mas ' "$(brewfile)" | sed -E 's/.*id: *([0-9]+).*/\1/' | tr '\n' ' '; }
 
 step_homebrew() {
@@ -358,7 +380,7 @@ step_homebrew() {
         note "Mac App Store apps need an App Store login; failures can be retried with --only homebrew"
     fi
 
-    if run "brew bundle" brew bundle --file "$(brewfile)"; then
+    if RUN_STATUS=brew_bundle_status run "brew bundle" brew bundle --file "$(brewfile)"; then
         success "every Brewfile entry is installed"
     else
         warn "some Brewfile entries failed:"
