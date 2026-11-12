@@ -548,6 +548,11 @@ step_gpg() {
 }
 
 step_ssh() {
+    # The secrets bundle (step secrets) normally brings the key; don't offer to replace it.
+    if [[ -f ~/.ssh/id_ed25519 ]]; then
+        success "~/.ssh/id_ed25519 is in place"
+        return 0
+    fi
     if ! ask_yes_no "Set up an SSH key?" "n"; then
         [[ -f ~/.ssh/id_ed25519 ]] || followup "No ~/.ssh/id_ed25519 — create or restore an SSH key"
         return 2
@@ -560,6 +565,7 @@ step_ssh() {
         if [[ -f "$key" ]] && ! ask_yes_no "$key exists — overwrite?" "n"; then
             info "keeping the existing key"
         else
+            rm -f "$key" "$key.pub"   # already confirmed — keep ssh-keygen from asking again
             ssh-keygen -t ed25519 -C "$email" -f "$key" </dev/tty && success "key written to ${key/#$HOME/~}"
         fi
     elif ask_yes_no "Import an existing key pair?" "n"; then
