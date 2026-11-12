@@ -6,7 +6,8 @@
     // New workspaces: "bsp", "columns", "master", "stack" or "float"
     default: "stack",
     gap: 10,
-    padding: { top: 2, bottom: 2, left: 24, right: 24 },
+    // sides: stack indicator (26) + 4 gap to the screen edge and to the app; the edge markers (3 + 26) fit there too
+    padding: { top: 2, bottom: 2, left: 34, right: 34 },
     // Extra room for a status bar such as sketchybar (41 for a 40 pt bar); menu bar and Dock are already left out
     barTop: 41,
     barBottom: 0,
@@ -125,9 +126,9 @@
     enabled: true,
     // "auto" (outside, on the side nearer the screen edge), "left", "right", "insideLeft", "insideRight"
     side: "auto",
-    offsetX: 6,
+    offsetX: 4,
     offsetY: 2,
-    width: 28,
+    width: 26,
     cellHeight: 22,
     gap: 2,
     padding: 3,
@@ -139,26 +140,37 @@
   },
 
   appearance: {
-    font: "GeistMono Nerd Font",
-    fontSize: 12,
-    appFont: "sketchybar-app-font",
-    appIconSize: 14,
-    radius: 9,
-    cellRadius: 7,
-    borderWidth: 1,
-    shadow: true,
+    // Indicator look: a theme (og, og-light, modern, minimal, solarpunk, cyberpunk), then keys that
+    // override it. Commented keys show the theme's value; paw theme <name> or Settings → Appearance switch it.
+    theme: "og",
+    // font: "GeistMono Nerd Font",
+    // fontSize: 12,
+    // fontWeight: "medium",
+    // boldWeight: "semibold",
+    // appFont: "sketchybar-app-font",
+    // appIconSize: 14,
+    // radius: 9,
+    // cellRadius: 7,
+    // borderWidth: 1,
+    // shadow: true,
+    // shadowOpacity: 0.35,
+    // shadowRadius: 4,
+    // islandHeight: 28,
+    // pills: true,
+    // hudOpacity: 0.85,
+    // edgeOpacity: 0.8,
     // 0xAARRGGBB or "#RRGGBB"
     colors: {
-      island: "0xeb1d1d16",
-      islandHi: "0xff2b2b22",
-      border: "0x1affffff",
-      fg: "0xfffbfbf9",
-      muted: "0xffabab9c",
-      dim: "0xff5f5f52",
-      accent: "0xffead186",
-      wave: "0xff8698eb",
-      good: "0xff43d58f",
-      bad: "0xffff6467",
+      // island: "0xeb1d1d16",
+      // islandHi: "0xff2b2b22",
+      // border: "0x1affffff",
+      // fg: "0xfffbfbf9",
+      // muted: "0xffabab9c",
+      // dim: "0xff5f5f52",
+      // accent: "0xffead186",
+      // wave: "0xff8698eb",
+      // good: "0xff43d58f",
+      // bad: "0xffff6467",
     },
   },
 
@@ -223,6 +235,7 @@
     enabled: false,
     color: "0xccead186", // 0xAARRGGBB or "#RRGGBB"
     width: 2,
+    autoRadius: true, // Match the window's corners when available (macOS 26+)
     radius: 12,
     offset: 2,
   },
@@ -245,7 +258,7 @@
 
   // Keys: cmd ctrl alt shift fn hyper meh, lalt/ralt (and lcmd, rctrl…), a key name or 0x keycode.
   // Commands (also `paw <command>`; chain with ";"):
-  //   focus west|east|north|south|stack.next|stack.prev   swap|warp|stack <dir>   swap stack.next|stack.prev   unstack [all]
+  //   focus west|east|north|south|stack.next|stack.prev   swap|warp|join|stack <dir>   swap stack.next|stack.prev   unstack [all]
   //   layout bsp|columns|master|stack|float   toggle float|zoom|split   balance   rotate 90|180|270
   //   undo   redo   focus back|forward   find <app or title>   overview   zoom in|out
   //   resize <dir> <points>   grid rows:cols:x:y:w:h   workspace <n>|next|prev|last|new|close

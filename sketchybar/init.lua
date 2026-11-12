@@ -8,10 +8,10 @@ sbar.bar({
   sticky = true,
   topmost = "window",
   shadow = false,
-  -- line the outer edges up with paw's window edges (40: padding widened for stack indicators):
-  -- left = 40 - apple item pad (5) - apple icon pad (4); right = clock island edge
-  padding_left = 31,
-  padding_right = 40,
+  -- line the outer edges up with paw's window edges (34: stack indicator 26 + 4 gaps):
+  -- left = 34 - apple item pad (5) - apple icon pad (4); right = clock island edge
+  padding_left = 25,
+  padding_right = 34,
   margin = 0,
   y_offset = 0,
   notch_width = 210,
