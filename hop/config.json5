@@ -2,6 +2,7 @@
 // Saved changes apply immediately. Delete a key to use its default.
 // ${NAME} values come from .env beside this file — decrypted from .env.enc (just decrypt).
 {
+  updates: { automatic: true },
   general: {
     // cmd, ctrl, alt/opt, shift or hyper, plus a key: "cmd+space", "alt+space", "hyper+k"
     hotkey: "cmd+space",

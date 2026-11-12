@@ -26,6 +26,9 @@
     // resizing stops before a tile, and so a placeholder, gets smaller than this
     placeholderMinWidth: 160,
     placeholderMinHeight: 120,
+    // Move windows through paw's Dock helper when it's loaded (sudo paw dock install; needs
+    // SIP's debugging restrictions off): much faster workspace switching. false: accessibility only
+    windowServer: true,
   },
 
   focus: {
@@ -33,6 +36,8 @@
     focusFollowsMouse: false,
     // stack.next on the last window goes back to the first (false: it stays)
     wrapStacks: false,
+    // workspace next on the last workspace goes back to the first (false: it stays)
+    wrapWorkspaces: false,
   },
 
   animation: {
@@ -209,6 +214,8 @@
   hud: {
     workspace: true,
     durationMs: 600,
+    // Islands on the display's left/right edges: the prev/next workspace there
+    edges: true,
   },
 
   // A line around the focused window (or a placeholder that has focus)
@@ -224,7 +231,7 @@
   // every preset. apps: [] means every plain app name in the presets.
   initiate: {
     apps: [],
-    focus: "2",
+    focus: "5",
     timeout: 15,
   },
 
@@ -232,8 +239,8 @@
 
   // New versions from GitHub releases. Homebrew installs can also `brew upgrade --cask pseudobun/tap/paw`.
   updates: {
-    check: true, // look once a day and offer to install
-    automatic: true, // install without asking; paw relaunches
+    check: true, // look once a day, download in the background, install when paw quits
+    automatic: true, // install as soon as it is downloaded; paw restarts
   },
 
   // Keys: cmd ctrl alt shift fn hyper meh, lalt/ralt (and lcmd, rctrl…), a key name or 0x keycode.
