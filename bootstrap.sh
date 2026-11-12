@@ -478,16 +478,6 @@ step_shell() {
         fi
     fi
 
-    if ask_yes_no "Install Fisher + the plugins in fish/fish_plugins?"; then
-        if run "Fisher" fish -c 'curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher'; then
-            if [[ -f "$dotfiles_path/fish/fish_plugins" ]]; then
-                ln -sfn "$dotfiles_path/fish/fish_plugins" "$HOME/.config/fish/fish_plugins"
-                run "fisher plugins (fish/fish_plugins)" fish -c 'fisher update' || warn "Fisher plugins had issues"
-            fi
-        else
-            warn "Fisher had issues"
-        fi
-    fi
     return 0
 }
 
@@ -688,7 +678,6 @@ step_links() {
     link "$d/pseudobun.fish"           "$HOME/.config/fish/pseudobun.fish"      "pseudobun.fish"
     link "$d/fish/config.fish"         "$HOME/.config/fish/config.fish"         "config.fish"
     link_each "$d/fish/conf.d"         "$HOME/.config/fish/conf.d"              "fish conf.d"
-    link "$d/fish/fish_plugins"        "$HOME/.config/fish/fish_plugins"        "fisher plugin list"
     link "$d/zsh/zshrc"                "$HOME/.zshrc"                           ".zshrc (mirror of the fish setup)"
 
     if [[ $HOST == olympus ]]; then
@@ -727,7 +716,7 @@ step_links() {
 
 step_fish() {
     command -v fish &>/dev/null || { warn "fish is not installed"; return 2; }
-    if ! ask_yes_no "Run setup.fish (PATH entries, Fisher)?"; then return 2; fi
+    if ! ask_yes_no "Run setup.fish (PATH entries)?"; then return 2; fi
     run "setup.fish" fish "$dotfiles_path/setup.fish" || warn "setup.fish reported problems"
     return 0
 }
