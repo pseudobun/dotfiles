@@ -519,7 +519,14 @@ step_gpg() {
     gpgconf --kill gpg-agent 2>/dev/null || true
     success "gpg.conf: use-agent, no-emit-version"
 
-    if ask_yes_no "Import keys from files?" "n"; then
+    # The secrets bundle (step secrets) normally brings the key; only ask when it did not.
+    if gpg --list-secret-keys "$DEFAULT_GPG_KEY" &>/dev/null; then
+        success "signing key $DEFAULT_GPG_KEY is in the keyring"
+        grep -q '^default-key' "$conf" || set_default_key "$conf" "$DEFAULT_GPG_KEY"
+        return 0
+    fi
+    note "no secret key $DEFAULT_GPG_KEY — the secrets bundle brings it; import armored .asc files only without one"
+    if ask_yes_no "Import keys from .asc files?" "n"; then
         for kind in public private; do
             f=$(ask_input "Path to the $kind key (empty to skip)" "")
             [[ -z "$f" ]] && continue
