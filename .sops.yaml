@@ -1,5 +1,5 @@
 # sops: the .env files (and hop's snippets) the dotfiles need, kept here only as encrypted *.enc copies.
 # Decrypt: just decrypt (needs the age key in ~/Library/Application Support/sops/age/keys.txt).
 creation_rules:
-  - path_regex: (hop/\.env|hop/snippets\.json5|sketchybar/env\.local\.sh|tip/\.env)$
+  - path_regex: (hop/\.env|hop/snippets\.json5|tip/\.env)$
     age: age16td0lf6gaycxwef5ga3yhkjxrrcmptrcu25g4s9zg5wcm0qzf4uqdj94pf

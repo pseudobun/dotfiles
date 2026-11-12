@@ -33,7 +33,6 @@ set -uo pipefail
 # --- state -------------------------------------------------------------------
 dotfiles_path="$HOME/.dotfiles"
 DOTFILES_REPO="https://github.com/pseudobun/dotfiles.git"
-SKETCHYBAR_APP_FONT_VERSION="v3.0.20"
 DEFAULT_GPG_KEY="3C6FB610DBED15600E8FAEB4389F01C7E97E0262"
 
 ASSUME_YES=0
@@ -641,28 +640,7 @@ setup_tip() {
 }
 
 # The old bar, kept for a rollback until tip has run a while: not linked or started by default.
-setup_sketchybar() {
-    link "$dotfiles_path/sketchybar" "$HOME/.config/sketchybar" "sketchybar config"
-
-    if [[ -f "$HOME/.local/share/sketchybar_lua/sketchybar.so" ]]; then
-        success "SbarLua already installed"
-    elif ! command -v lua &>/dev/null; then
-        warn "lua missing (the Brewfile installs it) — SbarLua not built, the bar will not start"
-    else
-        local tmp
-        tmp="$(mktemp -d)"
-        run "build SbarLua" bash -c "git clone --depth 1 https://github.com/FelixKratz/SbarLua.git '$tmp/SbarLua' && cd '$tmp/SbarLua' && make install" \
-            || warn "SbarLua build failed"
-        rm -rf "$tmp"
-    fi
-
-    mkdir -p "$HOME/Library/Fonts"
-    run "sketchybar app font $SKETCHYBAR_APP_FONT_VERSION" curl -fsSL -o "$HOME/Library/Fonts/sketchybar-app-font.ttf" \
-        "https://github.com/kvndrsslr/sketchybar-app-font/releases/download/$SKETCHYBAR_APP_FONT_VERSION/sketchybar-app-font.ttf" \
-        || warn "font download failed"
-}
-
-# hop/.env, hop/snippets.json5 and sketchybar/env.local.sh live in the repo only as sops-encrypted .enc copies.
+# hop/.env, hop/snippets.json5 and tip/.env live in the repo only as sops-encrypted .enc copies.
 # They decrypt with the age key, which arrives with `just secrets-import` (that decrypts them too).
 decrypt_env() {
     local key="$HOME/Library/Application Support/sops/age/keys.txt"
@@ -1132,7 +1110,7 @@ grant_accessibility() {
         # restart them: an app started before the grant does not pick up the windows that are already open
         for app in "$@"; do
             [[ $app == paw ]] && { timeout 10 paw quit 2>/dev/null || true; }
-            # by path: `pkill -x paw` would also end CLI runs such as sketchybar's `paw subscribe`
+            # by path: `pkill -x paw` would also end paw CLI runs (`paw subscribe`)
             pkill -f "/Applications/$app.app/Contents/MacOS/$app\$" 2>/dev/null; sleep 1
             open -a "/Applications/$app.app" 2>/dev/null
         done
@@ -1252,9 +1230,6 @@ step_server() {
 step_services() {
     if ! ask_yes_no "Start tip (the menu bar)?"; then return 2; fi
 
-    if command -v sketchybar &>/dev/null; then
-        run "stop sketchybar (tip replaces it)" brew services stop sketchybar || true
-    fi
     if [[ -d /Applications/tip.app ]]; then
         run "tip" open -a tip || warn "tip did not start"
         followup "tip starts at login once openAtLogin is on: tip settings, or openAtLogin: true in ~/.config/tip/config.json5"

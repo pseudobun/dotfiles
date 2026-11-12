@@ -9,14 +9,13 @@
 #
 #  Files: hop/.env (${NAME} values in hop/config.json5),
 #         hop/snippets.json5 (hop snippets: addresses, IDs; the repo is public),
-#         sketchybar/env.local.sh (etherscan key for sketchybar's gas item, kept for a rollback),
 #         tip/.env (${NAME} values in tip/config.json5: the markets plugin's etherscan key)
 # ============================================================================
 
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
-FILES=(hop/.env hop/snippets.json5 sketchybar/env.local.sh tip/.env)
+FILES=(hop/.env hop/snippets.json5 tip/.env)
 AGE_KEYS="$HOME/Library/Application Support/sops/age/keys.txt"
 export SOPS_AGE_KEY_FILE="${SOPS_AGE_KEY_FILE:-$AGE_KEYS}"
 # .env files stay dotenv (one value per key in the .enc); anything else is one opaque blob.

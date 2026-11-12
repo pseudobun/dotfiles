@@ -20,7 +20,7 @@
 #             only those issued by CERT_ISSUERS (macOS asks once per private key:
 #             enter the login password, Always Allow)
 #
-#  The .env files (hop, sketchybar) are in the repo as sops-encrypted *.enc;
+#  The .env files (hop, tip) are in the repo as sops-encrypted *.enc;
 #  import decrypts them with the age key it just placed (scripts/env.sh).
 #
 #  Testing only: AGE_RECIPIENT=age1… (export) / AGE_IDENTITY=file (import)
@@ -189,8 +189,6 @@ cmd_import() {
         find "$HOME/.ssh" -type f \( -name '*.pub' -o -name 'known_hosts*' \) -exec chmod 644 {} \;
     fi
     place "age/keys.txt" "$AGE_KEYS" 600
-    # bundles from before the .env files moved into the repo: keep only what is not there yet
-    [[ -f "$DOTFILES/sketchybar/env.local.sh.enc" ]] || place "dotfiles/sketchybar/env.local.sh" "$DOTFILES/sketchybar/env.local.sh" 600
 
     if [[ -f "$WORK/bundle/gpg/secret.asc" ]]; then
         command -v gpg >/dev/null || die "gpg is not installed — run the bootstrap's Homebrew step first"

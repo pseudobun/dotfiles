@@ -39,7 +39,7 @@ they are on the sealed system volume, so macOS does not let them be deleted.
 * [fish](https://github.com/fish-shell/fish-shell)
 * [hop](https://github.com/pseudobun/hop) — my native launcher
 * [paw](https://github.com/pseudobun/paw) — my tiling window manager with virtual workspaces
-* [sketchybar](https://github.com/FelixKratz/SketchyBar)
+* [tip](https://github.com/pseudobun/tip) — my native menu bar with islands and plugins
 * [modern UNIX tools](https://github.com/ibraheemdev/modern-unix)
 
 ## hop and paw
@@ -61,7 +61,7 @@ Their configs are linked from here: `paw/` → `~/.config/paw`, `hop/` → `~/.c
 ## Secrets
 
 `.env` files are never committed — only their sops-encrypted copies (`hop/.env.enc`,
-`sketchybar/env.local.sh.enc`, age recipient in `.sops.yaml`).
+`tip/.env.enc`, age recipient in `.sops.yaml`).
 
 * `just decrypt` / `just encrypt` — `.enc` ↔ plain file (needs the age key)
 * `just edit-env hop/.env` — edit the encrypted file in place

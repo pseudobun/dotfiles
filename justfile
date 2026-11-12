@@ -1,4 +1,4 @@
-# Encrypt backup.sh (age) and the .env files (sops: hop/.env, hop/snippets.json5, sketchybar/env.local.sh) into their .enc copies.
+# Encrypt backup.sh (age) and the .env files (sops: hop/.env, hop/snippets.json5, tip/.env) into their .enc copies.
 encrypt:
     [ ! -f backup.sh ] || age -r age16td0lf6gaycxwef5ga3yhkjxrrcmptrcu25g4s9zg5wcm0qzf4uqdj94pf -o backup.sh.enc backup.sh
     bash scripts/env.sh encrypt

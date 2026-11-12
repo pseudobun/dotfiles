@@ -2,7 +2,6 @@ tap "antoniorodr/memo", trusted: true
 tap "bufbuild/buf", trusted: true
 tap "crmne/tap", trusted: true
 tap "espressif/eim", trusted: true
-tap "felixkratz/formulae", trusted: true
 tap "fluxcd/tap", trusted: true
 tap "gromgit/fuse", trusted: true
 tap "iina/mpv-iina", trusted: true
@@ -342,7 +341,6 @@ brew "espressif/eim/eim"
 # macOS VMs (bootstrap tests)
 brew "openai/tools/tart"
 # Custom macOS statusbar with shell plugin, interaction and graph support
-# brew "felixkratz/formulae/sketchybar"   # replaced by tip (pseudobun/tip); kept commented for a rollback
 # CLI for GitOps continuous delivery
 brew "fluxcd/tap/flux", trusted: true
 # Terminal-based battery and energy monitor for macos and linux
@@ -450,6 +448,8 @@ cask "opencode-desktop"
 cask "opensc-app"
 # Tiling window manager with virtual workspaces, presets and stack indicators
 cask "pseudobun/tap/paw@beta", trusted: true
+# Native menu bar with islands, themes and plugins
+cask "pseudobun/tap/tip@beta", trusted: true
 # Home media player
 cask "plex"
 # Open source virtual/remote desktop application
