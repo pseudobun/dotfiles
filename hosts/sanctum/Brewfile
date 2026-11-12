@@ -414,7 +414,7 @@ cask "gyroflow"
 # Open-source video transcoder
 cask "handbrake-app"
 # Tiny native launcher with calculator, clipboard history, snippets and notes
-cask "pseudobun/tap/hop", trusted: true
+cask "pseudobun/tap/hop@beta", trusted: true
 # Free and open-source media player
 cask "icon-composer"
 cask "iina"
@@ -449,7 +449,7 @@ cask "opencode-desktop"
 # Smart card libraries and utilities
 cask "opensc-app"
 # Tiling window manager with virtual workspaces, presets and stack indicators
-cask "pseudobun/tap/paw", trusted: true
+cask "pseudobun/tap/paw@beta", trusted: true
 # Home media player
 cask "plex"
 # Open source virtual/remote desktop application

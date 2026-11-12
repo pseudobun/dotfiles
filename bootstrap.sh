@@ -1141,20 +1141,24 @@ grant_accessibility() {
 }
 
 step_apps() {
-    # Signed, notarized releases from pseudobun/tap (the Brewfiles list both casks too); they update
-    # themselves. To work on one: clone it and `just dev` builds a separate "hop Dev" / "paw Dev".
+    # Signed, notarized releases from pseudobun/tap, beta channel (paw@beta, hop@beta; the Brewfiles
+    # list both casks too); they update themselves. To work on one: clone it and `just dev` builds a separate "hop Dev" / "paw Dev".
     if ! ask_yes_no "Install hop (launcher) and paw (window manager) from Homebrew?"; then return 2; fi
     local app missing=() casks=()
 
     remove_legacy_wm
 
     for app in paw hop; do
-        brew list --cask "pseudobun/tap/$app" &>/dev/null || missing+=("$app")
+        brew list --cask "pseudobun/tap/$app@beta" &>/dev/null || missing+=("$app")
     done
     if (( ${#missing[@]} == 0 )); then
         success "hop and paw are installed from Homebrew (they update themselves)"
     else
         for app in "${missing[@]}"; do
+            # the stable cask lags behind the betas and conflicts with @beta
+            if brew list --cask "pseudobun/tap/$app" &>/dev/null; then
+                run "brew uninstall --cask $app" brew uninstall --cask "pseudobun/tap/$app" || return 1
+            fi
             # an old build from source in /Applications blocks the cask
             if [[ -d "/Applications/$app.app" ]]; then
                 note "/Applications/$app.app is not from Homebrew (an old build from source) — moving it to the Trash"
@@ -1163,7 +1167,7 @@ step_apps() {
                 mv "/Applications/$app.app" "$HOME/.Trash/$app-from-source-$(date +%s).app" || return 1
                 [[ -L "$(brew --prefix)/bin/$app" ]] && rm -f "$(brew --prefix)/bin/$app"
             fi
-            casks+=("pseudobun/tap/$app")
+            casks+=("pseudobun/tap/$app@beta")
         done
         run "brew install --cask ${missing[*]}" brew install --cask "${casks[@]}" || { warn "brew install failed"; return 1; }
     fi

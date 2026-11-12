@@ -45,7 +45,8 @@ they are on the sealed system volume, so macOS does not let them be deleted.
 ## hop and paw
 
 Both are signed, notarized releases from [`pseudobun/tap`](https://github.com/pseudobun/homebrew-tap):
-the host Brewfiles list `cask "pseudobun/tap/hop"` and `cask "pseudobun/tap/paw"`, and they update
+the host Brewfiles list `cask "pseudobun/tap/hop@beta"` and `cask "pseudobun/tap/paw@beta"` (the
+plain casks lag behind the betas until a stable release exists), and they update
 themselves (Sparkle, in the background). The `apps` step (`~/.dotfiles/bootstrap.sh --only apps`)
 installs them if the Brewfile step didn't, moves an old build from source out of `/Applications`
 to the Trash, and walks through the first start (confirm macOS's "downloaded from the Internet"
