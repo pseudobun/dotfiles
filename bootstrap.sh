@@ -367,9 +367,17 @@ step_homebrew() {
     fi
     command -v brew &>/dev/null || fatal "brew is not on PATH after installing"
 
-    local total
+    local total free
     total=$(grep -cE '^(brew|cask|mas|tap|go|vscode|npm|cargo|uv) ' "$(brewfile)")
     info "hosts/$HOST/Brewfile: $total entries — this is the long part"
+
+    # A full sanctum Brewfile peaks at ~60 GB (apps + Cellar + download cache); a full disk
+    # breaks every later step, the log included.
+    free=$(df -g "$HOME" 2>/dev/null | awk 'NR == 2 { print $4 }')
+    if [[ "$free" =~ ^[0-9]+$ ]] && (( free < 70 )); then
+        warn "only ${free} GB free — the Brewfile needs ~60 GB at its peak (in a Tart VM: tart set <vm> --disk-size 150)"
+        ask_yes_no "Continue anyway?" || return 1
+    fi
 
     if [[ $NO_MAS -eq 1 ]]; then
         export HOMEBREW_BUNDLE_MAS_SKIP
@@ -386,6 +394,8 @@ step_homebrew() {
         grep -E "has failed!|^Error: " "$LOG" | tail -n 20 | strip_ansi | while IFS= read -r l; do note "    $l"; done
         followup "Retry failed Brewfile entries: brew bundle --file $(brewfile)"
     fi
+    # The download cache is ~20 GB after a full Brewfile and nothing reuses it.
+    run "brew cleanup" brew cleanup --prune=all -s || warn "brew cleanup failed"
     grep -q '^# Not in Homebrew' "$(brewfile)" && followup "Apps outside Homebrew: see the end of hosts/$HOST/Brewfile"
     [[ $HOST == sanctum ]] && install_cutter
     return 0
