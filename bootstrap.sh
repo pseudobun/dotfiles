@@ -763,7 +763,7 @@ step_devtools() {
 }
 
 step_macos() {
-    note "menu bar hidden (sketchybar) · dock · finder · input · dark mode"
+    note "menu bar hidden (sketchybar) · dock · finder · input · Spotlight shortcuts off · dark mode"
     if ! ask_yes_no "Apply macOS defaults?"; then return 2; fi
     local w="defaults write"
     # menu bar: hidden, sketchybar replaces it
@@ -794,6 +794,13 @@ step_macos() {
     # trackpad: no three-finger Look Up tap (hop rings can use tap3)
     $w com.apple.AppleMultitouchTrackpad TrackpadThreeFingerTapGesture -int 0
     $w com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerTapGesture -int 0
+    # Spotlight: ⌘Space and ⌥⌘Space off — hop takes ⌘Space. The index stays: hop's file
+    # search queries it.
+    $w com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 64 \
+        '<dict><key>enabled</key><false/><key>value</key><dict><key>parameters</key><array><integer>32</integer><integer>49</integer><integer>1048576</integer></array><key>type</key><string>standard</string></dict></dict>'
+    $w com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 65 \
+        '<dict><key>enabled</key><false/><key>value</key><dict><key>parameters</key><array><integer>32</integer><integer>49</integer><integer>1572864</integer></array><key>type</key><string>standard</string></dict></dict>'
+    /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u 2>/dev/null || true
     # hot corners: none (bottom right is Quick Note by default)
     $w com.apple.dock wvous-br-corner -int 1
     $w com.apple.dock wvous-br-modifier -int 0
@@ -802,6 +809,16 @@ step_macos() {
     success "menu bar hidden, dock auto-hide 50 ms / size 56, fixed spaces, list view, no natural scroll, no autocorrect, dark"
     set_wallpaper
     killall Dock Finder SystemUIServer 2>/dev/null || true
+    # Brave as the default browser ("browser" is com.brave.Browser); macOS asks to confirm.
+    if command -v defaultbrowser &>/dev/null && [[ -d "/Applications/Brave Browser.app" ]]; then
+        if defaultbrowser | grep -qE '^\* browser$'; then
+            success "Brave is the default browser"
+        else
+            defaultbrowser browser >>"$LOG" 2>&1
+            info "confirm the \"Use Brave\" dialog macOS shows"
+            wait_for_manual_step && success "Brave is the default browser"
+        fi
+    fi
     note "some settings need a logout"
     return 0
 }

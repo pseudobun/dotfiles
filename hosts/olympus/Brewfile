@@ -180,6 +180,7 @@ npm "vercel"
 
 # --- not installed through brew before, needed by bootstrap, sketchybar and the desktop ---
 tap "felixkratz/formulae", trusted: true
+brew "defaultbrowser"
 brew "dockutil"
 brew "fastfetch"
 brew "ifstat"

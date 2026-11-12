@@ -66,6 +66,8 @@ brew "cosign"
 brew "crane"
 # Top-like interface for container metrics
 brew "ctop"
+# Command-line tool for getting & setting the default browser
+brew "defaultbrowser"
 # Lightweight DNS forwarder and DHCP server
 brew "dnsmasq"
 # Tool for managing dock items
