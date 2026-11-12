@@ -35,7 +35,7 @@
     default: {
       left: [["apple"], ["workspaces"], ["zoom"], ["front_app"], ["brew"]],
       center: [["media"]],
-      right: [["markets"], ["cpu", "net", "battery"], ["clock"]],
+      right: [["markets"], ["cpu", "net", "vpn", "battery"], ["clock"]],
     },
     builtin: { center: [] },
   },
@@ -56,6 +56,7 @@
     clock: { provider: "clock", click: "zen" },
     battery: { provider: "battery" },
     net: { provider: "network", click: "toggle-label" },
+    vpn: { provider: "vpn", click: "toggle-label" },
     cpu: { provider: "cpu" },
     markets: { plugin: "com.pseudobun.tip.markets" },
     // uptime: { command: "uptime | sed 's/.*up \\([^,]*\\),.*/\\1/'", interval: 300, icon: "sf:clock.arrow.circlepath" },
