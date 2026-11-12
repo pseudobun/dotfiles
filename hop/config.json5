@@ -116,6 +116,7 @@
   },
 
   ocr: {
-    languages: ["sl-SI", "en-US"],
+    // Vision has no Slovenian; Czech reads č, š and ž
+    languages: ["cs-CZ", "en-US"],
   },
 }
