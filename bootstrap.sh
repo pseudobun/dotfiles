@@ -209,20 +209,25 @@ wait_for_manual_step() {
 # the latest log line; prints ✓/✗ with the duration and the log tail on failure.
 run() {
     local label="$1"; shift
-    local started pid rc i=0 last now cols width
+    local started pid rc i=0 last now cols width dur
     started=$(date +%s)
     log_raw "  \$ $*"
     if [[ $IS_TTY -eq 1 ]]; then
         "$@" >>"$LOG" 2>&1 </dev/null &
         pid=$!
-        cols=$(tput cols 2>/dev/null || echo 100)
-        width=$(( cols - ${#label} - 24 )); (( width < 10 )) && width=10
         while kill -0 "$pid" 2>/dev/null; do
             now=$(( $(date +%s) - started ))
+            # Room left on the line after "  │  ⠋ <label> <duration> · " (re-read: the window may resize).
+            cols=$(stty size </dev/tty 2>/dev/null | cut -d' ' -f2)
+            [[ "$cols" =~ ^[0-9]+$ ]] || cols=$(tput cols 2>/dev/null || echo 100)
+            dur=$(fmt_duration "$now")
+            width=$(( cols - ${#label} - ${#dur} - 12 ))
             last=$(tail -n 1 "$LOG" 2>/dev/null | tr -d '\r' | strip_ansi | sed 's/^[[:space:]]*//')
-            last="${last:0:$width}"
-            printf '\r\033[K  %s  %s%s%s %s %s%s · %s%s' "$BAR" "$C_WAVE" "${SPIN[$((i % 10))]}" "$C_RESET" "$label" \
-                "$C_GREY" "$(fmt_duration "$now")" "$last" "$C_RESET"
+            # Cut with an ellipsis rather than mid-word; drop it entirely when there is no room.
+            if (( width < 8 )); then last=""
+            elif (( ${#last} > width )); then last="${last:0:$((width - 1))}…"; fi
+            printf '\r\033[K  %s  %s%s%s %s %s%s%s%s' "$BAR" "$C_WAVE" "${SPIN[$((i % 10))]}" "$C_RESET" "$label" \
+                "$C_GREY" "$dur" "${last:+ · $last}" "$C_RESET"
             i=$((i + 1))
             sleep 0.1
         done
