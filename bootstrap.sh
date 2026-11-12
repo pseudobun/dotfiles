@@ -387,6 +387,14 @@ step_homebrew() {
         note "Mac App Store apps need an App Store login; failures can be retried with --only homebrew"
     fi
 
+    # brew bundle installs `cargo` entries with whatever cargo is on PATH and otherwise pulls
+    # Homebrew's rust formula; bring rustup first so they land in ~/.cargo like the rest.
+    if grep -qE '^cargo ' "$(brewfile)" && [[ ! -x ~/.cargo/bin/cargo ]]; then
+        run "rustup (for the Brewfile's cargo entries)" bash -c 'curl --proto =https --tlsv1.2 -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path' \
+            || warn "rustup failed — the Brewfile's cargo entries will fail"
+    fi
+    [[ -x ~/.cargo/bin/cargo ]] && export PATH="$HOME/.cargo/bin:$PATH"
+
     if RUN_STATUS=brew_bundle_status run "brew bundle" brew bundle --file "$(brewfile)"; then
         success "every Brewfile entry is installed"
     else
@@ -746,10 +754,6 @@ step_devtools() {
         run "fnm install 24" fnm install 24 && fnm default 24 >>"$LOG" 2>&1
         eval "$(fnm env --shell bash)" >/dev/null 2>&1
         run "corepack enable" corepack enable || warn "corepack failed"
-    fi
-
-    if [[ -x ~/.cargo/bin/cargo ]] && ask_yes_no "cargo extras (wasm-pack, cargo-generate)?" "n"; then
-        run "cargo install" ~/.cargo/bin/cargo install wasm-pack cargo-generate || warn "cargo install failed"
     fi
 
     if ask_yes_no "Foundry (Ethereum)?" "n"; then
