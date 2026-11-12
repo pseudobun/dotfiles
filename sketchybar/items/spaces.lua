@@ -133,7 +133,8 @@ local function update_zoom(workspaces)
 end
 
 -- retries: at login sketchybar can be up before paw, so keep asking until paw answers.
-local function refresh(animate, retries)
+local refresh
+function refresh(animate, retries)
   sbar.exec("paw query --json 2>/dev/null", function(workspaces)
     if type(workspaces) ~= "table" then
       if (retries or 0) > 0 then sbar.delay(2, function() refresh(animate, retries - 1) end) end
@@ -168,13 +169,12 @@ local function refresh(animate, retries)
         for j = 1, APPS do
           local w = shown[j]
           if w then
+            local glyph, image = app_image.icon(w.app, function() refresh(false) end)
             apps[i][j]:set({
               display = display_of(ws),
               drawing = true,
-              label = { string = (app_image.icon(w.app)), color = app_color(w, ws.focused),
-                        width = select(2, app_image.icon(w.app)) and 18 or "dynamic" },
-              background = select(2, app_image.icon(w.app))
-                and { drawing = true, image = { string = select(2, app_image.icon(w.app)), scale = 0.45 } }
+              label = { string = glyph, color = app_color(w, ws.focused), width = image and 18 or "dynamic" },
+              background = image and { drawing = true, image = { string = image, scale = 0.45 } }
                 or { drawing = false },
               padding_right = j == #shown and 8 or 0,
             })

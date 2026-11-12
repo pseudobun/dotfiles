@@ -12,9 +12,12 @@ local front_app = sbar.add("item", "front_app", {
 })
 local e2 = island.edge("left")
 
-front_app:subscribe("front_app_switched", function(env)
-  local app = env.INFO
-  local glyph, image = app_image.icon(app)
+local current
+local function show(app)
+  current = app
+  local glyph, image = app_image.icon(app, function()
+    if current == app then show(app) end
+  end)
   front_app:set({
     icon = {
       string = glyph,
@@ -28,7 +31,9 @@ front_app:subscribe("front_app_switched", function(env)
     local c = tonumber(type(out) == "string" and out:match("0x%x+") or "")
     front_app:set({ icon = { color = c or colors.fg } })
   end)
-end)
+end
+
+front_app:subscribe("front_app_switched", function(env) show(env.INFO) end)
 
 island.wrap("front_app.island", { e1, front_app.name, e2 })
 island.gap("left")

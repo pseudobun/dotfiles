@@ -14,7 +14,6 @@ local prev = sbar.add("item", "media.prev", {
 })
 local now = sbar.add("item", "media.now", {
   position = "center",
-  update_freq = 3,
   updates = true,
   icon = { string = icons.media.note, font = symbols, color = colors.gold },
   label = { max_chars = 48, font = { family = settings.font.text, style = "Medium", size = 12.0 } },
@@ -68,23 +67,32 @@ sbar.exec(
 
 now:subscribe("display_change", detect_displays)
 
-now:subscribe({ "routine", "forced" }, function()
-  sbar.exec("media-control get 2>/dev/null | jq -c '{playing, title, artist}' 2>/dev/null", function(info)
-    local was = playing
-    if type(info) == "table" and info.title then
-      playing = info.playing == true
-      local text = info.artist and info.artist ~= "" and (info.artist .. " — " .. info.title) or info.title
-      now:set({
-        icon = { string = playing and icons.media.pause or icons.media.play },
-        label = { string = text, color = playing and colors.fg or colors.muted },
-      })
-      -- keep showing a paused track; hide only when nothing is loaded
-      playing = true
-    else
-      playing = false
-    end
-    if was ~= playing then apply() end
-  end)
+-- One long-lived `media-control stream` pushes now-playing changes as a sketchybar event
+-- (instead of polling `media-control get` every few seconds). INFO: playing<US>title<US>artist,
+-- empty title when nothing is loaded. The old bridge goes when sketchybar loads.
+local SEP = "\31"
+sbar.add("event", "media_update")
+local dir = os.getenv("CONFIG_DIR") or (os.getenv("HOME") .. "/.config/sketchybar")
+sbar.exec("pkill -f '[m]edia_stream.sh'; pkill -f '[m]edia-control stream'", function()
+  sbar.exec(string.format("nohup %q >/dev/null 2>&1 &", dir .. "/plugins/media_stream.sh"))
+end)
+
+now:subscribe("media_update", function(env)
+  local state, title, artist = tostring(env.INFO or ""):match("^([^" .. SEP .. "]*)" .. SEP .. "([^" .. SEP .. "]*)" .. SEP .. "(.*)$")
+  local was = playing
+  if title and title ~= "" then
+    local is_playing = state == "true"
+    local text = artist ~= "" and (artist .. " — " .. title) or title
+    now:set({
+      icon = { string = is_playing and icons.media.pause or icons.media.play },
+      label = { string = text, color = is_playing and colors.fg or colors.muted },
+    })
+    -- keep showing a paused track; hide only when nothing is loaded
+    playing = true
+  else
+    playing = false
+  end
+  if was ~= playing then apply() end
 end)
 
 now:subscribe("mouse.clicked", function() sbar.exec("media-control toggle-play-pause") end)
