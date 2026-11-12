@@ -65,12 +65,12 @@ alias dcr='docker compose restart' dcs='docker compose start' dcp='docker compos
 cs() { z "$@" && eza --icons -ahliH; }
 md() { markdown "$1" | lynx -stdin; }
 
-# refresh sketchybar's brew count after brew update/upgrade/outdated
+# refresh tip's brew count after brew update/upgrade/outdated
 brew() {
   command brew "$@"
   local rc=$?
-  if [[ " $* " == *" upgrade "* || " $* " == *" update "* || " $* " == *" outdated "* ]] && command -v sketchybar >/dev/null; then
-    (bash ~/.config/sketchybar/plugins/brew_refresh.sh &) >/dev/null 2>&1
+  if [[ " $* " == *" upgrade "* || " $* " == *" update "* || " $* " == *" outdated "* ]] && [[ -f ~/.config/tip/brew_refresh.sh ]]; then
+    (bash ~/.config/tip/brew_refresh.sh &) >/dev/null 2>&1
   fi
   return $rc
 }

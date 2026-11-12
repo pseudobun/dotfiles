@@ -1,0 +1,75 @@
+// tip — ~/.config/tip/config.json5 (JSON5: comments and trailing commas are fine).
+// Every key is optional; deleting a line keeps its default. Saved changes apply at once.
+// `tip config check` lists problems, `tip config show` prints the whole effective config.
+{
+  // og | og-light | modern | minimal | solarpunk | cyberpunk | follow-paw | follow-hop,
+  // or the name of a file in ~/.config/tip/themes/ (`tip theme new <name>` writes one)
+  theme: "og",
+
+  bar: {
+    height: 40,
+    position: "top",                  // top | bottom
+    margin: { left: 25, right: 34 },  // lines the islands up with paw's window edges
+    yOffset: 0,
+    material: "none",                 // none | glass (Liquid Glass behind the whole bar)
+    displays: [],                     // [] = all, ["main"], or display names
+    minCenterWidth: 1800,             // narrower displays hide the center zone
+  },
+
+  island: {
+    height: 28,
+    // radius: 9,                     // default: the theme's
+    gap: 6,                           // between islands
+    padding: 10,                      // inside an island, at its ends
+    spacing: 10,                      // between items in an island
+    iconGap: 5,                       // icon → label
+    material: "solid",                // solid | glass
+  },
+
+  animation: { enabled: true, durationMs: 220, easing: "easeOutCubic" }, // linear | easeOutCubic | easeOutQuint | easeInOut | spring
+
+  // Islands per zone: each inner list is one rounded island of item ids.
+  // "default" applies to every display; "builtin" (the notched laptop display),
+  // "external" or a display's name override single zones. These merge over the defaults.
+  layout: {
+    default: {
+      left: [["apple"], ["workspaces"], ["zoom"], ["front_app"], ["brew"]],
+      center: [["media"]],
+      right: [["markets"], ["cpu", "net", "battery"], ["clock"]],
+    },
+    builtin: { center: [] },
+  },
+
+  // Items: a provider (built in), a plugin's items, or a script. Keys merge over the
+  // defaults below; `name: null` removes one. Every item also takes click, rightClick,
+  // scrollUp, scrollDown (actions: "zen", "popup", "toggle-label", "open:<url>", "app:<name>",
+  // "shell:<cmd>", "paw:<command>", "hop:<args>", "tip:<command>", "media:toggle"),
+  // icon ("sf:<symbol>", "app:<bundle id>" or text), label, color and display
+  // ("all" | "main" | "builtin" | "external").
+  items: {
+    apple: { provider: "apple" },
+    workspaces: { provider: "workspaces", appsPerWorkspace: 6, ignore: ["Screen Studio", "Raycast", "Dropover"] },
+    zoom: { provider: "zoom" },
+    front_app: { provider: "front_app" },
+    brew: { provider: "brew" },
+    media: { provider: "media", maxChars: 48 },
+    clock: { provider: "clock", click: "zen" },
+    battery: { provider: "battery" },
+    net: { provider: "network", click: "toggle-label" },
+    cpu: { provider: "cpu" },
+    markets: { plugin: "com.pseudobun.tip.markets" },
+    // uptime: { command: "uptime | sed 's/.*up \\([^,]*\\),.*/\\1/'", interval: 300, icon: "sf:clock.arrow.circlepath" },
+  },
+
+  // Zen mode (click the clock, `tip zen`, or the hotkey) hides everything but `keep`.
+  zen: { hotkey: "", keep: ["workspaces", "zoom", "clock", "media"] },
+
+  // Installed plugins' preferences by id; `${NAME}` reads ~/.config/tip/.env.
+  plugins: {
+    disabled: [],
+    "com.pseudobun.tip.markets": { etherscanKey: "${ETH_API_KEY}" },
+  },
+
+  openAtLogin: true,
+  updates: { check: true, automatic: false, channel: "auto" }, // auto | stable | beta
+}

@@ -8,7 +8,7 @@
 	<array>
 		<string>/bin/bash</string>
 		<string>-c</string>
-		<string>exec /bin/bash "$HOME/.config/sketchybar/plugins/brew_refresh.sh" --update</string>
+		<string>exec /bin/bash "$HOME/.config/tip/brew_refresh.sh" --update</string>
 	</array>
 	<key>EnvironmentVariables</key>
 	<dict>

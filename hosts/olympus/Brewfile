@@ -178,7 +178,7 @@ npm "pnpm"
 npm "rea-agents"
 npm "vercel"
 
-# --- not installed through brew before, needed by bootstrap, sketchybar and the desktop ---
+# --- not installed through brew before, needed by bootstrap, tip and the desktop ---
 tap "felixkratz/formulae", trusted: true
 brew "defaultbrowser"
 brew "dockutil"
@@ -189,8 +189,8 @@ brew "lua"
 brew "mas"
 brew "media-control"
 brew "switchaudio-osx"
-brew "felixkratz/formulae/sketchybar"
-cask "sf-symbols"          # SF Pro: sketchybar's icons (the Apple logo, symbols)
+# brew "felixkratz/formulae/sketchybar"   # replaced by tip (pseudobun/tip); kept commented for a rollback
+cask "sf-symbols"          # SF Symbols browser for tip icons ("sf:<name>")
 cask "docker-desktop"
 cask "font-geist-mono-nerd-font"
 cask "font-jetbrains-mono-nerd-font"

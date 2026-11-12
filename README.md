@@ -1,6 +1,6 @@
 # pseudobun's dotfiles
 
-This repository contains dotfiles and images for my workspace (fish, Ghostty, sketchybar, paw and hop configs, desktop wallpapers). Wallpaper assets used have been downloaded from [Ethereum's official Assets site](https://ethereum.org/en/assets/).
+This repository contains dotfiles and images for my workspace (fish, Ghostty, tip, paw and hop configs, desktop wallpapers). Wallpaper assets used have been downloaded from [Ethereum's official Assets site](https://ethereum.org/en/assets/).
 
 ## Bootstrapping:
 

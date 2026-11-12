@@ -192,7 +192,7 @@
     windowFocused: "",
     windowsChanged: "",
     modeChanged: "",
-    displaysChanged: "~/.config/sketchybar/plugins/displays_changed.sh",
+    displaysChanged: "", // tip follows display changes by itself
   },
 
   mouse: {

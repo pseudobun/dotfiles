@@ -4,7 +4,7 @@
 # ============================================================================
 #
 #  Rebuilds a Mac from scratch: CLI tools, Homebrew + Brewfile, shell, keys,
-#  dotfile links, sketchybar, dev tools, macOS defaults and services.
+#  dotfile links, tip, dev tools, macOS defaults and services.
 #
 #  Fresh machine:
 #    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/pseudobun/dotfiles/main/bootstrap.sh)"
@@ -59,7 +59,7 @@ STEP_TITLES=(
     "Fish shell"
     "GPG"
     "SSH key"
-    "Dotfile links & sketchybar"
+    "Dotfile links & tip"
     "Fish configuration"
     "Development tools"
     "macOS defaults"
@@ -635,6 +635,12 @@ link_config() {
     success "$name ${C_GREY}→ ${dst/#$HOME/~} (shared + hosts/$HOST/$dir)${C_RESET}"
 }
 
+# tip, the menu bar (pseudobun/tip): its config, themes and the brew-refresh script live in tip/.
+setup_tip() {
+    link "$dotfiles_path/tip" "$HOME/.config/tip" "tip config"
+}
+
+# The old bar, kept for a rollback until tip has run a while: not linked or started by default.
 setup_sketchybar() {
     link "$dotfiles_path/sketchybar" "$HOME/.config/sketchybar" "sketchybar config"
 
@@ -660,17 +666,17 @@ setup_sketchybar() {
 # They decrypt with the age key, which arrives with `just secrets-import` (that decrypts them too).
 decrypt_env() {
     local key="$HOME/Library/Application Support/sops/age/keys.txt"
-    if [[ -f "$dotfiles_path/hop/.env" && -f "$dotfiles_path/hop/snippets.json5" && -f "$dotfiles_path/sketchybar/env.local.sh" ]]; then
+    if [[ -f "$dotfiles_path/hop/.env" && -f "$dotfiles_path/hop/snippets.json5" && -f "$dotfiles_path/tip/.env" ]]; then
         success "secret .env files already decrypted"
     elif [[ -f "$key" ]] && command -v sops &>/dev/null; then
         if bash "$dotfiles_path/scripts/env.sh" decrypt >>"$LOG" 2>&1; then
-            success "decrypted hop/.env, hop/snippets.json5 and sketchybar/env.local.sh"
+            success "decrypted hop/.env, hop/snippets.json5 and tip/.env"
         else
             warn "the .env files did not decrypt (see the log)"
             followup "Decrypt the .env files: cd ~/.dotfiles && just decrypt"
         fi
     else
-        note "no age key yet — hop bookmarks and the sketchybar gas item wait for the .env files"
+        note "no age key yet — hop bookmarks and tip's gas price wait for the .env files"
         followup "After 'just secrets-import <file>' the .env files decrypt on their own (or: cd ~/.dotfiles && just decrypt)"
     fi
 }
@@ -696,7 +702,7 @@ step_links() {
         success "workspace folders ${C_GREY}→ ~/repos/personal, ~/repos/lutra${C_RESET}"
     fi
 
-    setup_sketchybar
+    setup_tip
     decrypt_env
     link_config paw "$HOME/.config/paw" "paw config"
     link_config hop "$HOME/.config/hop" "hop config"
@@ -709,7 +715,7 @@ step_links() {
         done
     fi
 
-    # brew-refresh: hourly `brew outdated` for the sketchybar brew item
+    # brew-refresh: hourly `brew outdated` for tip's brew item
     # shell-env: SHELL=fish for GUI apps (T3 Code terminals and agents, editors)
     local agent plist
     mkdir -p "$HOME/Library/LaunchAgents"
@@ -763,10 +769,10 @@ step_devtools() {
 }
 
 step_macos() {
-    note "menu bar hidden (sketchybar) · dock · finder · input · Spotlight shortcuts off · dark mode"
+    note "menu bar hidden (tip) · dock · finder · input · Spotlight shortcuts off · dark mode"
     if ! ask_yes_no "Apply macOS defaults?"; then return 2; fi
     local w="defaults write"
-    # menu bar: hidden, sketchybar replaces it
+    # menu bar: hidden, tip replaces it
     $w NSGlobalDomain _HIHideMenuBar -bool true
     $w com.apple.controlcenter AutoHideMenuBarOption -int 0   # macOS 15+: "always" auto-hide
     # dock
@@ -1244,12 +1250,16 @@ step_server() {
 }
 
 step_services() {
-    if ! ask_yes_no "Start sketchybar?"; then return 2; fi
+    if ! ask_yes_no "Start tip (the menu bar)?"; then return 2; fi
 
     if command -v sketchybar &>/dev/null; then
-        run "sketchybar" brew services restart sketchybar || warn "sketchybar did not start"
+        run "stop sketchybar (tip replaces it)" brew services stop sketchybar || true
+    fi
+    if [[ -d /Applications/tip.app ]]; then
+        run "tip" open -a tip || warn "tip did not start"
+        followup "tip starts at login once openAtLogin is on: tip settings, or openAtLogin: true in ~/.config/tip/config.json5"
     else
-        warn "sketchybar is not installed"
+        warn "tip is not installed (brew install --cask pseudobun/tap/tip@beta, or just install in ~/repos/tip)"
     fi
     return 0
 }

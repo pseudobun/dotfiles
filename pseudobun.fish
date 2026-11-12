@@ -82,10 +82,10 @@ end
 function brew
     command brew $argv
     if contains upgrade $argv; or contains update $argv; or contains outdated $argv
-        # Recompute the cached count in this full-shell env (sketchybar's own
-        # plugin process can't run `brew outdated` — hits its fd cap). Detached
+        # Recompute the cached count tip's brew item shows, in this full-shell env
+        # (a bar can't run `brew outdated` itself — hits its fd cap). Detached
         # so the prompt returns immediately.
-        command -q sketchybar; and fish -c "bash ~/.config/sketchybar/plugins/brew_refresh.sh" &
+        test -f ~/.config/tip/brew_refresh.sh; and fish -c "bash ~/.config/tip/brew_refresh.sh" &
         disown
     end
 end

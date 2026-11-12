@@ -342,7 +342,7 @@ brew "espressif/eim/eim"
 # macOS VMs (bootstrap tests)
 brew "openai/tools/tart"
 # Custom macOS statusbar with shell plugin, interaction and graph support
-brew "felixkratz/formulae/sketchybar"
+# brew "felixkratz/formulae/sketchybar"   # replaced by tip (pseudobun/tip); kept commented for a rollback
 # CLI for GitOps continuous delivery
 brew "fluxcd/tap/flux", trusted: true
 # Terminal-based battery and energy monitor for macos and linux
