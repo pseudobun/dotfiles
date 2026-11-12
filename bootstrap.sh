@@ -333,22 +333,21 @@ step_clone() {
 
 brewfile() { printf '%s\n' "$dotfiles_path/hosts/$HOST/Brewfile"; }
 
-# brew bundle fetches everything first, then installs; count both against the Brewfile
-# (dependencies count too, so the numbers are approximate and capped at the total).
+# brew bundle fetches everything first, then installs. Downloads include dependencies and
+# manifests, so they are a plain file count; installs are counted against the Brewfile
+# (dependencies count too, so that number is approximate and capped at the total).
 brew_bundle_status() {
     local total dl inst prefix="${HOMEBREW_PREFIX:-/opt/homebrew}"
     total=$(grep -cE '^(brew|cask) ' "$(brewfile)")
     dl=$(ls "$HOME/Library/Caches/Homebrew/downloads" 2>/dev/null | grep -vc '\.incomplete$')
     inst=$(( $(ls "$prefix/Cellar" 2>/dev/null | wc -l) + $(ls "$prefix/Caskroom" 2>/dev/null | wc -l) ))
-    (( dl > total )) && dl=$total
     (( inst > total )) && inst=$total
     if (( inst > 0 )); then
-        printf 'installed %d/%d · downloaded %d/%d' "$inst" "$total" "$dl" "$total"
+        printf 'installed ~%d/%d' "$inst" "$total"
     else
-        printf 'downloading %d/%d' "$dl" "$total"
+        printf 'downloading · %d files' "$dl"
     fi
 }
-mas_ids() { grep -E '^mas ' "$(brewfile)" | sed -E 's/.*id: *([0-9]+).*/\1/' | tr '\n' ' '; }
 
 step_homebrew() {
     if ! ask_yes_no "Install Homebrew and everything in the Brewfile?"; then
