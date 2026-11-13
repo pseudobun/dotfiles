@@ -5,6 +5,7 @@
   // og | og-light | modern | minimal | solarpunk | cyberpunk | follow-paw | follow-hop,
   // or the name of a file in ~/.config/tip/themes/ (`tip theme new <name>` writes one)
   theme: "og",
+  glass: true,                        // Liquid Glass islands and popups (false = solid)
 
   bar: {
     height: 40,
@@ -23,7 +24,6 @@
     padding: 10,                      // inside an island, at its ends
     spacing: 10,                      // between items in an island
     iconGap: 5,                       // icon → label
-    material: "solid",                // solid | glass
   },
 
   animation: { enabled: true, durationMs: 220, easing: "easeOutCubic" }, // linear | easeOutCubic | easeOutQuint | easeInOut | spring
