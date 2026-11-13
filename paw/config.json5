@@ -143,6 +143,7 @@
     // Indicator look: a theme (og, og-light, modern, minimal, solarpunk, cyberpunk), then keys that
     // override it. Commented keys show the theme's value; paw theme <name> or Settings → Appearance switch it.
     theme: "og",
+    glass: true,                      // Liquid Glass indicators and HUD (false = flat)
     // font: "GeistMono Nerd Font",
     // fontSize: 12,
     // fontWeight: "medium",
