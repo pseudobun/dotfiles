@@ -807,9 +807,9 @@ step_macos() {
     return 0
 }
 
-# The bunny wallpaper on every display: portrait displays get the portrait one.
+# The shapes wallpaper on every display: portrait displays get the portrait one.
 set_wallpaper() {
-    local land="$dotfiles_path/wallpapers/bunny-4k-landscape.png" port="$dotfiles_path/wallpapers_portrait/bunny-4k-portrait.png"
+    local land="$dotfiles_path/wallpapers/shapes-4k-landscape.png" port="$dotfiles_path/wallpapers_portrait/shapes-4k-portrait.png"
     [[ -f "$land" && -f "$port" ]] || { warn "wallpapers missing in the repo"; return 0; }
     if osascript -l JavaScript - "$land" "$port" >>"$LOG" 2>&1 <<'JXA'
 ObjC.import('AppKit')
