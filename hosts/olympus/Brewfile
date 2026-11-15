@@ -1,4 +1,6 @@
+tap "cameroncooke/axe", trusted: true
 tap "espressif/eim", trusted: true
+tap "mobai-app/tap", trusted: true
 tap "pseudobun/tap", trusted: true
 tap "shaunsingh/sfmono-nerd-font-ligaturized", "https://github.com/shaunsingh/homebrew-SFMono-Nerd-Font-Ligaturized", trusted: true
 tap "supabase/tap", trusted: true
@@ -181,16 +183,17 @@ npm "rea-agents"
 npm "vercel"
 
 # --- not installed through brew before, needed by bootstrap, tip and the desktop ---
+brew "cameroncooke/axe/axe"       # iOS simulator UI automation
 brew "defaultbrowser"
+brew "git-filter-repo"
+brew "gitleaks"
+brew "mobai-app/tap/simslim"     # slim iOS simulators (~4x less RAM)
 brew "dockutil"
-brew "fastfetch"
 brew "ifstat"
 brew "jq"
 brew "lua"
-brew "mas"
 brew "media-control"
 brew "switchaudio-osx"
-cask "sf-symbols"          # SF Symbols browser for tip icons ("sf:<name>")
 cask "docker-desktop"
 cask "font-geist-mono-nerd-font"
 cask "font-jetbrains-mono-nerd-font"
