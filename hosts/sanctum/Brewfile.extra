@@ -1,0 +1,9 @@
+# Cutter (cask "cutter") is installed by bootstrap.sh install_cutter: its DMG is not notarized
+# and brew cannot mount it while quarantined.
+
+# Not in Homebrew — install by hand (bootstrap lists them at the end):
+#   ExpressLRS Configurator   https://github.com/ExpressLRS/ExpressLRS-Configurator/releases
+#   Imaging Edge Desktop      https://www.sony.net/disoft/
+#   Blackmagic Proxy Generator Lite, VelociDrone, Liftoff (Steam)
+#   eOIActivator, SETCCE proXSign (Slovenian e-ID and e-signature)
+#   Storyteller apps: ArtCraft Launcher, CADCraft, LightCraft, PdfCraft

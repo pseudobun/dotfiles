@@ -496,9 +496,10 @@ cargo "cargo-generate"
 cargo "graphql_client_cli"
 cargo "wasm-pack"
 uv "nano-pdf"
+npm "clawhub"
 npm "pnpm"
-# REA: reverse engineering MCP server + CLI (skill reverse-engineer-anything comes with claude-config)
 npm "rea-agents"
+
 # Cutter (cask "cutter") is installed by bootstrap.sh install_cutter: its DMG is not notarized
 # and brew cannot mount it while quarantined.
 

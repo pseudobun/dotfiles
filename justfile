@@ -16,10 +16,16 @@ edit-env path:
 # This Mac's Brewfile: hosts/<host>/Brewfile (host = bootstrap's choice, else the hostname).
 brewfile := "hosts/" + `cat ~/.config/dotfiles/host 2>/dev/null || scutil --get LocalHostName | tr '[:upper:]' '[:lower:]'` + "/Brewfile"
 
-# Formulae from untrusted taps are skipped by the dump — check `just brew-untrusted` first.
-# Snapshot everything installed (formulae, casks, taps, mas, go, vscode) into this Mac's Brewfile.
+# Snapshot everything installed (formulae, casks, taps, mas, go, npm, vscode) into this Mac's Brewfile,
+# then append the hand-written <Brewfile>.extra (notes, apps outside Homebrew) when it exists.
+# npm globals come from Homebrew's node, not fnm's. Untrusted taps make the dump drop their formulae.
 brew-dump:
-    brew bundle dump --file {{brewfile}} --force
+    #!/usr/bin/env bash
+    set -euo pipefail
+    untrusted=$(brew tap-info --installed --json | jq -r '.[] | select(.trusted == false) | .name')
+    if [ -n "$untrusted" ]; then echo "untrusted taps (run: brew trust --tap <tap>):"; echo "$untrusted"; exit 1; fi
+    PATH="$(brew --prefix)/bin:$PATH" brew bundle dump --file {{brewfile}} --force
+    if [ -f {{brewfile}}.extra ]; then { echo; cat {{brewfile}}.extra; } >> {{brewfile}}; fi
 
 # What this Mac's Brewfile lists but is not installed on this machine.
 brew-check:
