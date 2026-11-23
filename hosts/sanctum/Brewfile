@@ -319,6 +319,8 @@ brew "websocat"
 brew "wget"
 # Tools for the WireGuard secure network tunnel
 brew "wireguard-tools"
+# Swift command-line tool to generate your Xcode project
+brew "xcodegen"
 # Tool for managing your YubiKey configuration
 brew "ykman"
 # Feature-rich command-line audio/video downloader
