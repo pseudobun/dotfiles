@@ -79,7 +79,7 @@
         "6": { display: "builtin", layout: "stack", tiles: [ { apps: ["Mail", "KeePassXC"] } ] },
         "7": { display: "builtin", layout: "stack", tiles: [ { apps: ["Finder"] } ] },
         "8": { display: "DELL", layout: "stack", tiles: [ { apps: ["Discord", "Spotify"] } ] },
-        "9": { display: "Gigabyte", layout: "bsp", tiles: [ { apps: ["Brave Browser"], size: 2 }, { apps: ["T3 Code (Beta)"], size: 1 } ] },
+        "9": { display: "Gigabyte", layout: "bsp", tiles: [ { apps: ["Brave Browser"], size: 1 }, { apps: ["T3 Code (Beta)"], size: 1 } ] },
       },
     },
     laptop: {
@@ -106,7 +106,7 @@
         "6": { display: "builtin", layout: "stack", tiles: [ { apps: ["Mail", "KeePassXC"] } ] },
         "7": { display: "builtin", layout: "stack", tiles: [ { apps: ["Finder"] } ] },
         "8": { display: "DELL", layout: "stack", tiles: [ { apps: ["Discord", "Spotify"] } ] },
-        "9": { display: "PHL", layout: "bsp", tiles: [ { apps: ["Brave Browser"], size: 2 }, { apps: ["T3 Code (Beta)"], size: 1 } ] },
+        "9": { display: "PHL", layout: "bsp", tiles: [ { apps: ["Brave Browser"], size: 1 }, { apps: ["T3 Code (Beta)"], size: 1 } ] },
       },
     },
   },
