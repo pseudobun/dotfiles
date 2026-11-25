@@ -9,7 +9,6 @@ typeset -U path
 path=(
   "$PNPM_HOME"
   "$HOME/.bb"
-  "$HOME/.fuelup/bin"
   "$HOME/.local/bin"
   "$BUN_INSTALL/bin"
   "$HOME/.cargo/bin"

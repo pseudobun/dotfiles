@@ -1,7 +1,6 @@
 source $HOME/.config/fish/pseudobun.fish
 # claude, uv tools and other user-local CLIs
 fish_add_path -g $HOME/.local/bin
-export PATH="$HOME/.fuelup/bin:$PATH"
 
 set -gx PATH $HOME/.bb $PATH
 command -q uv; and uv generate-shell-completion fish | source
