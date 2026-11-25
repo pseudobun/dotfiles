@@ -670,6 +670,7 @@ step_links() {
     link "$d/pseudobun.fish"           "$HOME/.config/fish/pseudobun.fish"      "pseudobun.fish"
     link "$d/fish/config.fish"         "$HOME/.config/fish/config.fish"         "config.fish"
     link_each "$d/fish/conf.d"         "$HOME/.config/fish/conf.d"              "fish conf.d"
+    link_each "$d/fish/completions"    "$HOME/.config/fish/completions"         "fish completions"
     link "$d/zsh/zshrc"                "$HOME/.zshrc"                           ".zshrc (mirror of the fish setup)"
 
     if [[ $HOST == olympus ]]; then
