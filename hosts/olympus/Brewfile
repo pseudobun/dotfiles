@@ -1,5 +1,6 @@
 tap "cameroncooke/axe", trusted: true
 tap "espressif/eim", trusted: true
+tap "kdbhalala/avdslim", "https://github.com/kdbhalala/avdslim.git", trusted: true
 tap "mobai-app/tap", trusted: true
 tap "pseudobun/tap", trusted: true
 tap "shaunsingh/sfmono-nerd-font-ligaturized", "https://github.com/shaunsingh/homebrew-SFMono-Nerd-Font-Ligaturized", trusted: true
@@ -188,6 +189,7 @@ brew "defaultbrowser"
 brew "git-filter-repo"
 brew "gitleaks"
 brew "mobai-app/tap/simslim"     # slim iOS simulators (~4x less RAM)
+brew "kdbhalala/avdslim/avdslim" # slim Android emulators (~8.5 GB -> ~2.5 GB)
 brew "dockutil"
 brew "ifstat"
 brew "jq"
